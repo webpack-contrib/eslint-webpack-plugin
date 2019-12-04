@@ -1,7 +1,7 @@
 {
   "name": "eslint-webpack-plugin",
   "version": "0.0.1",
-  "description": "A eslint plugin for webpack",
+  "description": "A ESLint plugin for webpack",
   "license": "MIT",
   "repository": "webpack-contrib/eslint-webpack-plugin",
   "author": "Ricardo Gobbo de Souza <ricardogobbosouza@yahoo.com.br>",
