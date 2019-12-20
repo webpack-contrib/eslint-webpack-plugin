@@ -34,7 +34,7 @@ export default function linter(options, compiler, callback) {
 
     let { errors, warnings } = parseResults(options, results);
 
-    compiler.hooks.afterCompile.tapAsync(
+    compiler.hooks.afterEmit.tapAsync(
       'ESLintWebpackPlugin',
       (compilation, next) => {
         if (warnings.length > 0) {
@@ -85,7 +85,15 @@ export default function linter(options, compiler, callback) {
       callback();
     }
   } catch (e) {
-    callback(e);
+    compiler.hooks.afterEmit.tapAsync(
+      'ESLintWebpackPlugin',
+      (compilation, next) => {
+        compilation.errors.push(new ESLintError(e.message));
+        next();
+      }
+    );
+
+    callback();
   }
 }
 
