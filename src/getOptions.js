@@ -1,10 +1,10 @@
 import validateOptions from 'schema-utils';
 
 import schema from './options.json';
+import getCLIEngine from './getCLIEngine';
 
 export default function getOptions(pluginOptions) {
   const options = {
-    eslintPath: 'eslint',
     files: '.',
     ...pluginOptions,
   };
@@ -14,7 +14,7 @@ export default function getOptions(pluginOptions) {
     baseDataPath: 'options',
   });
 
-  const { CLIEngine } = require(options.eslintPath);
+  const { CLIEngine } = getCLIEngine(options, false);
 
   options.formatter = getFormatter(CLIEngine, options.formatter);
 

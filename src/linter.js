@@ -3,11 +3,11 @@ import { isAbsolute, join } from 'path';
 import { writeFileSync, ensureFileSync } from 'fs-extra';
 
 import ESLintError from './ESLintError';
+import getCLIEngine from './getCLIEngine';
 
 export default function linter(options, compiler, callback) {
   try {
-    const { CLIEngine } = require(options.eslintPath);
-    const cli = new CLIEngine(options);
+    const { CLIEngine, cli } = getCLIEngine(options);
     const report = cli.executeOnFiles(options.files);
 
     // filter ignored files
