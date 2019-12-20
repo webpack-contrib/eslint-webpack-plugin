@@ -1,5 +1,6 @@
 import { isMatch } from 'micromatch';
 
+import getCLIEngine from './getCLIEngine';
 import linter from './linter';
 
 export default class LintDirtyModulesPlugin {
@@ -21,8 +22,12 @@ export default class LintDirtyModulesPlugin {
       return;
     }
 
+    const { cli } = getCLIEngine(this.options);
     const dirtyOptions = { ...this.options };
-    const glob = dirtyOptions.files.join('|').replace(/\\/g, '/');
+    const glob = cli
+      .resolveFileGlobPatterns(dirtyOptions.files)
+      .join('|')
+      .replace(/\\/g, '/');
     const changedFiles = this.getChangedFiles(fileTimestamps, glob);
 
     this.prevTimestamps = fileTimestamps;
