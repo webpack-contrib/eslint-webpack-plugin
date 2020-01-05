@@ -84,7 +84,7 @@ Will enable [ESLint autofix feature](http://eslint.org/docs/user-guide/command-l
 - Type: `String|Function`
 - Default: `'stylish'`
 
-Accepts a function that will have one argument: an array of eslint messages (object). The function must return the output as a string.
+Accepts a function that will have one argument: an array of eslint messages (object). The function must return the output as a string. You can use official [eslint formatters](https://eslint.org/docs/user-guide/formatters/).
 
 ### `lintDirtyModulesOnly`
 
