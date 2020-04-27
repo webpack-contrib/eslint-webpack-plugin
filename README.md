@@ -158,8 +158,8 @@ if none is passed in the default/configured formatter will be used.
 [node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin.svg
 [deps-url]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin
-[tests]: https://dev.azure.com/webpack/eslint-webpack-plugin/_apis/build/status/webpack-contrib.eslint-webpack-plugin?branchName=master
-[tests-url]: https://dev.azure.com/webpack/eslint-webpack-plugin/_build/latest?definitionId=10&branchName=master
+[tests]: https://github.com/webpack-contrib/eslint-webpack-plugin/workflows/eslint-webpack-plugin/badge.svg
+[tests-url]: https://github.com/webpack-contrib/eslint-webpack-plugin/actions
 [cover]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin/branch/master/graph/badge.svg
 [cover-url]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin
 [chat]: https://badges.gitter.im/webpack/webpack.svg
