@@ -8,18 +8,22 @@
   "homepage": "https://github.com/webpack-contrib/eslint-webpack-plugin",
   "bugs": "https://github.com/webpack-contrib/eslint-webpack-plugin/issues",
   "main": "dist/cjs.js",
+  "types": "declarations/index.d.ts",
   "engines": {
     "node": ">= 10.13.0"
   },
   "scripts": {
     "start": "npm run build -- -w",
-    "clean": "del-cli dist",
+    "clean": "del-cli dist declarations",
     "prebuild": "npm run clean",
-    "build": "cross-env NODE_ENV=production babel src -d dist --copy-files",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir declarations && prettier \"declarations/**/*.ts\" --write",
+    "build:code": "cross-env NODE_ENV=production babel src -d dist --copy-files",
+    "build": "npm-run-all -p \"build:**\"",
     "commitlint": "commitlint --from=master",
     "security": "npm audit",
     "lint:prettier": "prettier --list-different .",
     "lint:js": "eslint --cache .",
+    "lint:types": "tsc --pretty --noEmit",
     "lint": "npm-run-all -l -p \"lint:**\"",
     "test:only": "cross-env NODE_ENV=test jest",
     "test:watch": "npm run test:only -- --watch",
@@ -31,7 +35,8 @@
     "defaults": "webpack-defaults"
   },
   "files": [
-    "dist"
+    "dist",
+    "declarations"
   ],
   "peerDependencies": {
     "eslint": "^6.0.0 || ^7.0.0",
@@ -67,6 +72,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.5",
     "standard-version": "^7.1.0",
+    "typescript": "^3.8.3",
     "webpack": "^4.43.0"
   },
   "keywords": [
