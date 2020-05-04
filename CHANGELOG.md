@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v0.1.0...v1.0.0) (2020-05-04)
+
+### ⚠ BREAKING CHANGES
+
+* minimum supported Node.js version is `10.13`
+* minimum supported eslint version is `6.0.0`
+
 ## [0.1.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v0.0.1...v0.1.0) (2019-12-20)
 
 
