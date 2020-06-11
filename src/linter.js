@@ -32,20 +32,19 @@ export default async function linter(options, compiler, callback) {
       return;
     }
 
+    const formatter = await loadFormatter(cli, options.formatter);
     let { errors, warnings } = parseResults(options, results);
 
     compiler.hooks.afterEmit.tapAsync(
       'ESLintWebpackPlugin',
       (compilation, next) => {
         if (warnings.length > 0) {
-          compilation.warnings.push(
-            new ESLintError(options.formatter(warnings))
-          );
+          compilation.warnings.push(new ESLintError(formatter(warnings)));
           warnings = [];
         }
 
         if (errors.length > 0) {
-          compilation.errors.push(new ESLintError(options.formatter(errors)));
+          compilation.errors.push(new ESLintError(formatter(errors)));
           errors = [];
         }
 
@@ -53,34 +52,37 @@ export default async function linter(options, compiler, callback) {
       }
     );
 
-    compiler.hooks.emit.tapAsync('ESLintWebpackPlugin', (compilation, next) => {
-      const { outputReport } = options;
+    compiler.hooks.emit.tapAsync(
+      'ESLintWebpackPlugin',
+      async (compilation, next) => {
+        const { outputReport } = options;
 
-      if (!outputReport || !outputReport.filePath) {
+        if (!outputReport || !outputReport.filePath) {
+          next();
+          return;
+        }
+
+        const content = outputReport.formatter
+          ? (await loadFormatter(cli, outputReport.formatter))(results)
+          : formatter(results);
+
+        let { filePath } = outputReport;
+
+        if (!isAbsolute(filePath)) {
+          filePath = join(compilation.compiler.outputPath, filePath);
+        }
+
+        ensureFileSync(filePath);
+        writeFileSync(filePath, content);
+
         next();
-        return;
       }
-
-      const content = outputReport.formatter
-        ? outputReport.formatter(results)
-        : options.formatter(results);
-
-      let { filePath } = outputReport;
-
-      if (!isAbsolute(filePath)) {
-        filePath = join(compilation.compiler.outputPath, filePath);
-      }
-
-      ensureFileSync(filePath);
-      writeFileSync(filePath, content);
-
-      next();
-    });
+    );
 
     if (options.failOnError && errors.length > 0) {
-      callback(new ESLintError(options.formatter(errors)));
+      callback(new ESLintError(formatter(errors)));
     } else if (options.failOnWarning && warnings.length > 0) {
-      callback(new ESLintError(options.formatter(warnings)));
+      callback(new ESLintError(formatter(warnings)));
     } else {
       callback();
     }
@@ -132,4 +134,20 @@ function fileHasErrors(file) {
 
 function fileHasWarnings(file) {
   return file.warningCount > 0;
+}
+
+async function loadFormatter(cli, formatter) {
+  if (typeof formatter === 'function') {
+    return formatter;
+  }
+
+  if (typeof formatter === 'string') {
+    try {
+      return cli.getFormatter(formatter);
+    } catch (_) {
+      // Load the default formatter.
+    }
+  }
+
+  return cli.getFormatter();
 }
