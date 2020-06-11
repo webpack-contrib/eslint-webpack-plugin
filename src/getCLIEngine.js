@@ -1,3 +1,5 @@
+import { getESLintOptions } from './options';
+
 export default function getCLIEngine(options, startCli = true) {
   let { eslintPath, CLIEngine, cli } = options;
 
@@ -16,7 +18,8 @@ export default function getCLIEngine(options, startCli = true) {
   }
 
   if (!cli && startCli) {
-    cli = new CLIEngine(options);
+    // Filter out loader options before passing the options to ESLint.
+    cli = new CLIEngine(getESLintOptions(options));
 
     // eslint-disable-next-line no-param-reassign
     options.cli = cli;

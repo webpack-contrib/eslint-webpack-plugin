@@ -2,7 +2,7 @@ import { isAbsolute, join } from 'path';
 
 import arrify from 'arrify';
 
-import getOptions from './getOptions';
+import { getOptions } from './options';
 import LintDirtyModulesPlugin from './LintDirtyModulesPlugin';
 import linter from './linter';
 
