@@ -5,7 +5,7 @@ import { writeFileSync, ensureFileSync } from 'fs-extra';
 import ESLintError from './ESLintError';
 import getCLIEngine from './getCLIEngine';
 
-export default function linter(options, compiler, callback) {
+export default async function linter(options, compiler, callback) {
   try {
     const { CLIEngine, cli } = getCLIEngine(options);
     const report = cli.executeOnFiles(options.files);
