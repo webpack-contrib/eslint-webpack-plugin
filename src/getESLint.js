@@ -1,18 +1,18 @@
 import { getESLintOptions } from './options';
 
-export default function getCLIEngine(options) {
+export default function getESLint(options) {
   let { eslintPath } = options;
 
   if (!eslintPath) {
     eslintPath = 'eslint';
   }
 
-  const { CLIEngine } = require(eslintPath);
+  const { ESLint } = require(eslintPath);
 
   // Filter out loader options before passing the options to ESLint.
-  const cli = new CLIEngine(getESLintOptions(options));
+  const eslint = new ESLint(getESLintOptions(options));
   return {
-    CLIEngine,
-    cli,
+    ESLint,
+    eslint,
   };
 }
