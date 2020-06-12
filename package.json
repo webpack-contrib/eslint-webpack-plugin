@@ -38,7 +38,7 @@
     "dist"
   ],
   "peerDependencies": {
-    "eslint": "^6.0.0 || ^7.0.0",
+    "eslint": "^7.0.0",
     "webpack": "^4.0.0 || ^5.0.0"
   },
   "dependencies": {
