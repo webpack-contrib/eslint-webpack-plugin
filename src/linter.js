@@ -5,83 +5,13 @@ import { writeFileSync, ensureFileSync } from 'fs-extra';
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
 
-export default async function linter(options, compiler, callback) {
+export default async function linter(options, compiler) {
+  let ESLint;
+  let eslint;
+  let rawResults = [];
   try {
-    const { ESLint, eslint } = getESLint(options);
-    const rawResults = await eslint.lintFiles(options.files);
-
-    // Filter out ignored files.
-    const results = await removeIgnoredWarnings(rawResults, eslint);
-
-    // do not analyze if there are no results or eslint config
-    if (!results || results.length < 1) {
-      callback();
-      return;
-    }
-
-    // if enabled, use eslint autofixing where possible
-    if (options.fix) {
-      await ESLint.outputFixes(results);
-    }
-
-    const formatter = await loadFormatter(eslint, options.formatter);
-    let { errors, warnings } = parseResults(options, results);
-
-    compiler.hooks.afterEmit.tapAsync(
-      'ESLintWebpackPlugin',
-      (compilation, next) => {
-        if (warnings.length > 0) {
-          compilation.warnings.push(
-            new ESLintError(formatter.format(warnings))
-          );
-          warnings = [];
-        }
-
-        if (errors.length > 0) {
-          compilation.errors.push(new ESLintError(formatter.format(errors)));
-          errors = [];
-        }
-
-        next();
-      }
-    );
-
-    compiler.hooks.emit.tapAsync(
-      'ESLintWebpackPlugin',
-      async (compilation, next) => {
-        const { outputReport } = options;
-
-        if (!outputReport || !outputReport.filePath) {
-          next();
-          return;
-        }
-
-        const content = outputReport.formatter
-          ? (await loadFormatter(eslint, outputReport.formatter)).format(
-              results
-            )
-          : formatter.format(results);
-
-        let { filePath } = outputReport;
-
-        if (!isAbsolute(filePath)) {
-          filePath = join(compilation.compiler.outputPath, filePath);
-        }
-
-        ensureFileSync(filePath);
-        writeFileSync(filePath, content);
-
-        next();
-      }
-    );
-
-    if (options.failOnError && errors.length > 0) {
-      callback(new ESLintError(formatter.format(errors)));
-    } else if (options.failOnWarning && warnings.length > 0) {
-      callback(new ESLintError(formatter.format(warnings)));
-    } else {
-      callback();
-    }
+    ({ ESLint, eslint } = getESLint(options));
+    rawResults = await eslint.lintFiles(options.files);
   } catch (e) {
     compiler.hooks.afterEmit.tapAsync(
       'ESLintWebpackPlugin',
@@ -90,8 +20,73 @@ export default async function linter(options, compiler, callback) {
         next();
       }
     );
+    return;
+  }
 
-    callback();
+  // Filter out ignored files.
+  const results = await removeIgnoredWarnings(rawResults, eslint);
+
+  // do not analyze if there are no results or eslint config
+  if (!results || results.length < 1) {
+    return;
+  }
+
+  // if enabled, use eslint autofixing where possible
+  if (options.fix) {
+    await ESLint.outputFixes(results);
+  }
+
+  const formatter = await loadFormatter(eslint, options.formatter);
+  let { errors, warnings } = parseResults(options, results);
+
+  compiler.hooks.afterEmit.tapAsync(
+    'ESLintWebpackPlugin',
+    (compilation, next) => {
+      if (warnings.length > 0) {
+        compilation.warnings.push(new ESLintError(formatter.format(warnings)));
+        warnings = [];
+      }
+
+      if (errors.length > 0) {
+        compilation.errors.push(new ESLintError(formatter.format(errors)));
+        errors = [];
+      }
+
+      next();
+    }
+  );
+
+  compiler.hooks.emit.tapAsync(
+    'ESLintWebpackPlugin',
+    async (compilation, next) => {
+      const { outputReport } = options;
+
+      if (!outputReport || !outputReport.filePath) {
+        next();
+        return;
+      }
+
+      const content = outputReport.formatter
+        ? (await loadFormatter(eslint, outputReport.formatter)).format(results)
+        : formatter.format(results);
+
+      let { filePath } = outputReport;
+
+      if (!isAbsolute(filePath)) {
+        filePath = join(compilation.compiler.outputPath, filePath);
+      }
+
+      ensureFileSync(filePath);
+      writeFileSync(filePath, content);
+
+      next();
+    }
+  );
+
+  if (options.failOnError && errors.length > 0) {
+    throw new ESLintError(formatter.format(errors));
+  } else if (options.failOnWarning && warnings.length > 0) {
+    throw new ESLintError(formatter.format(warnings));
   }
 }
 

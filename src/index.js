@@ -29,13 +29,13 @@ class ESLintWebpackPlugin {
         lintDirty.apply(compilation, callback);
       });
     } else {
-      compiler.hooks.run.tapAsync(plugin, (compilation, callback) => {
-        linter(options, compilation, callback);
+      compiler.hooks.run.tapPromise(plugin, (compilation) => {
+        return linter(options, compilation);
       });
 
       /* istanbul ignore next */
-      compiler.hooks.watchRun.tapAsync(plugin, (compilation, callback) => {
-        linter(options, compilation, callback);
+      compiler.hooks.watchRun.tapPromise(plugin, (compilation) => {
+        return linter(options, compilation);
       });
     }
   }
