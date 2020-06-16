@@ -3,7 +3,7 @@ import { isAbsolute, join } from 'path';
 import arrify from 'arrify';
 
 import { getOptions } from './options';
-import LintDirtyModulesPlugin from './LintDirtyModulesPlugin';
+import DirtyFileWatcher from './DirtyFileWatcher';
 import linter from './linter';
 
 class ESLintWebpackPlugin {
@@ -22,20 +22,23 @@ class ESLintWebpackPlugin {
     const plugin = { name: this.constructor.name };
 
     if (options.lintDirtyModulesOnly) {
-      const lintDirty = new LintDirtyModulesPlugin(compiler, options);
+      const dirtyFileWatcher = new DirtyFileWatcher(options);
 
       /* istanbul ignore next */
-      compiler.hooks.watchRun.tapAsync(plugin, (compilation, callback) => {
-        lintDirty.apply(compilation, callback);
+      compiler.hooks.watchRun.tapPromise(plugin, async (runCompiler) => {
+        const files = dirtyFileWatcher.getDirtyFiles(runCompiler);
+        if (files.length > 0) {
+          await linter({ ...options, files }, runCompiler);
+        }
       });
     } else {
-      compiler.hooks.run.tapPromise(plugin, (compilation) => {
-        return linter(options, compilation);
+      compiler.hooks.run.tapPromise(plugin, (runCompiler) => {
+        return linter(options, runCompiler);
       });
 
       /* istanbul ignore next */
-      compiler.hooks.watchRun.tapPromise(plugin, (compilation) => {
-        return linter(options, compilation);
+      compiler.hooks.watchRun.tapPromise(plugin, (runCompiler) => {
+        return linter(options, runCompiler);
       });
     }
   }
