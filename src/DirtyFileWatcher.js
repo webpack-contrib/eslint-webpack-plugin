@@ -1,8 +1,11 @@
+import { statSync } from 'fs';
+
 import { isMatch } from 'micromatch';
 
 export default class DirtyFileWatcher {
-  constructor({ files = [] }) {
+  constructor({ files = [], extensions = ['js'] }) {
     this.patterns = files;
+    this.extensions = extensions;
     this.startTime = Date.now();
     this.prevTimestamps = {};
     this.isFirstRun = true;
@@ -18,15 +21,18 @@ export default class DirtyFileWatcher {
       return [];
     }
 
-    const glob = this.patterns.join('|').replace(/\\/g, '/');
-    const changedFiles = this.filterChangedFiles(fileTimestamps, glob);
+    const unixPatterns = this.patterns.map((pattern) => {
+      return pattern.replace(/\\/gu, '/');
+    });
+    const globs = parseFoldersToGlobs(unixPatterns, this.extensions);
+    const changedFiles = this.filterChangedFiles(fileTimestamps, globs);
 
     this.prevTimestamps = fileTimestamps;
 
     return changedFiles;
   }
 
-  filterChangedFiles(fileTimestamps, glob) {
+  filterChangedFiles(fileTimestamps, globs) {
     const getTimestamps = (fileSystemInfoEntry) => {
       return fileSystemInfoEntry && fileSystemInfoEntry.timestamp
         ? fileSystemInfoEntry.timestamp
@@ -43,11 +49,29 @@ export default class DirtyFileWatcher {
     const changedFiles = [];
 
     for (const [filename, timestamp] of fileTimestamps.entries()) {
-      if (hasFileChanged(filename, timestamp) && isMatch(filename, glob)) {
+      if (hasFileChanged(filename, timestamp) && isMatch(filename, globs)) {
         changedFiles.push(filename);
       }
     }
 
     return changedFiles;
   }
+}
+
+function parseFoldersToGlobs(patterns, extensions) {
+  const extensionsGlob = extensions
+    .map((extension) => extension.replace(/^\./u, ''))
+    .join(',');
+  return patterns.map((pattern) => {
+    try {
+      // The patterns are absolute because they are prepended with the context.
+      const stats = statSync(pattern);
+      if (stats.isDirectory()) {
+        return pattern.replace(/[/\\]?$/u, `/**/*.{${extensionsGlob}}`);
+      }
+    } catch (_) {
+      // Return the pattern as is on error.
+    }
+    return pattern;
+  });
 }
