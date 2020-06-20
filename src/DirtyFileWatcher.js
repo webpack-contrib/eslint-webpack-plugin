@@ -4,11 +4,14 @@ import { isMatch } from 'micromatch';
 
 export default class DirtyFileWatcher {
   constructor({ files = [], extensions = ['js'] }) {
-    this.patterns = files;
-    this.extensions = extensions;
     this.startTime = Date.now();
     this.prevTimestamps = {};
     this.isFirstRun = true;
+
+    const unixPatterns = files.map((pattern) => {
+      return pattern.replace(/\\/gu, '/');
+    });
+    this.globs = parseFoldersToGlobs(unixPatterns, extensions);
   }
 
   getDirtyFiles({ fileTimestamps = new Map() }) {
@@ -17,15 +20,11 @@ export default class DirtyFileWatcher {
       this.prevTimestamps = fileTimestamps;
       return [];
     }
-    if (this.patterns.length <= 0 || fileTimestamps.length <= 0) {
+    if (this.globs.length <= 0 || fileTimestamps.length <= 0) {
       return [];
     }
 
-    const unixPatterns = this.patterns.map((pattern) => {
-      return pattern.replace(/\\/gu, '/');
-    });
-    const globs = parseFoldersToGlobs(unixPatterns, this.extensions);
-    const changedFiles = this.filterChangedFiles(fileTimestamps, globs);
+    const changedFiles = this.filterChangedFiles(fileTimestamps, this.globs);
 
     this.prevTimestamps = fileTimestamps;
 
