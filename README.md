@@ -81,7 +81,9 @@ Path to `eslint` instance that will be used for linting. If the `eslintPath` is 
 - Type: `String|Array[String]`
 - Default: `'.'`
 
-Specify the files and/or directories to traverse. Must be relative to `options.context`.
+Specify directories, files, or globs. Must be relative to `options.context`.
+Directories are traveresed recursively looking for files matching `options.extensions`.
+File and glob patterns ignore `options.extensions`.
 
 ### `fix`
 
