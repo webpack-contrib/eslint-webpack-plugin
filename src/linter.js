@@ -5,7 +5,7 @@ import { writeFileSync, ensureFileSync } from 'fs-extra';
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
 
-export default async function linter(options, compiler) {
+export default async function linter(options, compiler, plugin) {
   let ESLint;
   let eslint;
   let rawResults = [];
@@ -13,12 +13,9 @@ export default async function linter(options, compiler) {
     ({ ESLint, eslint } = getESLint(options));
     rawResults = await eslint.lintFiles(options.files);
   } catch (e) {
-    compiler.hooks.afterEmit.tapPromise(
-      'ESLintWebpackPlugin',
-      async (compilation) => {
-        compilation.errors.push(new ESLintError(e.message));
-      }
-    );
+    compiler.hooks.afterEmit.tapPromise(plugin, async (compilation) => {
+      compilation.errors.push(new ESLintError(e.message));
+    });
     return;
   }
 
@@ -38,22 +35,19 @@ export default async function linter(options, compiler) {
   const formatter = await loadFormatter(eslint, options.formatter);
   let { errors, warnings } = parseResults(options, results);
 
-  compiler.hooks.afterEmit.tapPromise(
-    'ESLintWebpackPlugin',
-    async (compilation) => {
-      if (warnings.length > 0) {
-        compilation.warnings.push(new ESLintError(formatter.format(warnings)));
-        warnings = [];
-      }
-
-      if (errors.length > 0) {
-        compilation.errors.push(new ESLintError(formatter.format(errors)));
-        errors = [];
-      }
+  compiler.hooks.afterEmit.tapPromise(plugin, async (compilation) => {
+    if (warnings.length > 0) {
+      compilation.warnings.push(new ESLintError(formatter.format(warnings)));
+      warnings = [];
     }
-  );
 
-  compiler.hooks.emit.tapPromise('ESLintWebpackPlugin', async (compilation) => {
+    if (errors.length > 0) {
+      compilation.errors.push(new ESLintError(formatter.format(errors)));
+      errors = [];
+    }
+  });
+
+  compiler.hooks.emit.tapPromise(plugin, async (compilation) => {
     const { outputReport } = options;
 
     if (!outputReport || !outputReport.filePath) {

@@ -28,17 +28,17 @@ class ESLintWebpackPlugin {
       compiler.hooks.watchRun.tapPromise(plugin, async (runCompiler) => {
         const files = dirtyFileWatcher.getDirtyFiles(runCompiler);
         if (files.length > 0) {
-          await linter({ ...options, files }, runCompiler);
+          await linter({ ...options, files }, runCompiler, plugin);
         }
       });
     } else {
       compiler.hooks.run.tapPromise(plugin, (runCompiler) => {
-        return linter(options, runCompiler);
+        return linter(options, runCompiler, plugin);
       });
 
       /* istanbul ignore next */
       compiler.hooks.watchRun.tapPromise(plugin, (runCompiler) => {
-        return linter(options, runCompiler);
+        return linter(options, runCompiler, plugin);
       });
     }
   }
