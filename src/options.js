@@ -18,12 +18,15 @@ export function getOptions(pluginOptions) {
 
 export function getESLintOptions(loaderOptions) {
   const eslintOptions = { ...loaderOptions };
+
   // Keep the fix option because it is common to both the loader and ESLint.
   const { fix, ...eslintOnlyOptions } = schema.properties;
+
   // No need to guard the for-in because schema.properties has hardcoded keys.
   // eslint-disable-next-line guard-for-in
   for (const option in eslintOnlyOptions) {
     delete eslintOptions[option];
   }
+
   return eslintOptions;
 }

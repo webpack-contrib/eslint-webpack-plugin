@@ -11,6 +11,7 @@ export default function getESLint(options) {
 
   // Filter out loader options before passing the options to ESLint.
   const eslint = new ESLint(getESLintOptions(options));
+
   return {
     ESLint,
     eslint,

@@ -9,6 +9,7 @@ export default async function linter(options, compiler, plugin) {
   let ESLint;
   let eslint;
   let rawResults = [];
+
   try {
     ({ ESLint, eslint } = getESLint(options));
     rawResults = await eslint.lintFiles(options.files);
@@ -16,11 +17,12 @@ export default async function linter(options, compiler, plugin) {
     compiler.hooks.afterEmit.tapPromise(plugin, async (compilation) => {
       compilation.errors.push(new ESLintError(e.message));
     });
+
     return;
   }
 
   // Filter out ignored files.
-  const results = await removeIgnoredWarnings(rawResults, eslint);
+  const results = await removeIgnoredWarnings(eslint, rawResults);
 
   // do not analyze if there are no results or eslint config
   if (!results || results.length < 1) {
@@ -128,7 +130,7 @@ async function loadFormatter(eslint, formatter) {
   return eslint.loadFormatter();
 }
 
-async function removeIgnoredWarnings(results, eslint) {
+async function removeIgnoredWarnings(eslint, results) {
   const filterPromises = results.map(async (result) => {
     // Short circuit the call to isPathIgnored.
     //   fatal is false for ignored file warnings.
