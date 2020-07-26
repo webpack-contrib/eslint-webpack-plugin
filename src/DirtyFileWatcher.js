@@ -8,9 +8,7 @@ export default class DirtyFileWatcher {
     this.prevTimestamps = {};
     this.isFirstRun = true;
 
-    const unixPatterns = files.map((pattern) => {
-      return pattern.replace(/\\/gu, '/');
-    });
+    const unixPatterns = files.map((pattern) => pattern.replace(/\\/gu, '/'));
     this.globs = parseFoldersToGlobs(unixPatterns, extensions);
   }
 
@@ -20,6 +18,7 @@ export default class DirtyFileWatcher {
       this.prevTimestamps = fileTimestamps;
       return [];
     }
+
     if (this.globs.length <= 0 || fileTimestamps.length <= 0) {
       return [];
     }
@@ -61,6 +60,7 @@ function parseFoldersToGlobs(patterns, extensions) {
   const extensionsGlob = extensions
     .map((extension) => extension.replace(/^\./u, ''))
     .join(',');
+
   return patterns.map((pattern) => {
     try {
       // The patterns are absolute because they are prepended with the context.
