@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v1.0.0...v2.0.0) (2020-07-26)
+
+
+### Features
+
+* ESLint class migration ([#11](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/11)) ([efd5e7d](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/efd5e7d01b8569c5dcb2808f618f56e4857fcf52)), closes [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10) [#10](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/10)
+
+### ⚠ BREAKING CHANGES
+
+* minimum supported eslint version is `7`
+
 ## [1.0.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v0.1.0...v1.0.0) (2020-05-04)
 
 ### ⚠ BREAKING CHANGES
