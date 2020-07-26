@@ -54,11 +54,13 @@ module.exports = {
 
 ## Options
 
-You can pass [eslint options](http://eslint.org/docs/developer-guide/nodejs-api#cliengine).
+You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-new-eslint-options).
 
-Note that the config option you provide will be passed to the `CLIEngine`.
+Note that the config option you provide will be passed to the `ESLint` class.
 This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
-See the [eslint docs](http://eslint.org/docs/developer-guide/nodejs-api#cliengine) for more detail.
+See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-new-eslint-options) for more details.
+
+**Warning**: In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
 ### `context`
 
@@ -79,7 +81,9 @@ Path to `eslint` instance that will be used for linting. If the `eslintPath` is 
 - Type: `String|Array[String]`
 - Default: `'.'`
 
-Specify the files and/or directories to traverse. Must be relative to `options.context`.
+Specify directories, files, or globs. Must be relative to `options.context`.
+Directories are traveresed recursively looking for files matching `options.extensions`.
+File and glob patterns ignore `options.extensions`.
 
 ### `fix`
 
