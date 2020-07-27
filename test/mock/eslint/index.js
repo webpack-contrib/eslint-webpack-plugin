@@ -1,12 +1,8 @@
-function CLIEngine() {}
-
-CLIEngine.prototype.isPathIgnored = function isPathIgnored() {
-  return false;
-};
-
-CLIEngine.prototype.executeOnFiles = function executeOnFiles() {
-  return {
-    results: [
+class ESLintMock {
+  // Disabled because these are simplified mock methods.
+  // eslint-disable-next-line class-methods-use-this
+  async lintFiles() {
+    return [
       {
         filePath: '',
         messages: [
@@ -16,8 +12,6 @@ CLIEngine.prototype.executeOnFiles = function executeOnFiles() {
             message: 'Fake error',
             line: 1,
             column: 11,
-            nodeType: 'Identifier',
-            source: 'var foo = stuff',
           },
         ],
         errorCount: 2,
@@ -26,37 +20,18 @@ CLIEngine.prototype.executeOnFiles = function executeOnFiles() {
         fixableWarningCount: 0,
         source: '',
       },
-    ],
-    errorCount: 2,
-    warningCount: 0,
-    fixableErrorCount: 0,
-    fixableWarningCount: 0,
-  };
-};
-
-CLIEngine.prototype.getFormatter = function getFormatter(format) {
-  const resolvedFormatName = format || 'stylish';
-
-  if (typeof resolvedFormatName !== 'string') {
-    return null;
+    ];
   }
-
-  const eslintVersion = require('./package.json').version;
-  const formatterPath =
-    eslintVersion >= '6.0.0'
-      ? './lib/cli-engine/formatters/stylish'
-      : './lib/formatters/stylish';
-
-  try {
-    return require(formatterPath);
-  } catch (ex) {
-    ex.message = `There was a problem loading formatter: ${formatterPath}\nError: ${ex.message}`;
-    throw ex;
+  // eslint-disable-next-line class-methods-use-this
+  async loadFormatter() {
+    return {
+      format(results) {
+        return JSON.stringify(results);
+      },
+    };
   }
-};
-
-CLIEngine.getFormatter = CLIEngine.prototype.getFormatter;
+}
 
 module.exports = {
-  CLIEngine,
+  ESLint: ESLintMock,
 };
