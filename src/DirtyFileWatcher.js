@@ -1,25 +1,31 @@
-import { statSync } from 'fs';
-
 import { isMatch } from 'micromatch';
 
-export default class DirtyFileWatcher {
-  constructor({ files = [], extensions = ['js'] }) {
-    this.startTime = Date.now();
-    this.prevTimestamps = {};
-    this.isFirstRun = true;
+import { parseFoldersToGlobs } from './utils';
 
-    const unixPatterns = files.map((pattern) => pattern.replace(/\\/gu, '/'));
-    this.globs = parseFoldersToGlobs(unixPatterns, extensions);
+export default class DirtyFileWatcher {
+  /**
+   * @param {string|string[]=} files
+   * @param {string|string[]=} extensions
+   */
+  constructor(files = [], extensions = 'js') {
+    this.startTime = Date.now();
+    this.prevTimestamps = new Map();
+    this.isFirstRun = true;
+    this.globs = parseFoldersToGlobs(files, extensions);
   }
 
-  getDirtyFiles({ fileTimestamps = new Map() }) {
+  /**
+   * @param {Map<string,number>=} fileTimestamps
+   * @returns {string[]}
+   */
+  getDirtyFiles(fileTimestamps = new Map()) {
     if (this.isFirstRun) {
       this.isFirstRun = false;
       this.prevTimestamps = fileTimestamps;
       return [];
     }
 
-    if (this.globs.length <= 0 || fileTimestamps.length <= 0) {
+    if (this.globs.length <= 0 || fileTimestamps.size <= 0) {
       return [];
     }
 
@@ -30,13 +36,32 @@ export default class DirtyFileWatcher {
     return changedFiles;
   }
 
+  /**
+   * @param {Map<string,number>} fileTimestamps
+   * @param {string|string[]} globs
+   * @returns {string[]}
+   */
   filterChangedFiles(fileTimestamps, globs) {
+    /**
+     * @param {{timestamp:number}|number} fileSystemInfoEntry
+     * @returns {number}
+     */
     const getTimestamps = (fileSystemInfoEntry) => {
-      return fileSystemInfoEntry && fileSystemInfoEntry.timestamp
-        ? fileSystemInfoEntry.timestamp
-        : fileSystemInfoEntry;
+      // @ts-ignore
+      if (fileSystemInfoEntry && fileSystemInfoEntry.timestamp) {
+        // @ts-ignore
+        return fileSystemInfoEntry.timestamp;
+      }
+
+      // @ts-ignore
+      return fileSystemInfoEntry;
     };
 
+    /**
+     * @param {string} filename
+     * @param {{timestamp:number}|number} fileSystemInfoEntry
+     * @returns {boolean}
+     */
     const hasFileChanged = (filename, fileSystemInfoEntry) => {
       const prevTimestamp = getTimestamps(this.prevTimestamps.get(filename));
       const timestamp = getTimestamps(fileSystemInfoEntry);
@@ -54,23 +79,4 @@ export default class DirtyFileWatcher {
 
     return changedFiles;
   }
-}
-
-function parseFoldersToGlobs(patterns, extensions) {
-  const extensionsGlob = extensions
-    .map((extension) => extension.replace(/^\./u, ''))
-    .join(',');
-
-  return patterns.map((pattern) => {
-    try {
-      // The patterns are absolute because they are prepended with the context.
-      const stats = statSync(pattern);
-      if (stats.isDirectory()) {
-        return pattern.replace(/[/\\]?$/u, `/**/*.{${extensionsGlob}}`);
-      }
-    } catch (_) {
-      // Return the pattern as is on error.
-    }
-    return pattern;
-  });
 }

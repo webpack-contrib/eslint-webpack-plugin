@@ -1,4 +1,6 @@
 export default class ESLintError extends Error {
-  constructor(messages: any);
-  stack: boolean;
+  /**
+   * @param {string=} messages
+   */
+  constructor(messages?: string | undefined);
 }
