@@ -51,8 +51,7 @@
     "fs-extra": "^9.0.1",
     "micromatch": "^4.0.2",
     "schema-utils": "^2.7.0",
-    "@types/eslint": "^7.2.0",
-    "@types/webpack": "^4.41.21"
+    "@types/eslint": "^7.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.5",
@@ -62,6 +61,7 @@
     "@commitlint/config-conventional": "^9.1.1",
     "@types/fs-extra": "^9.0.1",
     "@types/micromatch": "^4.0.1",
+    "@types/webpack": "^4.41.21",
     "@webpack-contrib/defaults": "^6.3.0",
     "@webpack-contrib/eslint-config-webpack": "^3.0.0",
     "babel-eslint": "^10.1.0",
