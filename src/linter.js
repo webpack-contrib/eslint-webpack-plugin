@@ -5,18 +5,40 @@ import { writeFileSync, ensureFileSync } from 'fs-extra';
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
 
-export default async function linter(options, compiler, plugin) {
+/** @typedef {import('eslint').ESLint} ESLint */
+/** @typedef {import('eslint').ESLint.Formatter} Formatter */
+/** @typedef {import('eslint').ESLint.LintResult} LintResult */
+/** @typedef {import('webpack').Compiler} Compiler */
+/** @typedef {import('./options').Options} Options */
+/** @typedef {import('./options').FormatterFunction} FormatterFunction */
+
+/**
+ * @param {Options} options
+ * @param {Compiler} compiler
+ * @returns {Promise<void>}
+ */
+export default async function linter(options, compiler) {
+  /** @type {ESLint} */
   let ESLint;
+
+  /** @type {ESLint} */
   let eslint;
+
+  /** @type {LintResult[]} */
   let rawResults = [];
 
   try {
     ({ ESLint, eslint } = getESLint(options));
+
+    // @ts-ignore
     rawResults = await eslint.lintFiles(options.files);
   } catch (e) {
-    compiler.hooks.afterEmit.tapPromise(plugin, async (compilation) => {
-      compilation.errors.push(new ESLintError(e.message));
-    });
+    compiler.hooks.afterEmit.tapPromise(
+      'ESLintWebpackPlugin',
+      async (compilation) => {
+        compilation.errors.push(new ESLintError(e.message));
+      }
+    );
 
     return;
   }
@@ -31,25 +53,29 @@ export default async function linter(options, compiler, plugin) {
 
   // if enabled, use eslint autofixing where possible
   if (options.fix) {
+    // @ts-ignore
     await ESLint.outputFixes(results);
   }
 
   const formatter = await loadFormatter(eslint, options.formatter);
   let { errors, warnings } = parseResults(options, results);
 
-  compiler.hooks.afterEmit.tapPromise(plugin, async (compilation) => {
-    if (warnings.length > 0) {
-      compilation.warnings.push(new ESLintError(formatter.format(warnings)));
-      warnings = [];
-    }
+  compiler.hooks.afterEmit.tapPromise(
+    'ESLintWebpackPlugin',
+    async (compilation) => {
+      if (warnings.length > 0) {
+        compilation.warnings.push(new ESLintError(formatter.format(warnings)));
+        warnings = [];
+      }
 
-    if (errors.length > 0) {
-      compilation.errors.push(new ESLintError(formatter.format(errors)));
-      errors = [];
+      if (errors.length > 0) {
+        compilation.errors.push(new ESLintError(formatter.format(errors)));
+        errors = [];
+      }
     }
-  });
+  );
 
-  compiler.hooks.emit.tapPromise(plugin, async (compilation) => {
+  compiler.hooks.emit.tapPromise('ESLintWebpackPlugin', async (compilation) => {
     const { outputReport } = options;
 
     if (!outputReport || !outputReport.filePath) {
@@ -77,8 +103,17 @@ export default async function linter(options, compiler, plugin) {
   }
 }
 
+/**
+ *
+ * @param {Options} options
+ * @param {LintResult[]} results
+ * @returns {{errors: LintResult[], warnings: LintResult[]}}
+ */
 function parseResults(options, results) {
+  /** @type {LintResult[]} */
   let errors = [];
+
+  /** @type {LintResult[]} */
   let warnings = [];
 
   if (options.emitError) {
@@ -106,14 +141,27 @@ function parseResults(options, results) {
   };
 }
 
+/**
+ * @param {LintResult} file
+ * @returns {boolean}
+ */
 function fileHasErrors(file) {
   return file.errorCount > 0;
 }
 
+/**
+ * @param {LintResult} file
+ * @returns {boolean}
+ */
 function fileHasWarnings(file) {
   return file.warningCount > 0;
 }
 
+/**
+ * @param {ESLint} eslint
+ * @param {string|FormatterFunction=} formatter
+ * @returns {Promise<Formatter>}
+ */
 async function loadFormatter(eslint, formatter) {
   if (typeof formatter === 'function') {
     return { format: formatter };
@@ -130,6 +178,11 @@ async function loadFormatter(eslint, formatter) {
   return eslint.loadFormatter();
 }
 
+/**
+ * @param {ESLint} eslint
+ * @param {LintResult[]} results
+ * @returns {Promise<LintResult[]>}
+ */
 async function removeIgnoredWarnings(eslint, results) {
   const filterPromises = results.map(async (result) => {
     // Short circuit the call to isPathIgnored.
@@ -147,5 +200,6 @@ async function removeIgnoredWarnings(eslint, results) {
     return ignored ? false : result;
   });
 
+  // @ts-ignore
   return (await Promise.all(filterPromises)).filter((result) => !!result);
 }

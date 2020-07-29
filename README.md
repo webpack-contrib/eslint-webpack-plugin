@@ -85,12 +85,19 @@ Specify directories, files, or globs. Must be relative to `options.context`.
 Directories are traveresed recursively looking for files matching `options.extensions`.
 File and glob patterns ignore `options.extensions`.
 
+### `extensions`
+
+- Type: `String|Array[String]`
+- Default: `'js'`
+
+Specify extensions that should be checked.
+
 ### `fix`
 
 - Type: `Boolean`
 - Default: `false`
 
-Will enable [ESLint autofix feature](http://eslint.org/docs/user-guide/command-line-interface#fix).
+Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-eslint-outputfixes-results).
 
 **Be careful: this option will change source files.**
 

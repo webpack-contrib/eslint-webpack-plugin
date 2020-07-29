@@ -30,6 +30,10 @@
       "description": "Specify the files and/or directories to traverse. Must be relative to `options.context`.",
       "anyOf": [{ "type": "string" }, { "type": "array" }]
     },
+    "extensions": {
+      "description": "Specify extensions that should be checked.",
+      "anyOf": [{ "type": "string" }, { "type": "array" }]
+    },
     "fix": {
       "description": "Will enable ESLint autofix feature",
       "type": "boolean"

@@ -1,5 +1,12 @@
 import { getESLintOptions } from './options';
 
+/** @typedef {import('eslint').ESLint} ESLint */
+/** @typedef {import('./options').Options} Options */
+
+/**
+ * @param {Options} options
+ * @returns {{ESLint: ESLint, eslint: ESLint}}
+ */
 export default function getESLint(options) {
   let { eslintPath } = options;
 
