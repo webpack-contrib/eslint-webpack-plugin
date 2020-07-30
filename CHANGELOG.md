@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v1.0.0...v2.1.0) (2020-07-30)
+
+
+### Features
+
+* support typescript ([#8](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/8)) ([6634d96](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/6634d96e7e80dd2d7097479f13a48115e0544f59))
+
 ## [2.0.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v1.0.0...v2.0.0) (2020-07-26)
 
 
