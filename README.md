@@ -26,6 +26,43 @@ The plugin was born with the purpose of solving some problems of the [eslint-loa
 | Using cache directly from eslint |  :heavy_check_mark:   | :heavy_multiplication_x: |
 | Lint only changed files          |  :heavy_check_mark:   | :heavy_multiplication_x: |
 
+## Migrate from `eslint-loader`
+
+The loader `eslint-loader` will be deprecated soon, please use this plugin instead.
+
+Before:
+
+```js
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'eslint-loader',
+        options: {
+          // eslint options (if necessary)
+        },
+      },
+    ],
+  },
+  // ...
+};
+```
+
+After:
+
+```js
+const ESLintPlugin = require('eslint-webpack-plugin');
+
+module.exports = {
+  // ...
+  plugins: [new ESLintPlugin(options)],
+  // ...
+};
+```
+
 ## Install
 
 ```bash
