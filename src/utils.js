@@ -15,7 +15,7 @@ export function parseFiles(files, context) {
       `${replaceBackslashes(context).replace(
         UNESCAPED_GLOB_SYMBOLS_RE,
         '\\$2'
-      )}/${replaceBackslashes(file)}`
+      )}/${replaceBackslashes(file === '.' ? '' : file)}`
   );
 }
 
