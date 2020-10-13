@@ -44,7 +44,10 @@ export function parseFoldersToGlobs(patterns, extensions) {
         // The patterns are absolute because they are prepended with the context.
         const stats = statSync(pattern);
         if (stats.isDirectory()) {
-          return pattern.replace(/[/\\]?$/u, `/**/*.{${extensionsGlob}}`);
+          // only brace if there are more than 1 extensions
+          return extensions.length > 1
+            ? pattern.replace(/[/\\]?$/u, `/**/*.{${extensionsGlob}}`)
+            : pattern.replace(/[/\\]?$/u, `/**/*.${extensionsGlob}`);
         }
       } catch (_) {
         // Return the pattern as is on error.
