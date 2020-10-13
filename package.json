@@ -50,7 +50,7 @@
     "arrify": "^2.0.1",
     "fs-extra": "^9.0.1",
     "micromatch": "^4.0.2",
-    "schema-utils": "^2.7.0",
+    "schema-utils": "^3.0.0",
     "@types/eslint": "^7.2.0"
   },
   "devDependencies": {
