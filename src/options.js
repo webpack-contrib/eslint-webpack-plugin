@@ -1,4 +1,4 @@
-import validateOptions from 'schema-utils';
+import { validate } from 'schema-utils';
 
 import schema from './options.json';
 
@@ -48,7 +48,7 @@ export function getOptions(pluginOptions) {
   };
 
   // @ts-ignore
-  validateOptions(schema, options, {
+  validate(schema, options, {
     name: 'ESLint Webpack Plugin',
     baseDataPath: 'options',
   });
