@@ -15,8 +15,6 @@ export type Options = {
   quiet?: boolean | undefined;
   outputReport?: import('./options').OutputReport | undefined;
 };
-/** @typedef {import('webpack').Compiler} Compiler */
-/** @typedef {import('./options').Options} Options */
 declare class ESLintWebpackPlugin {
   /**
    * @param {Options} options

@@ -4,10 +4,9 @@ import ESLintPlugin from '../../src/index';
 
 export default (entry, pluginConf = {}, webpackConf = {}) => {
   const testDir = join(__dirname, '..');
-  const files = typeof entry === 'string' ? `./${entry}.js` : entry;
 
   return {
-    entry: './index.js',
+    entry: `./${entry}-entry.js`,
     context: join(testDir, 'fixtures'),
     mode: 'development',
     output: {
@@ -15,8 +14,6 @@ export default (entry, pluginConf = {}, webpackConf = {}) => {
     },
     plugins: [
       new ESLintPlugin({
-        files,
-
         // this disables the use of .eslintignore, since it contains the fixtures
         // folder to skip it on the global linting, but here we want the opposite
         // (we only use .eslintignore on the test that checks this)

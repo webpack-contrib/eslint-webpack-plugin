@@ -1,3 +1,5 @@
+import ESLintError from '../src/ESLintError';
+
 import pack from './utils/pack';
 
 describe('eslintignore', () => {
@@ -7,7 +9,10 @@ describe('eslintignore', () => {
     compiler.run((err, stats) => {
       expect(err).toBeNull();
       expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      expect(
+        stats.compilation.errors.filter((x) => x instanceof ESLintError)
+      ).toEqual([]);
+
       done();
     });
   });

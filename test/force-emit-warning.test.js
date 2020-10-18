@@ -2,7 +2,7 @@ import pack from './utils/pack';
 
 describe('force emit warning', () => {
   it('should force to emit warning', (done) => {
-    const compiler = pack(['warn.js', 'error.js'], { emitWarning: true });
+    const compiler = pack('warn-error', { emitWarning: true });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
