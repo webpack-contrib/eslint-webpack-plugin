@@ -97,9 +97,11 @@ export default function linter(options) {
           // ensure directory exists
           // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
           mkdir(dirname(name), { recursive: true }, (err) => {
+            /* istanbul ignore if */
             if (err) bail(err);
             else
               writeFile(name, content, (err2) => {
+                /* istanbul ignore if */
                 if (err2) bail(err2);
                 else finish();
               });
