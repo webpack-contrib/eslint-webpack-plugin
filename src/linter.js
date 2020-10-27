@@ -1,6 +1,5 @@
-import { isAbsolute, join, relative } from 'path';
-
-// import { writeFileSync, ensureFileSync } from 'fs-extra';
+import { dirname, isAbsolute, join } from 'path';
+import { promisify } from 'util';
 
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
@@ -13,8 +12,7 @@ import getESLint from './getESLint';
 /** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
-/** @typedef {{filename: string, source: Source}} ReportContent */
-/** @typedef {(compilation: Compilation) => Promise<ReportContent?>} GenerateReport */
+/** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
 /** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
 /** @typedef {() => Promise<Report>} Reporter */
 /** @typedef {(files: string|string[]) => void} Linter */
@@ -89,18 +87,16 @@ export default function linter(options) {
 
     /**
      * @param {Compilation} compilation
-     * @returns {Promise<ReportContent?>}
+     * @returns {Promise<void>}
      */
-    async function generateReportAsset(compilation) {
+    async function generateReportAsset({ compiler }) {
       const { outputReport } = options;
-      const { RawSource } =
-        // @ts-ignore
-        (compilation.compiler.webpack || {}).sources ||
-        // eslint-disable-next-line import/no-extraneous-dependencies
-        require('webpack-sources');
+      const fs = compiler.outputFileSystem;
+      const mkdirp = promisify(fs.mkdirp);
+      const writeFile = promisify(fs.writeFile);
 
       if (!outputReport || !outputReport.filePath) {
-        return null;
+        return;
       }
 
       const content = outputReport.formatter
@@ -109,16 +105,11 @@ export default function linter(options) {
 
       let { filePath } = outputReport;
       if (!isAbsolute(filePath)) {
-        filePath = join(compilation.compiler.outputPath, filePath);
+        filePath = join(compiler.outputPath, filePath);
       }
 
-      // ensureFileSync(filePath);
-      // writeFileSync(filePath, content);
-
-      return {
-        filename: relative(compilation.compiler.outputPath, filePath),
-        source: new RawSource(content),
-      };
+      await mkdirp(dirname(filePath));
+      await writeFile(filePath, content);
     }
   }
 }

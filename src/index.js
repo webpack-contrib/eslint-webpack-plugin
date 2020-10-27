@@ -78,8 +78,6 @@ class ESLintWebpackPlugin {
     };
 
     compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) => {
-      /** @type {import('./linter').ReportContent?} */
-      let reportAsset = null;
       // Gather Files to lint
       compilation.hooks.succeedModule.tap(ESLINT_PLUGIN, processModule);
       // await and interpret results
@@ -97,46 +95,9 @@ class ESLintWebpackPlugin {
         }
 
         if (generateReportAsset) {
-          reportAsset = await generateReportAsset(compilation);
+          await generateReportAsset(compilation);
         }
       }
-
-      function saveReport() {
-        if (reportAsset) {
-          // @ts-ignore
-          compilation.emitAsset(reportAsset.filename, reportAsset.source);
-        }
-      }
-
-      // FIXME: This works... however, its not ideal?
-      compiler.hooks.emit.tap(ESLINT_PLUGIN, saveReport);
-
-      /*
-       * TODO: from what I can gather, we want to emit the report asset in
-       * processAssets (stage: report) and fallback to additionalChunkAssets
-       * for webpack 4. However these hooks fire before `reportAsset` has
-       * been computed (see processResults above)
-       *
-
-        // Webpack 5
-        if (compiler.webpack && compilation.hooks.processAssets) {
-          const { Compilation } = compiler.webpack;
-          compilation.hooks.processAssets.tap(
-            {
-              name: ESLINT_PLUGIN,
-              stage: Compilation.PROCESS_ASSETS_STAGE_REPORT,
-            },
-            saveReport
-          );
-
-          // Webpack 4
-        } else {
-          compilation.hooks.additionalChunkAssets.tap(
-            ESLINT_PLUGIN,
-            saveReport
-          );
-        }
-        */
     });
   }
 
