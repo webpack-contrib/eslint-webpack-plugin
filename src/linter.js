@@ -1,5 +1,4 @@
 import { dirname, isAbsolute, join } from 'path';
-import { promisify } from 'util';
 
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
@@ -91,9 +90,21 @@ export default function linter(options) {
      */
     async function generateReportAsset({ compiler }) {
       const { outputReport } = options;
-      const fs = compiler.outputFileSystem;
-      const mkdirp = promisify(fs.mkdirp);
-      const writeFile = promisify(fs.writeFile);
+      // @ts-ignore
+      const save = (name, content) =>
+        new Promise((finish, bail) => {
+          const { mkdir, writeFile } = compiler.outputFileSystem;
+          // ensure directory exists
+          // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
+          mkdir(dirname(name), { recursive: true }, (err) => {
+            if (err) bail(err);
+            else
+              writeFile(name, content, (err2) => {
+                if (err2) bail(err2);
+                else finish();
+              });
+          });
+        });
 
       if (!outputReport || !outputReport.filePath) {
         return;
@@ -108,8 +119,7 @@ export default function linter(options) {
         filePath = join(compiler.outputPath, filePath);
       }
 
-      await mkdirp(dirname(filePath));
-      await writeFile(filePath, content);
+      await save(filePath, content);
     }
   }
 }

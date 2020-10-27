@@ -6,8 +6,7 @@
 /** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
-/** @typedef {{filename: string, source: Source}} ReportContent */
-/** @typedef {(compilation: Compilation) => Promise<ReportContent?>} GenerateReport */
+/** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
 /** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
 /** @typedef {() => Promise<Report>} Reporter */
 /** @typedef {(files: string|string[]) => void} Linter */
@@ -46,18 +45,12 @@ export type FormatterFunction = (
   results: import('eslint').ESLint.LintResult[],
   data?: import('eslint').ESLint.LintResultData | undefined
 ) => string;
-export type ReportContent = {
-  filename: string;
-  source: Source;
-};
-export type GenerateReport = (
-  compilation: Compilation
-) => Promise<ReportContent | null>;
+export type GenerateReport = (compilation: Compilation) => Promise<void>;
 export type Report = {
   errors?: ESLintError | undefined;
   warnings?: ESLintError | undefined;
   generateReportAsset?:
-    | ((compilation: Compilation) => Promise<ReportContent | null>)
+    | ((compilation: Compilation) => Promise<void>)
     | undefined;
 };
 export type Reporter = () => Promise<Report>;

@@ -23,6 +23,10 @@ declare class ESLintWebpackPlugin {
   options: import('./options').Options;
   /**
    * @param {Compiler} compiler
+   */
+  run(compiler: Compiler): Promise<void>;
+  /**
+   * @param {Compiler} compiler
    * @returns {void}
    */
   apply(compiler: Compiler): void;
