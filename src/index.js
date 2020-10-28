@@ -41,6 +41,14 @@ class ESLintWebpackPlugin {
    * @param {Compiler} compiler
    */
   async run(compiler) {
+    // Do not re-hook
+    if (
+      compiler.hooks.thisCompilation.taps.find(
+        ({ name }) => name === ESLINT_PLUGIN
+      )
+    )
+      return;
+
     const options = {
       ...this.options,
 
