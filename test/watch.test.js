@@ -1,9 +1,20 @@
 import { join } from 'path';
 import { writeFileSync } from 'fs';
 
+import { removeSync } from 'fs-extra';
+
 import pack from './utils/pack';
 
+const target = join(__dirname, 'fixtures', 'watch-entry.js');
+const targetExpectedPattern = expect.stringMatching(
+  target.replace(/\\/g, '\\\\')
+);
+
 describe('watch', () => {
+  afterEach(() => {
+    removeSync(target);
+  });
+
   it('should watch', (done) => {
     const compiler = pack('good');
 
@@ -17,7 +28,6 @@ describe('watch', () => {
   });
 
   it('should watch with unique messages', (done) => {
-    const target = join(__dirname, 'fixtures', 'watch-entry.js');
     writeFileSync(target, 'var foo = stuff\n');
 
     let next = firstPass;
@@ -31,7 +41,7 @@ describe('watch', () => {
       const { errors } = stats.compilation;
       expect(errors.length).toBe(1);
       const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching(target));
+      expect(message).toEqual(targetExpectedPattern);
       expect(message).toEqual(expect.stringMatching('\\(3 errors,'));
 
       next = secondPass;
@@ -46,7 +56,7 @@ describe('watch', () => {
       const { errors } = stats.compilation;
       expect(errors.length).toBe(1);
       const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching(target));
+      expect(message).toEqual(targetExpectedPattern);
       expect(message).toEqual(expect.stringMatching('no-unused-vars'));
       expect(message).toEqual(expect.stringMatching('\\(1 error,'));
 
@@ -62,7 +72,7 @@ describe('watch', () => {
       const { errors } = stats.compilation;
       expect(errors.length).toBe(1);
       const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching(target));
+      expect(message).toEqual(targetExpectedPattern);
       expect(message).toEqual(expect.stringMatching('no-unused-vars'));
       expect(message).toEqual(expect.stringMatching('\\(1 error,'));
 
