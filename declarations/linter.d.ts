@@ -2,7 +2,7 @@
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('webpack').Compiler} Compiler */
-/** @typedef {import('webpack').compilation.Compilation} Compilation */
+/** @typedef {import('webpack').Compilation} Compilation */
 /** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
@@ -24,7 +24,7 @@ export type ESLint = import('eslint').ESLint;
 export type Formatter = import('eslint').ESLint.Formatter;
 export type LintResult = import('eslint').ESLint.LintResult;
 export type Compiler = import('webpack').Compiler;
-export type Compilation = import('webpack').compilation.Compilation;
+export type Compilation = import('webpack').Compilation;
 export type Source = import('webpack-sources/lib/Source');
 export type Options = {
   context?: string | undefined;
