@@ -43,7 +43,9 @@ class ESLintWebpackPlugin {
   async run(compiler) {
     // Do not re-hook
     if (
+      // @ts-ignore
       compiler.hooks.thisCompilation.taps.find(
+        // @ts-ignore
         ({ name }) => name === ESLINT_PLUGIN
       )
     )
@@ -72,11 +74,8 @@ class ESLintWebpackPlugin {
       return;
     }
 
-    /**
-     * @param {import('webpack').compilation.Module} module
-     */
+    // @ts-ignore
     const processModule = (module) => {
-      // @ts-ignore
       const file = module.resource;
 
       if (file && micromatch.isMatch(file, wanted)) {
@@ -95,10 +94,12 @@ class ESLintWebpackPlugin {
         const { errors, warnings, generateReportAsset } = await report();
 
         if (warnings) {
+          // @ts-ignore
           compilation.warnings.push(warnings);
         }
 
         if (errors) {
+          // @ts-ignore
           compilation.errors.push(errors);
         }
 

@@ -7,7 +7,7 @@ import getESLint from './getESLint';
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('webpack').Compiler} Compiler */
-/** @typedef {import('webpack').compilation.Compilation} Compilation */
+/** @typedef {import('webpack').Compilation} Compilation */
 /** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
@@ -99,6 +99,7 @@ export default function linter(options) {
           mkdir(dirname(name), { recursive: true }, (err) => {
             /* istanbul ignore if */
             if (err) bail(err);
+            // @ts-ignore
             else
               writeFile(name, content, (err2) => {
                 /* istanbul ignore if */
@@ -149,7 +150,6 @@ function formatResults(formatter, results) {
 }
 
 /**
- *
  * @param {Options} options
  * @param {LintResult[]} results
  * @returns {{errors: LintResult[], warnings: LintResult[]}}
