@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v1.0.0...v2.2.0) (2020-11-04)
+
+
+### Features
+
+* feat: only use the import graph, update tests ([#28](https://github.com/webpack-contrib/eslint-webpack-plugin/pull/28)) ([47612f16](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/47612f16894f22f4b5c3848595bba48ca8eb9b0f))
+
+### Bug Fixes
+
+* fix: use compiler.outputFileSystem to write report
+
+* fix: use fs callback forms because webpack5 does not work with promisify on outputFileSystem methods
+
+* fix: do not accumulate more taps as watchRuns occur
+
+* fix: windows path escape, cleanup watch-fixture
+
 ## [2.1.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v1.0.0...v2.1.0) (2020-07-30)
 
 
