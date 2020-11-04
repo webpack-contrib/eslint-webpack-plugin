@@ -18,6 +18,7 @@ describe('autofix stop', () => {
   it('should not throw error if file ok after auto-fixing', (done) => {
     const compiler = pack('fixable-clone', {
       fix: true,
+      extensions: ['js', 'cjs', 'mjs'],
       overrideConfig: {
         rules: { semi: ['error', 'always'] },
       },

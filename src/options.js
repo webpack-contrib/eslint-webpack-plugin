@@ -42,7 +42,7 @@ import schema from './options.json';
  */
 export function getOptions(pluginOptions) {
   const options = {
-    files: '.',
+    files: '',
     extensions: 'js',
     ...pluginOptions,
   };

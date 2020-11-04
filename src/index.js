@@ -1,14 +1,16 @@
 import { isAbsolute, join } from 'path';
 
 import arrify from 'arrify';
+import micromatch from 'micromatch';
 
 import { getOptions } from './options';
-import DirtyFileWatcher from './DirtyFileWatcher';
 import linter from './linter';
-import { parseFiles } from './utils';
+import { parseFiles, parseFoldersToGlobs } from './utils';
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
+
+const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
 
 class ESLintWebpackPlugin {
   /**
@@ -16,6 +18,7 @@ class ESLintWebpackPlugin {
    */
   constructor(options = {}) {
     this.options = getOptions(options);
+    this.run = this.run.bind(this);
   }
 
   /**
@@ -23,6 +26,29 @@ class ESLintWebpackPlugin {
    * @returns {void}
    */
   apply(compiler) {
+    if (!this.options.lintDirtyModulesOnly) {
+      compiler.hooks.run.tapPromise(ESLINT_PLUGIN, this.run);
+    }
+
+    // TODO: Figure out want `compiler.watching` is and how to use it in Webpack5.
+    // From my testing of compiler.watch() ... compiler.watching is always
+    // undefined (webpack 4 doesn't define it either) I'm leaving it out
+    // for now.
+    compiler.hooks.watchRun.tapPromise(ESLINT_PLUGIN, this.run);
+  }
+
+  /**
+   * @param {Compiler} compiler
+   */
+  async run(compiler) {
+    // Do not re-hook
+    if (
+      compiler.hooks.thisCompilation.taps.find(
+        ({ name }) => name === ESLINT_PLUGIN
+      )
+    )
+      return;
+
     const options = {
       ...this.options,
 
@@ -31,38 +57,56 @@ class ESLintWebpackPlugin {
       extensions: arrify(this.options.extensions),
     };
 
-    if (options.lintDirtyModulesOnly) {
-      const dirtyFileWatcher = new DirtyFileWatcher(
-        options.files,
-        options.extensions
-      );
+    const wanted = parseFoldersToGlobs(options.files, options.extensions);
+    /** @type {import('./linter').Linter} */
+    let lint;
+    /** @type {import('./linter').Reporter} */
+    let report;
 
-      /* istanbul ignore next */
-      compiler.hooks.watchRun.tapPromise(
-        'ESLintWebpackPlugin',
-        async (runCompiler) => {
-          const files = dirtyFileWatcher.getDirtyFiles(
-            runCompiler.fileTimestamps
-          );
-
-          if (files.length > 0) {
-            await linter({ ...options, files }, runCompiler);
-          }
-        }
+    try {
+      ({ lint, report } = linter(options));
+    } catch (e) {
+      compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) =>
+        compilation.errors.push(e)
       );
-    } else {
-      compiler.hooks.run.tapPromise('ESLintWebpackPlugin', (runCompiler) => {
-        return linter(options, runCompiler);
-      });
-
-      /* istanbul ignore next */
-      compiler.hooks.watchRun.tapPromise(
-        'ESLintWebpackPlugin',
-        (runCompiler) => {
-          return linter(options, runCompiler);
-        }
-      );
+      return;
     }
+
+    /**
+     * @param {import('webpack').compilation.Module} module
+     */
+    const processModule = (module) => {
+      // @ts-ignore
+      const file = module.resource;
+
+      if (file && micromatch.isMatch(file, wanted)) {
+        // Queue file for linting.
+        lint(file);
+      }
+    };
+
+    compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) => {
+      // Gather Files to lint
+      compilation.hooks.succeedModule.tap(ESLINT_PLUGIN, processModule);
+      // await and interpret results
+      compilation.hooks.afterSeal.tapPromise(ESLINT_PLUGIN, processResults);
+
+      async function processResults() {
+        const { errors, warnings, generateReportAsset } = await report();
+
+        if (warnings) {
+          compilation.warnings.push(warnings);
+        }
+
+        if (errors) {
+          compilation.errors.push(errors);
+        }
+
+        if (generateReportAsset) {
+          await generateReportAsset(compilation);
+        }
+      }
+    });
   }
 
   /**

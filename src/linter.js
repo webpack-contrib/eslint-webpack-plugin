@@ -1,6 +1,4 @@
-import { isAbsolute, join } from 'path';
-
-import { writeFileSync, ensureFileSync } from 'fs-extra';
+import { dirname, isAbsolute, join } from 'path';
 
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
@@ -9,98 +7,145 @@ import getESLint from './getESLint';
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('webpack').Compiler} Compiler */
+/** @typedef {import('webpack').compilation.Compilation} Compilation */
+/** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
-
+/** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
+/** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
+/** @typedef {() => Promise<Report>} Reporter */
+/** @typedef {(files: string|string[]) => void} Linter */
 /**
  * @param {Options} options
- * @param {Compiler} compiler
- * @returns {Promise<void>}
+ * @returns {{lint: Linter, report: Reporter}}
  */
-export default async function linter(options, compiler) {
+export default function linter(options) {
   /** @type {ESLint} */
   let ESLint;
 
   /** @type {ESLint} */
   let eslint;
 
-  /** @type {LintResult[]} */
-  let rawResults = [];
+  /** @type {Promise<LintResult[]>[]} */
+  const rawResults = [];
 
   try {
     ({ ESLint, eslint } = getESLint(options));
-
-    // @ts-ignore
-    rawResults = await eslint.lintFiles(options.files);
   } catch (e) {
-    compiler.hooks.afterEmit.tapPromise(
-      'ESLintWebpackPlugin',
-      async (compilation) => {
-        compilation.errors.push(new ESLintError(e.message));
-      }
+    throw new ESLintError(e.message);
+  }
+
+  return {
+    lint,
+    report,
+  };
+
+  /**
+   * @param {string | string[]} files
+   */
+  function lint(files) {
+    rawResults.push(eslint.lintFiles(files));
+  }
+
+  async function report() {
+    // Filter out ignored files.
+    const results = await removeIgnoredWarnings(
+      eslint,
+      // Get the current results, resetting the rawResults to empty
+      await flatten(rawResults.splice(0, rawResults.length))
     );
 
-    return;
-  }
+    // do not analyze if there are no results or eslint config
+    if (!results || results.length < 1) {
+      return {};
+    }
 
-  // Filter out ignored files.
-  const results = await removeIgnoredWarnings(eslint, rawResults);
+    // if enabled, use eslint autofixing where possible
+    if (options.fix) {
+      // @ts-ignore
+      await ESLint.outputFixes(results);
+    }
 
-  // do not analyze if there are no results or eslint config
-  if (!results || results.length < 1) {
-    return;
-  }
+    const formatter = await loadFormatter(eslint, options.formatter);
+    const { errors, warnings } = formatResults(
+      formatter,
+      parseResults(options, results)
+    );
 
-  // if enabled, use eslint autofixing where possible
-  if (options.fix) {
-    // @ts-ignore
-    await ESLint.outputFixes(results);
-  }
+    if (options.failOnError && errors) {
+      throw errors;
+    } else if (options.failOnWarning && warnings) {
+      throw warnings;
+    }
 
-  const formatter = await loadFormatter(eslint, options.formatter);
-  let { errors, warnings } = parseResults(options, results);
+    return {
+      errors,
+      warnings,
+      generateReportAsset,
+    };
 
-  compiler.hooks.afterEmit.tapPromise(
-    'ESLintWebpackPlugin',
-    async (compilation) => {
-      if (warnings.length > 0) {
-        compilation.warnings.push(new ESLintError(formatter.format(warnings)));
-        warnings = [];
+    /**
+     * @param {Compilation} compilation
+     * @returns {Promise<void>}
+     */
+    async function generateReportAsset({ compiler }) {
+      const { outputReport } = options;
+      // @ts-ignore
+      const save = (name, content) =>
+        new Promise((finish, bail) => {
+          const { mkdir, writeFile } = compiler.outputFileSystem;
+          // ensure directory exists
+          // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
+          mkdir(dirname(name), { recursive: true }, (err) => {
+            /* istanbul ignore if */
+            if (err) bail(err);
+            else
+              writeFile(name, content, (err2) => {
+                /* istanbul ignore if */
+                if (err2) bail(err2);
+                else finish();
+              });
+          });
+        });
+
+      if (!outputReport || !outputReport.filePath) {
+        return;
       }
 
-      if (errors.length > 0) {
-        compilation.errors.push(new ESLintError(formatter.format(errors)));
-        errors = [];
+      const content = outputReport.formatter
+        ? (await loadFormatter(eslint, outputReport.formatter)).format(results)
+        : formatter.format(results);
+
+      let { filePath } = outputReport;
+      if (!isAbsolute(filePath)) {
+        filePath = join(compiler.outputPath, filePath);
       }
+
+      await save(filePath, content);
     }
-  );
-
-  compiler.hooks.emit.tapPromise('ESLintWebpackPlugin', async (compilation) => {
-    const { outputReport } = options;
-
-    if (!outputReport || !outputReport.filePath) {
-      return;
-    }
-
-    const content = outputReport.formatter
-      ? (await loadFormatter(eslint, outputReport.formatter)).format(results)
-      : formatter.format(results);
-
-    let { filePath } = outputReport;
-
-    if (!isAbsolute(filePath)) {
-      filePath = join(compilation.compiler.outputPath, filePath);
-    }
-
-    ensureFileSync(filePath);
-    writeFileSync(filePath, content);
-  });
-
-  if (options.failOnError && errors.length > 0) {
-    throw new ESLintError(formatter.format(errors));
-  } else if (options.failOnWarning && warnings.length > 0) {
-    throw new ESLintError(formatter.format(warnings));
   }
+}
+
+/**
+ * @param {Formatter} formatter
+ * @param {{ errors: LintResult[]; warnings: LintResult[]; }} results
+ * @returns {{errors?: ESLintError, warnings?: ESLintError}}
+ */
+function formatResults(formatter, results) {
+  let errors;
+  let warnings;
+  if (results.warnings.length > 0) {
+    warnings = new ESLintError(formatter.format(results.warnings));
+  }
+
+  if (results.errors.length > 0) {
+    errors = new ESLintError(formatter.format(results.errors));
+  }
+
+  return {
+    errors,
+    warnings,
+  };
 }
 
 /**
@@ -190,16 +235,30 @@ async function removeIgnoredWarnings(eslint, results) {
     //   ruleId is unset for internal ESLint errors.
     //   line is unset for warnings not involving file contents.
     const ignored =
-      result.warningCount === 1 &&
-      result.errorCount === 0 &&
-      !result.messages[0].fatal &&
-      !result.messages[0].ruleId &&
-      !result.messages[0].line &&
-      (await eslint.isPathIgnored(result.filePath));
+      result.messages.length === 0 ||
+      (result.warningCount === 1 &&
+        result.errorCount === 0 &&
+        !result.messages[0].fatal &&
+        !result.messages[0].ruleId &&
+        !result.messages[0].line &&
+        (await eslint.isPathIgnored(result.filePath)));
 
     return ignored ? false : result;
   });
 
   // @ts-ignore
   return (await Promise.all(filterPromises)).filter((result) => !!result);
+}
+
+/**
+ * @param {Promise<LintResult[]>[]} results
+ * @returns {Promise<LintResult[]>}
+ */
+async function flatten(results) {
+  /**
+   * @param {LintResult[]} acc
+   * @param {LintResult[]} list
+   */
+  const flat = (acc, list) => [...acc, ...list];
+  return (await Promise.all(results)).reduce(flat, []);
 }

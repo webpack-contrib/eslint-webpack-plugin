@@ -34,7 +34,7 @@ describe('formatter write', () => {
   });
 
   it('should write results to absolute file with a same formatter', (done) => {
-    const outputFilename = 'outputReport-relative.txt';
+    const outputFilename = 'outputReport-absolute.txt';
     const outputFilepath = join(__dirname, 'output', outputFilename);
     const config = conf('error', {
       outputReport: {

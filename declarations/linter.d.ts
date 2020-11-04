@@ -2,21 +2,30 @@
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('webpack').Compiler} Compiler */
+/** @typedef {import('webpack').compilation.Compilation} Compilation */
+/** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
+/** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
+/** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
+/** @typedef {() => Promise<Report>} Reporter */
+/** @typedef {(files: string|string[]) => void} Linter */
 /**
  * @param {Options} options
- * @param {Compiler} compiler
- * @returns {Promise<void>}
+ * @returns {{lint: Linter, report: Reporter}}
  */
 export default function linter(
-  options: Options,
-  compiler: Compiler
-): Promise<void>;
+  options: Options
+): {
+  lint: Linter;
+  report: Reporter;
+};
 export type ESLint = import('eslint').ESLint;
 export type Formatter = import('eslint').ESLint.Formatter;
 export type LintResult = import('eslint').ESLint.LintResult;
 export type Compiler = import('webpack').Compiler;
+export type Compilation = import('webpack').compilation.Compilation;
+export type Source = import('webpack-sources/lib/Source');
 export type Options = {
   context?: string | undefined;
   emitError?: boolean | undefined;
@@ -36,3 +45,14 @@ export type FormatterFunction = (
   results: import('eslint').ESLint.LintResult[],
   data?: import('eslint').ESLint.LintResultData | undefined
 ) => string;
+export type GenerateReport = (compilation: Compilation) => Promise<void>;
+export type Report = {
+  errors?: ESLintError | undefined;
+  warnings?: ESLintError | undefined;
+  generateReportAsset?:
+    | ((compilation: Compilation) => Promise<void>)
+    | undefined;
+};
+export type Reporter = () => Promise<Report>;
+export type Linter = (files: string | string[]) => void;
+import ESLintError from './ESLintError';

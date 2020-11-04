@@ -15,14 +15,16 @@ export type Options = {
   quiet?: boolean | undefined;
   outputReport?: import('./options').OutputReport | undefined;
 };
-/** @typedef {import('webpack').Compiler} Compiler */
-/** @typedef {import('./options').Options} Options */
 declare class ESLintWebpackPlugin {
   /**
    * @param {Options} options
    */
   constructor(options?: Options);
   options: import('./options').Options;
+  /**
+   * @param {Compiler} compiler
+   */
+  run(compiler: Compiler): Promise<void>;
   /**
    * @param {Compiler} compiler
    * @returns {void}
