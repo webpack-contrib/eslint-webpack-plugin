@@ -48,7 +48,7 @@ export function parseFoldersToGlobs(patterns, extensions) {
         /* istanbul ignore else */
         if (stats.isDirectory()) {
           return pattern.replace(
-            /[/\\]+?$/u,
+            /[/\\]*?$/u,
             `/**/*.${prefix + extensionsGlob + postfix}`
           );
         }
