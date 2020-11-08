@@ -17,9 +17,10 @@ import getESLint from './getESLint';
 /** @typedef {(files: string|string[]) => void} Linter */
 /**
  * @param {Options} options
+ * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter}}
  */
-export default function linter(options) {
+export default function linter(options, compilation) {
   /** @type {ESLint} */
   let ESLint;
 
@@ -44,7 +45,12 @@ export default function linter(options) {
    * @param {string | string[]} files
    */
   function lint(files) {
-    rawResults.push(eslint.lintFiles(files));
+    rawResults.push(
+      eslint.lintFiles(files).catch((e) => {
+        compilation.errors.push(e);
+        return [];
+      })
+    );
   }
 
   async function report() {
