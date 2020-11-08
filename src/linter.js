@@ -27,11 +27,17 @@ export default function linter(options, compilation) {
   /** @type {ESLint} */
   let eslint;
 
+  /** @type {(files: string|string[]) => Promise<LintResult[]>} */
+  let lintFiles;
+
+  /** @type {() => Promise<void>} */
+  let cleanup;
+
   /** @type {Promise<LintResult[]>[]} */
   const rawResults = [];
 
   try {
-    ({ ESLint, eslint } = getESLint(options));
+    ({ ESLint, eslint, lintFiles, cleanup } = getESLint(options));
   } catch (e) {
     throw new ESLintError(e.message);
   }
@@ -46,7 +52,7 @@ export default function linter(options, compilation) {
    */
   function lint(files) {
     rawResults.push(
-      eslint.lintFiles(files).catch((e) => {
+      lintFiles(files).catch((e) => {
         compilation.errors.push(e);
         return [];
       })
@@ -60,6 +66,8 @@ export default function linter(options, compilation) {
       // Get the current results, resetting the rawResults to empty
       await flatten(rawResults.splice(0, rawResults.length))
     );
+
+    await cleanup();
 
     // do not analyze if there are no results or eslint config
     if (!results || results.length < 1) {

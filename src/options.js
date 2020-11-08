@@ -35,6 +35,7 @@ import schema from './options.json';
  * @property {boolean=} lintDirtyModulesOnly
  * @property {boolean=} quiet
  * @property {OutputReport=} outputReport
+ * @property {number|boolean=} threads
  */
 
 /**
@@ -44,6 +45,7 @@ import schema from './options.json';
 export function getOptions(pluginOptions) {
   const options = {
     extensions: 'js',
+    threads: true,
     ...pluginOptions,
   };
 
