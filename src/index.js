@@ -48,18 +48,20 @@ class ESLintWebpackPlugin {
         // @ts-ignore
         ({ name }) => name === ESLINT_PLUGIN
       )
-    )
+    ) {
       return;
+    }
 
     const options = {
       ...this.options,
-
-      // @ts-ignore
-      files: parseFiles(this.options.files, this.getContext(compiler)),
+      exclude: parseFiles(this.options.exclude ||[], this.getContext(compiler)),
       extensions: arrify(this.options.extensions),
+      files: parseFiles(this.options.files || [], this.getContext(compiler)),
     };
 
     const wanted = parseFoldersToGlobs(options.files, options.extensions);
+    const exclude = parseFoldersToGlobs(options.exclude, []);
+
     /** @type {import('./linter').Linter} */
     let lint;
     /** @type {import('./linter').Reporter} */
@@ -78,7 +80,11 @@ class ESLintWebpackPlugin {
     const processModule = (module) => {
       const file = module.resource;
 
-      if (file && micromatch.isMatch(file, wanted)) {
+      if (!file || !micromatch.isMatch(file, exclude)) {
+        return
+      }
+
+      if (micromatch.isMatch(file, wanted)) {
         // Queue file for linting.
         lint(file);
       }

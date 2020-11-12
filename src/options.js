@@ -25,10 +25,11 @@ import schema from './options.json';
  * @property {boolean=} emitError
  * @property {boolean=} emitWarning
  * @property {string=} eslintPath
+ * @property {string|string[]=} exclude
+ * @property {string|string[]=} extensions
  * @property {boolean=} failOnError
  * @property {boolean=} failOnWarning
  * @property {string|string[]=} files
- * @property {string|string[]=} extensions
  * @property {boolean=} fix
  * @property {string|FormatterFunction=} formatter
  * @property {boolean=} lintDirtyModulesOnly
@@ -42,8 +43,9 @@ import schema from './options.json';
  */
 export function getOptions(pluginOptions) {
   const options = {
-    files: '',
+    exclude: 'node_modules',
     extensions: 'js',
+    files: '',
     ...pluginOptions,
   };
 

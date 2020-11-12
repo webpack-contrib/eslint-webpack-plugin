@@ -31,6 +31,7 @@ export type Options = {
   emitError?: boolean | undefined;
   emitWarning?: boolean | undefined;
   eslintPath?: string | undefined;
+  exclude?: string | string[] | undefined;
   failOnError?: boolean | undefined;
   failOnWarning?: boolean | undefined;
   files?: string | string[] | undefined;

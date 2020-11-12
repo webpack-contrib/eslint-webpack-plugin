@@ -113,6 +113,20 @@ A string indicating the root of your files.
 
 Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you dont have to install `eslint`.
 
+### `extensions`
+
+- Type: `String|Array[String]`
+- Default: `'js'`
+
+Specify extensions that should be checked.
+
+### `exclude`
+
+- Type: `String|Array[String]`
+- Default: `'node_modules'`
+
+Specify the files and/or directories to exclude. Must be relative to `options.context`.
+
 ### `files`
 
 - Type: `String|Array[String]`
@@ -121,13 +135,6 @@ Path to `eslint` instance that will be used for linting. If the `eslintPath` is 
 Specify directories, files, or globs. Must be relative to `options.context`.
 Directories are traveresed recursively looking for files matching `options.extensions`.
 File and glob patterns ignore `options.extensions`.
-
-### `extensions`
-
-- Type: `String|Array[String]`
-- Default: `'js'`
-
-Specify extensions that should be checked.
 
 ### `fix`
 

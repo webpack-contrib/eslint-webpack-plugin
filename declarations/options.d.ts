@@ -18,6 +18,7 @@
  * @property {boolean=} emitError
  * @property {boolean=} emitWarning
  * @property {string=} eslintPath
+ * @property {string|string[]=} exclude
  * @property {boolean=} failOnError
  * @property {boolean=} failOnWarning
  * @property {string|string[]=} files
@@ -54,6 +55,7 @@ export type Options = {
   emitError?: boolean | undefined;
   emitWarning?: boolean | undefined;
   eslintPath?: string | undefined;
+  exclude?: (string | string[]) | undefined;
   failOnError?: boolean | undefined;
   failOnWarning?: boolean | undefined;
   files?: (string | string[]) | undefined;
