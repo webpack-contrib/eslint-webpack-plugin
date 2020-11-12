@@ -54,7 +54,10 @@ class ESLintWebpackPlugin {
 
     const options = {
       ...this.options,
-      exclude: parseFiles(this.options.exclude ||[], this.getContext(compiler)),
+      exclude: parseFiles(
+        this.options.exclude || [],
+        this.getContext(compiler)
+      ),
       extensions: arrify(this.options.extensions),
       files: parseFiles(this.options.files || [], this.getContext(compiler)),
     };
@@ -81,7 +84,7 @@ class ESLintWebpackPlugin {
       const file = module.resource;
 
       if (!file || !micromatch.isMatch(file, exclude)) {
-        return
+        return;
       }
 
       if (micromatch.isMatch(file, wanted)) {

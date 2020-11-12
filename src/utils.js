@@ -49,7 +49,9 @@ export function parseFoldersToGlobs(patterns, extensions) {
         if (stats.isDirectory()) {
           return pattern.replace(
             /[/\\]*?$/u,
-            `/**${extensionsGlob ? `*.${prefix + extensionsGlob + postfix}` : ''}`
+            `/**${
+              extensionsGlob ? `*.${prefix + extensionsGlob + postfix}` : ''
+            }`
           );
         }
       } catch (_) {
