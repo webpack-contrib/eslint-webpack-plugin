@@ -69,7 +69,7 @@ module.exports = {
 npm install eslint-webpack-plugin --save-dev
 ```
 
-**Note**: You also need to install `eslint` from npm, if you haven't already:
+**Note**: You also need to install `eslint >= 7` from npm, if you haven't already:
 
 ```bash
 npm install eslint --save-dev
