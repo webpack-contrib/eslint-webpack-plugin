@@ -1,22 +1,4 @@
-export default ESLintWebpackPlugin;
-export type Compiler = import('webpack').Compiler;
-export type Options = {
-  context?: string | undefined;
-  emitError?: boolean | undefined;
-  emitWarning?: boolean | undefined;
-  eslintPath?: string | undefined;
-  exclude?: string | string[] | undefined;
-  extensions?: string | string[] | undefined;
-  failOnError?: boolean | undefined;
-  failOnWarning?: boolean | undefined;
-  files?: string | string[] | undefined;
-  fix?: boolean | undefined;
-  formatter?: string | import('./options').FormatterFunction | undefined;
-  lintDirtyModulesOnly?: boolean | undefined;
-  quiet?: boolean | undefined;
-  outputReport?: import('./options').OutputReport | undefined;
-};
-declare class ESLintWebpackPlugin {
+export class ESLintWebpackPlugin {
   /**
    * @param {Options} options
    */
@@ -38,3 +20,21 @@ declare class ESLintWebpackPlugin {
    */
   getContext(compiler: Compiler): string;
 }
+export default ESLintWebpackPlugin;
+export type Compiler = import('webpack').Compiler;
+export type Options = {
+  context?: string | undefined;
+  emitError?: boolean | undefined;
+  emitWarning?: boolean | undefined;
+  eslintPath?: string | undefined;
+  exclude?: string | string[] | undefined;
+  extensions?: string | string[] | undefined;
+  failOnError?: boolean | undefined;
+  failOnWarning?: boolean | undefined;
+  files?: string | string[] | undefined;
+  fix?: boolean | undefined;
+  formatter?: string | import('./options').FormatterFunction | undefined;
+  lintDirtyModulesOnly?: boolean | undefined;
+  quiet?: boolean | undefined;
+  outputReport?: import('./options').OutputReport | undefined;
+};

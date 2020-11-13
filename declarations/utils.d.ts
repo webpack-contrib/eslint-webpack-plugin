@@ -16,5 +16,5 @@ export function replaceBackslashes(str: string): string;
  */
 export function parseFoldersToGlobs(
   patterns: string | string[],
-  extensions: string | string[]
+  extensions?: string | string[]
 ): string[];

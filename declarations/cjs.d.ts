@@ -1,2 +1,2 @@
-declare const _exports: typeof import('.').default;
+declare const _exports: typeof import('.').ESLintWebpackPlugin;
 export = _exports;
