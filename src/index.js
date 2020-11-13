@@ -12,7 +12,7 @@ import { parseFiles, parseFoldersToGlobs } from './utils';
 
 const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
 
-class ESLintWebpackPlugin {
+export class ESLintWebpackPlugin {
   /**
    * @param {Options} options
    */
