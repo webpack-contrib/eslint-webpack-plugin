@@ -130,7 +130,7 @@ Specify the files and/or directories to exclude. Must be relative to `options.co
 ### `files`
 
 - Type: `String|Array[String]`
-- Default: `'.'`
+- Default: `null`
 
 Specify directories, files, or globs. Must be relative to `options.context`.
 Directories are traveresed recursively looking for files matching `options.extensions`.
