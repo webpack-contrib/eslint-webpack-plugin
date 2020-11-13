@@ -43,9 +43,7 @@ import schema from './options.json';
  */
 export function getOptions(pluginOptions) {
   const options = {
-    exclude: 'node_modules',
     extensions: 'js',
-    files: '',
     ...pluginOptions,
   };
 

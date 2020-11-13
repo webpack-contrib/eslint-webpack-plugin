@@ -55,11 +55,11 @@ class ESLintWebpackPlugin {
     const options = {
       ...this.options,
       exclude: parseFiles(
-        this.options.exclude || [],
+        this.options.exclude || 'node_modules',
         this.getContext(compiler)
       ),
       extensions: arrify(this.options.extensions),
-      files: parseFiles(this.options.files || [], this.getContext(compiler)),
+      files: parseFiles(this.options.files || '', this.getContext(compiler)),
     };
 
     const wanted = parseFoldersToGlobs(options.files, options.extensions);
@@ -83,11 +83,11 @@ class ESLintWebpackPlugin {
     const processModule = (module) => {
       const file = module.resource;
 
-      if (!file || !micromatch.isMatch(file, exclude)) {
-        return;
-      }
-
-      if (micromatch.isMatch(file, wanted)) {
+      if (
+        file &&
+        micromatch.isMatch(file, wanted) &&
+        !micromatch.isMatch(file, exclude)
+      ) {
         // Queue file for linting.
         lint(file);
       }
