@@ -39,6 +39,18 @@ test('parseFoldersToGlobs should return globs for folders', () => {
       "/some/file.js",
     ]
   `);
+
+  expect(parseFoldersToGlobs(withoutSlash)).toMatchInlineSnapshot(`
+    Array [
+      "/path/to/code/**",
+    ]
+  `);
+
+  expect(parseFoldersToGlobs(withSlash)).toMatchInlineSnapshot(`
+    Array [
+      "/path/to/code/**",
+    ]
+  `);
 });
 
 test('parseFoldersToGlobs should return unmodified globs for globs (ignoring extensions)', () => {
