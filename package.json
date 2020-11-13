@@ -35,8 +35,7 @@
     "pretest": "npm run lint",
     "test": "npm run test:coverage",
     "prepare": "npm run build",
-    "release": "standard-version",
-    "defaults": "webpack-defaults"
+    "release": "standard-version"
   },
   "files": [
     "dist",
@@ -58,10 +57,9 @@
     "@babel/preset-env": "^7.12.1",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "@types/fs-extra": "^9.0.3",
+    "@types/fs-extra": "^9.0.4",
     "@types/micromatch": "^4.0.1",
-    "@types/webpack": "^4.41.24",
-    "@webpack-contrib/defaults": "^6.3.0",
+    "@types/webpack": "^4.41.25",
     "@webpack-contrib/eslint-config-webpack": "^3.0.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
@@ -69,7 +67,7 @@
     "cross-env": "^7.0.2",
     "del": "^6.0.0",
     "del-cli": "^3.0.1",
-    "eslint": "^7.12.1",
+    "eslint": "^7.13.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
     "fs-extra": "^9.0.1",

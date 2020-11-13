@@ -32,7 +32,7 @@ export function replaceBackslashes(str) {
  * @param {string|string[]} extensions
  * @returns {string[]}
  */
-export function parseFoldersToGlobs(patterns, extensions) {
+export function parseFoldersToGlobs(patterns, extensions = []) {
   const extensionsList = arrify(extensions);
   const [prefix, postfix] = extensionsList.length > 1 ? ['{', '}'] : ['', ''];
   const extensionsGlob = extensionsList
@@ -49,7 +49,9 @@ export function parseFoldersToGlobs(patterns, extensions) {
         if (stats.isDirectory()) {
           return pattern.replace(
             /[/\\]*?$/u,
-            `/**/*.${prefix + extensionsGlob + postfix}`
+            `/**${
+              extensionsGlob ? `/*.${prefix + extensionsGlob + postfix}` : ''
+            }`
           );
         }
       } catch (_) {

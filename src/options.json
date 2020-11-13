@@ -18,6 +18,10 @@
       "description": "Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you dont have to install `eslint`.",
       "type": "string"
     },
+    "exclude": {
+      "description": "Specify the files and/or directories to exclude. Must be relative to `options.context`.",
+      "anyOf": [{ "type": "string" }, { "type": "array" }]
+    },
     "failOnError": {
       "description": "Will cause the module build to fail if there are any errors, if set to `true`.",
       "type": "boolean"
