@@ -20,7 +20,7 @@ import schema from './options.json';
  */
 
 /**
- * @typedef {Object} Options
+ * @typedef {Object} PluginOptions
  * @property {string=} context
  * @property {boolean=} emitError
  * @property {boolean=} emitWarning
@@ -37,9 +37,11 @@ import schema from './options.json';
  * @property {OutputReport=} outputReport
  */
 
+/** @typedef {PluginOptions & ESLintOptions} Options */
+
 /**
  * @param {Options} pluginOptions
- * @returns {Options}
+ * @returns {PluginOptions}
  */
 export function getOptions(pluginOptions) {
   const options = {
