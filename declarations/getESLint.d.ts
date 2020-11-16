@@ -11,19 +11,5 @@ export default function getESLint(
   eslint: import('eslint').ESLint;
 };
 export type ESLint = import('eslint').ESLint;
-export type Options = {
-  context?: string | undefined;
-  emitError?: boolean | undefined;
-  emitWarning?: boolean | undefined;
-  eslintPath?: string | undefined;
-  exclude?: string | string[] | undefined;
-  extensions?: string | string[] | undefined;
-  failOnError?: boolean | undefined;
-  failOnWarning?: boolean | undefined;
-  files?: string | string[] | undefined;
-  fix?: boolean | undefined;
-  formatter?: string | import('./options').FormatterFunction | undefined;
-  lintDirtyModulesOnly?: boolean | undefined;
-  quiet?: boolean | undefined;
-  outputReport?: import('./options').OutputReport | undefined;
-};
+export type Options = import('./options').PluginOptions &
+  import('eslint').ESLint.Options;
