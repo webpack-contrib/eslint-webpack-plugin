@@ -1,15 +1,3 @@
-/** @typedef {import('eslint').ESLint} ESLint */
-/** @typedef {import('eslint').ESLint.Formatter} Formatter */
-/** @typedef {import('eslint').ESLint.LintResult} LintResult */
-/** @typedef {import('webpack').Compiler} Compiler */
-/** @typedef {import('webpack').Compilation} Compilation */
-/** @typedef {import('webpack-sources').Source} Source */
-/** @typedef {import('./options').Options} Options */
-/** @typedef {import('./options').FormatterFunction} FormatterFunction */
-/** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
-/** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
-/** @typedef {() => Promise<Report>} Reporter */
-/** @typedef {(files: string|string[]) => void} Linter */
 /**
  * @param {Options} options
  * @param {Compilation} compilation
@@ -59,4 +47,7 @@ export type Report = {
 };
 export type Reporter = () => Promise<Report>;
 export type Linter = (files: string | string[]) => void;
+export type LintResultMap = {
+  [files: string]: import('eslint').ESLint.LintResult;
+};
 import ESLintError from './ESLintError';

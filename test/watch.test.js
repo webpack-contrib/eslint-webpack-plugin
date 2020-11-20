@@ -90,7 +90,7 @@ describe('watch', () => {
       expect(message).toEqual(expect.stringMatching('no-unused-vars'));
       // `prefer-const` fails here
       expect(message).toEqual(expect.stringMatching('prefer-const'));
-      expect(message).toEqual(expect.stringMatching('\\(1 error,'));
+      expect(message).toEqual(expect.stringMatching('\\(5 errors,'));
 
       next = finish;
 
