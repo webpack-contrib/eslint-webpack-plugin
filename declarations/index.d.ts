@@ -3,7 +3,7 @@ export class ESLintWebpackPlugin {
    * @param {Options} options
    */
   constructor(options?: Options);
-  options: import('./options').Options;
+  options: import('./options').PluginOptions;
   /**
    * @param {Compiler} compiler
    */
@@ -22,20 +22,5 @@ export class ESLintWebpackPlugin {
 }
 export default ESLintWebpackPlugin;
 export type Compiler = import('webpack').Compiler;
-export type Options = {
-  context?: string | undefined;
-  emitError?: boolean | undefined;
-  emitWarning?: boolean | undefined;
-  eslintPath?: string | undefined;
-  exclude?: string | string[] | undefined;
-  extensions?: string | string[] | undefined;
-  failOnError?: boolean | undefined;
-  failOnWarning?: boolean | undefined;
-  files?: string | string[] | undefined;
-  fix?: boolean | undefined;
-  formatter?: string | import('./options').FormatterFunction | undefined;
-  lintDirtyModulesOnly?: boolean | undefined;
-  quiet?: boolean | undefined;
-  outputReport?: import('./options').OutputReport | undefined;
-  threads?: number | boolean | undefined;
-};
+export type Options = import('./options').PluginOptions &
+  import('eslint').ESLint.Options;
