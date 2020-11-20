@@ -37,4 +37,5 @@ export type Options = {
   lintDirtyModulesOnly?: boolean | undefined;
   quiet?: boolean | undefined;
   outputReport?: import('./options').OutputReport | undefined;
+  threads?: number | boolean | undefined;
 };

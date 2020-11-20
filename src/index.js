@@ -65,35 +65,33 @@ export class ESLintWebpackPlugin {
     const wanted = parseFoldersToGlobs(options.files, options.extensions);
     const exclude = parseFoldersToGlobs(options.exclude, []);
 
-    /** @type {import('./linter').Linter} */
-    let lint;
-    /** @type {import('./linter').Reporter} */
-    let report;
-
-    try {
-      ({ lint, report } = linter(options));
-    } catch (e) {
-      compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) =>
-        compilation.errors.push(e)
-      );
-      return;
-    }
-
-    // @ts-ignore
-    const processModule = (module) => {
-      const file = module.resource;
-
-      if (
-        file &&
-        micromatch.isMatch(file, wanted) &&
-        !micromatch.isMatch(file, exclude)
-      ) {
-        // Queue file for linting.
-        lint(file);
-      }
-    };
-
     compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) => {
+      /** @type {import('./linter').Linter} */
+      let lint;
+      /** @type {import('./linter').Reporter} */
+      let report;
+
+      try {
+        ({ lint, report } = linter(options, compilation));
+      } catch (e) {
+        compilation.errors.push(e);
+        return;
+      }
+
+      // @ts-ignore
+      const processModule = (module) => {
+        const file = module.resource;
+
+        if (
+          file &&
+          micromatch.isMatch(file, wanted) &&
+          !micromatch.isMatch(file, exclude)
+        ) {
+          // Queue file for linting.
+          lint(file);
+        }
+      };
+
       // Gather Files to lint
       compilation.hooks.succeedModule.tap(ESLINT_PLUGIN, processModule);
       // await and interpret results

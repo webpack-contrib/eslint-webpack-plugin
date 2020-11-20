@@ -12,10 +12,12 @@
 /** @typedef {(files: string|string[]) => void} Linter */
 /**
  * @param {Options} options
+ * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter}}
  */
 export default function linter(
-  options: Options
+  options: Options,
+  compilation: Compilation
 ): {
   lint: Linter;
   report: Reporter;
@@ -41,6 +43,7 @@ export type Options = {
   lintDirtyModulesOnly?: boolean | undefined;
   quiet?: boolean | undefined;
   outputReport?: import('./options').OutputReport | undefined;
+  threads?: number | boolean | undefined;
 };
 export type FormatterFunction = (
   results: import('eslint').ESLint.LintResult[],

@@ -28,6 +28,7 @@
  * @property {boolean=} lintDirtyModulesOnly
  * @property {boolean=} quiet
  * @property {OutputReport=} outputReport
+ * @property {number|boolean=} threads
  */
 /**
  * @param {Options} pluginOptions
@@ -65,4 +66,5 @@ export type Options = {
   lintDirtyModulesOnly?: boolean | undefined;
   quiet?: boolean | undefined;
   outputReport?: OutputReport | undefined;
+  threads?: (number | boolean) | undefined;
 };
