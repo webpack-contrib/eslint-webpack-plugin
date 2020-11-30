@@ -23,13 +23,19 @@ export function loadESLint(options) {
 
   // Filter out loader options before passing the options to ESLint.
   const eslint = new ESLint(getESLintOptions(options));
-  const lintFiles = eslint.lintFiles.bind(eslint);
 
   return {
     threads: 1,
     ESLint,
     eslint,
-    lintFiles,
+    lintFiles: async (files) => {
+      const results = await eslint.lintFiles(files);
+      // istanbul ignore else
+      if (options.fix) {
+        await ESLint.outputFixes(results);
+      }
+      return results;
+    },
     // no-op for non-threaded
     cleanup: async () => {},
   };

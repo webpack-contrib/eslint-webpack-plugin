@@ -27,9 +27,6 @@ const resultStorage = new WeakMap();
  */
 export default function linter(options, compilation) {
   /** @type {ESLint} */
-  let ESLint;
-
-  /** @type {ESLint} */
   let eslint;
 
   /** @type {(files: string|string[]) => Promise<LintResult[]>} */
@@ -44,7 +41,7 @@ export default function linter(options, compilation) {
   const crossRunResultStorage = getResultStorage(compilation);
 
   try {
-    ({ ESLint, eslint, lintFiles, cleanup } = getESLint(options));
+    ({ eslint, lintFiles, cleanup } = getESLint(options));
   } catch (e) {
     throw new ESLintError(e.message);
   }
@@ -82,12 +79,6 @@ export default function linter(options, compilation) {
     // do not analyze if there are no results or eslint config
     if (!results || results.length < 1) {
       return {};
-    }
-
-    // if enabled, use eslint autofixing where possible
-    if (options.fix) {
-      // @ts-ignore
-      await ESLint.outputFixes(results);
     }
 
     for (const result of results) {
