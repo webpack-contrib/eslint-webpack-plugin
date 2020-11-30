@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.1](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.4.0...v2.4.1) (2020-11-30)
+
+
+### Bug Fixes
+
+* [#43](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/43), [#44](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/44), [#45](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/45) ([#47](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/47)) ([4b8d4de](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/4b8d4def970381126f70c8407eb708c1c975bbf5))
+* recompile speedups ([#55](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/55)) ([d862d92](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/d862d9291853c6b7430a0dbdc965b16db0723925))
+
 ## [2.4.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.3.0...v2.4.0) (2020-11-20)
 
 
