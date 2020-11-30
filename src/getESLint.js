@@ -3,6 +3,10 @@ import os from 'os';
 import JestWorker from 'jest-worker';
 
 import { getESLintOptions } from './options';
+import { jsonStringifyReplacerSortKeys } from './utils';
+
+/** @type {{[key: string]: any}} */
+const cache = {};
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -47,6 +51,7 @@ export function loadESLint(options) {
  * @returns {Linter}
  */
 export function loadESLintThreaded(poolSize, options) {
+  const key = getCacheKey(options);
   const { eslintPath = 'eslint' } = options;
   const source = require.resolve('./worker');
   const workerOptions = {
@@ -57,18 +62,28 @@ export function loadESLintThreaded(poolSize, options) {
 
   const local = loadESLint(options);
 
-  /** @type {Worker} */
+  /** @type {Worker?} */
   // prettier-ignore
-  const worker = (/** @type {Worker} */ new JestWorker(source, workerOptions));
+  let worker = (/** @type {Worker} */ new JestWorker(source, workerOptions));
 
-  return {
+  /** @type {Linter} */
+  const context = {
     ...local,
     threads: poolSize,
-    lintFiles: (files) => worker.lintFiles(files),
+    lintFiles: async (files) =>
+      (worker && (await worker.lintFiles(files))) ||
+      /* istanbul ignore next */ [],
     cleanup: async () => {
-      worker.end();
+      cache[key] = local;
+      context.lintFiles = (files) => local.lintFiles(files);
+      if (worker) {
+        worker.end();
+        worker = null;
+      }
     },
   };
+
+  return context;
 }
 
 /**
@@ -84,5 +99,18 @@ export default function getESLint({ threads, ...options }) {
       : /* istanbul ignore next */
         threads;
 
-  return max > 1 ? loadESLintThreaded(max, options) : loadESLint(options);
+  const key = getCacheKey({ threads, ...options });
+  if (!cache[key]) {
+    cache[key] =
+      max > 1 ? loadESLintThreaded(max, options) : loadESLint(options);
+  }
+  return cache[key];
+}
+
+/**
+ * @param {Options} options
+ * @returns {string}
+ */
+function getCacheKey(options) {
+  return JSON.stringify(options, jsonStringifyReplacerSortKeys);
 }

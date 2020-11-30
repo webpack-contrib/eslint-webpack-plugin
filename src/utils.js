@@ -60,3 +60,24 @@ export function parseFoldersToGlobs(patterns, extensions = []) {
       return pattern;
     });
 }
+
+/**
+ *
+ * @param {string} _ key, but unused
+ * @param {any} value
+ */
+export const jsonStringifyReplacerSortKeys = (_, value) => {
+  /**
+   * @param {{ [x: string]: any; }} sorted
+   * @param {string | number} key
+   */
+  const insert = (sorted, key) => {
+    // eslint-disable-next-line no-param-reassign
+    sorted[key] = value[key];
+    return sorted;
+  };
+
+  return value instanceof Object && !(value instanceof Array)
+    ? Object.keys(value).sort().reduce(insert, {})
+    : value;
+};

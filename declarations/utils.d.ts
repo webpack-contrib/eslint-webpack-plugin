@@ -18,3 +18,4 @@ export function parseFoldersToGlobs(
   patterns: string | string[],
   extensions?: string | string[]
 ): string[];
+export function jsonStringifyReplacerSortKeys(_: string, value: any): any;
