@@ -76,16 +76,16 @@ export default function linter(options, compilation) {
 
     await cleanup();
 
-    // do not analyze if there are no results or eslint config
-    if (!results || results.length < 1) {
-      return {};
-    }
-
     for (const result of results) {
       crossRunResultStorage[result.filePath] = result;
     }
 
     results = Object.values(crossRunResultStorage);
+
+    // do not analyze if there are no results or eslint config
+    if (!results || results.length < 1) {
+      return {};
+    }
 
     const formatter = await loadFormatter(eslint, options.formatter);
     const { errors, warnings } = formatResults(
