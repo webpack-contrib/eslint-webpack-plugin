@@ -192,6 +192,13 @@ Will cause the module build to fail if there are any errors, if set to `true`.
 
 Will cause the module build to fail if there are any warnings, if set to `true`.
 
+#### `threads`
+
+- Type: `Boolean | Number`
+- Default: `false`
+
+Will run lint tasks across a thread pool. The pool size is automatic unless you specify a number.
+
 #### `quiet`
 
 - Type: `Boolean`
