@@ -18,6 +18,8 @@ export default (entry, pluginConf = {}, webpackConf = {}) => {
         // folder to skip it on the global linting, but here we want the opposite
         // (we only use .eslintignore on the test that checks this)
         ignore: false,
+        // TODO: update tests to run both states: test.each([[{threads: false}], [{threads: true}]])('it should...', async ({threads}) => {...})
+        threads: true,
         ...pluginConf,
       }),
     ],

@@ -77,7 +77,7 @@
       ]
     },
     "threads": {
-      "description": "Set to true to auto-selected based on number of cpus. Set to a number greater than 1 to set an explicit maximum. Set to false, 1 or less to disable and only run in main process.",
+      "description": "Default is false. Set to true for an auto-selected pool size based on number of cpus. Set to a number greater than 1 to set an explicit pool size. Set to false, 1, or less to disable and only run in main process.",
       "anyOf": [{ "type": "number" }, { "type": "boolean" }]
     }
   }
