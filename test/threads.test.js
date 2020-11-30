@@ -45,9 +45,14 @@ describe('Threading', () => {
       const mockThread = { parentPort: { on: jest.fn() }, workerData: {} };
       const mockLintFiles = jest.fn();
       jest.mock('eslint', () => ({
-        ESLint: function ESLint() {
-          this.lintFiles = mockLintFiles;
-        },
+        ESLint: Object.assign(
+          function ESLint() {
+            this.lintFiles = mockLintFiles;
+          },
+          {
+            outputFixes: jest.fn(),
+          }
+        ),
       }));
       jest.mock('worker_threads', () => mockThread);
       const { setup, lintFiles } = require('../src/worker');
@@ -55,6 +60,8 @@ describe('Threading', () => {
       await setup({});
       await lintFiles('foo');
       expect(mockLintFiles).toHaveBeenCalledWith('foo');
+      await setup({ eslintOptions: { fix: true } });
+      await lintFiles('foo');
     });
   });
 });

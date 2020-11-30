@@ -6,20 +6,25 @@ import { removeSync } from 'fs-extra';
 import pack from './utils/pack';
 
 const target = join(__dirname, 'fixtures', 'watch-entry.js');
+const target2 = join(__dirname, 'fixtures', 'watch-leaf.js');
 const targetExpectedPattern = expect.stringMatching(
   target.replace(/\\/g, '\\\\')
 );
 
 describe('watch', () => {
+  let watch;
   afterEach(() => {
+    if (watch) {
+      watch.close();
+    }
     removeSync(target);
+    removeSync(target2);
   });
 
   it('should watch', (done) => {
     const compiler = pack('good');
 
-    const watch = compiler.watch({}, (err, stats) => {
-      watch.close();
+    watch = compiler.watch({}, (err, stats) => {
       expect(err).toBeNull();
       expect(stats.hasWarnings()).toBe(false);
       expect(stats.hasErrors()).toBe(false);
@@ -32,7 +37,7 @@ describe('watch', () => {
 
     let next = firstPass;
     const compiler = pack('watch');
-    const watch = compiler.watch({}, (err, stats) => next(err, stats));
+    watch = compiler.watch({}, (err, stats) => next(err, stats));
 
     function firstPass(err, stats) {
       expect(err).toBeNull();
@@ -46,7 +51,11 @@ describe('watch', () => {
 
       next = secondPass;
 
-      writeFileSync(target, 'const foo = false;\n');
+      writeFileSync(target2, 'let bar = false;\n');
+      writeFileSync(
+        target,
+        "const x = require('./watch-leaf.js')\n\nconst foo = false;\n"
+      );
     }
 
     function secondPass(err, stats) {
@@ -58,11 +67,16 @@ describe('watch', () => {
       const [{ message }] = errors;
       expect(message).toEqual(targetExpectedPattern);
       expect(message).toEqual(expect.stringMatching('no-unused-vars'));
-      expect(message).toEqual(expect.stringMatching('\\(1 error,'));
+      // `prefer-const` passes here
+      expect(message).toEqual(expect.stringMatching('prefer-const'));
+      expect(message).toEqual(expect.stringMatching('\\(4 errors,'));
 
       next = thirdPass;
 
-      writeFileSync(target, 'const foo = 0\n');
+      writeFileSync(
+        target,
+        "const x = require('./watch-leaf.js')\nconst foo = 0\n"
+      );
     }
 
     function thirdPass(err, stats) {
@@ -74,7 +88,9 @@ describe('watch', () => {
       const [{ message }] = errors;
       expect(message).toEqual(targetExpectedPattern);
       expect(message).toEqual(expect.stringMatching('no-unused-vars'));
-      expect(message).toEqual(expect.stringMatching('\\(1 error,'));
+      // `prefer-const` fails here
+      expect(message).toEqual(expect.stringMatching('prefer-const'));
+      expect(message).toEqual(expect.stringMatching('\\(5 errors,'));
 
       next = finish;
 
@@ -85,7 +101,6 @@ describe('watch', () => {
     }
 
     function finish(err, stats) {
-      watch.close();
       expect(err).toBeNull();
       expect(stats.hasWarnings()).toBe(false);
       expect(stats.hasErrors()).toBe(false);

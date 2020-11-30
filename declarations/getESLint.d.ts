@@ -23,23 +23,8 @@ export function loadESLintThreaded(poolSize: number, options: Options): Linter;
 export default function getESLint({ threads, ...options }: Options): Linter;
 export type ESLint = import('eslint').ESLint;
 export type LintResult = import('eslint').ESLint.LintResult;
-export type Options = {
-  context?: string | undefined;
-  emitError?: boolean | undefined;
-  emitWarning?: boolean | undefined;
-  eslintPath?: string | undefined;
-  exclude?: string | string[] | undefined;
-  extensions?: string | string[] | undefined;
-  failOnError?: boolean | undefined;
-  failOnWarning?: boolean | undefined;
-  files?: string | string[] | undefined;
-  fix?: boolean | undefined;
-  formatter?: string | import('./options').FormatterFunction | undefined;
-  lintDirtyModulesOnly?: boolean | undefined;
-  quiet?: boolean | undefined;
-  outputReport?: import('./options').OutputReport | undefined;
-  threads?: number | boolean | undefined;
-};
+export type Options = import('./options').PluginOptions &
+  import('eslint').ESLint.Options;
 export type AsyncTask = () => Promise<void>;
 export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
 export type Worker = JestWorker & {

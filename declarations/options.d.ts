@@ -13,7 +13,7 @@
  * @property {string|FormatterFunction=} formatter
  */
 /**
- * @typedef {Object} Options
+ * @typedef {Object} PluginOptions
  * @property {string=} context
  * @property {boolean=} emitError
  * @property {boolean=} emitWarning
@@ -30,11 +30,12 @@
  * @property {OutputReport=} outputReport
  * @property {number|boolean=} threads
  */
+/** @typedef {PluginOptions & ESLintOptions} Options */
 /**
  * @param {Options} pluginOptions
- * @returns {Options}
+ * @returns {PluginOptions}
  */
-export function getOptions(pluginOptions: Options): Options;
+export function getOptions(pluginOptions: Options): PluginOptions;
 /**
  * @param {Options} loaderOptions
  * @returns {ESLintOptions}
@@ -51,7 +52,7 @@ export type OutputReport = {
   filePath?: string | undefined;
   formatter?: (string | FormatterFunction) | undefined;
 };
-export type Options = {
+export type PluginOptions = {
   context?: string | undefined;
   emitError?: boolean | undefined;
   emitWarning?: boolean | undefined;
@@ -68,3 +69,4 @@ export type Options = {
   outputReport?: OutputReport | undefined;
   threads?: (number | boolean) | undefined;
 };
+export type Options = PluginOptions & import('eslint').ESLint.Options;

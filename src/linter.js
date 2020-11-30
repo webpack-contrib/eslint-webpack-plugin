@@ -15,15 +15,17 @@ import getESLint from './getESLint';
 /** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
 /** @typedef {() => Promise<Report>} Reporter */
 /** @typedef {(files: string|string[]) => void} Linter */
+/** @typedef {{[files: string]: LintResult}} LintResultMap */
+
+/** @type {WeakMap<Compiler, LintResultMap>} */
+const resultStorage = new WeakMap();
+
 /**
  * @param {Options} options
  * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter}}
  */
 export default function linter(options, compilation) {
-  /** @type {ESLint} */
-  let ESLint;
-
   /** @type {ESLint} */
   let eslint;
 
@@ -36,8 +38,10 @@ export default function linter(options, compilation) {
   /** @type {Promise<LintResult[]>[]} */
   const rawResults = [];
 
+  const crossRunResultStorage = getResultStorage(compilation);
+
   try {
-    ({ ESLint, eslint, lintFiles, cleanup } = getESLint(options));
+    ({ eslint, lintFiles, cleanup } = getESLint(options));
   } catch (e) {
     throw new ESLintError(e.message);
   }
@@ -51,6 +55,9 @@ export default function linter(options, compilation) {
    * @param {string | string[]} files
    */
   function lint(files) {
+    for (const file of asList(files)) {
+      delete crossRunResultStorage[file];
+    }
     rawResults.push(
       lintFiles(files).catch((e) => {
         compilation.errors.push(e);
@@ -61,7 +68,7 @@ export default function linter(options, compilation) {
 
   async function report() {
     // Filter out ignored files.
-    const results = await removeIgnoredWarnings(
+    let results = await removeIgnoredWarnings(
       eslint,
       // Get the current results, resetting the rawResults to empty
       await flatten(rawResults.splice(0, rawResults.length))
@@ -74,11 +81,11 @@ export default function linter(options, compilation) {
       return {};
     }
 
-    // if enabled, use eslint autofixing where possible
-    if (options.fix) {
-      // @ts-ignore
-      await ESLint.outputFixes(results);
+    for (const result of results) {
+      crossRunResultStorage[result.filePath] = result;
     }
+
+    results = Object.values(crossRunResultStorage);
 
     const formatter = await loadFormatter(eslint, options.formatter);
     const { errors, warnings } = formatResults(
@@ -275,4 +282,24 @@ async function flatten(results) {
    */
   const flat = (acc, list) => [...acc, ...list];
   return (await Promise.all(results)).reduce(flat, []);
+}
+
+/**
+ * @param {Compilation} compilation
+ * @returns {LintResultMap}
+ */
+function getResultStorage({ compiler }) {
+  let storage = resultStorage.get(compiler);
+  if (!storage) {
+    resultStorage.set(compiler, (storage = {}));
+  }
+  return storage;
+}
+
+/**
+ * @param {string | string[]} x
+ */
+function asList(x) {
+  /* istanbul ignore next */
+  return Array.isArray(x) ? x : [x];
 }
