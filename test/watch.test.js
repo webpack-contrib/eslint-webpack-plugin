@@ -106,7 +106,6 @@ describe('watch', () => {
       const { errors } = stats.compilation;
       const [{ message }] = errors;
       expect(stats.hasErrors()).toBe(true);
-      expect(message).toEqual(expect.stringMatching(target2));
       expect(message).toEqual(expect.stringMatching('prefer-const'));
       expect(message).toEqual(expect.stringMatching('\\(2 errors,'));
       done();
