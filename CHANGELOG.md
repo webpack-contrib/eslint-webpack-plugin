@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.3.0...v2.4.0) (2020-11-20)
+
+
+### Features
+
+* threads ([#39](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/39)) ([1e38fc7](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/1e38fc77fd575d9e56be0da6a206ded54a8f7c34))
+
 ## [2.3.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.2.1...v2.3.0) (2020-11-13)
 
 
