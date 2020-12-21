@@ -1,4 +1,5 @@
 import { isAbsolute, join } from 'path';
+import { parse } from 'url';
 
 import arrify from 'arrify';
 import micromatch from 'micromatch';
@@ -80,7 +81,7 @@ export class ESLintWebpackPlugin {
 
       // @ts-ignore
       const processModule = (module) => {
-        const file = module.resource;
+        const file = parse(module.resource).pathname;
 
         if (
           file &&
