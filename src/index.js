@@ -80,15 +80,17 @@ export class ESLintWebpackPlugin {
 
       // @ts-ignore
       const processModule = (module) => {
-        const file = module.resource.split('?')[0];
+        if (module.resource) {
+          const file = module.resource.split('?')[0];
 
-        if (
-          file &&
-          micromatch.isMatch(file, wanted) &&
-          !micromatch.isMatch(file, exclude)
-        ) {
-          // Queue file for linting.
-          lint(file);
+          if (
+            file &&
+            micromatch.isMatch(file, wanted) &&
+            !micromatch.isMatch(file, exclude)
+          ) {
+            // Queue file for linting.
+            lint(file);
+          }
         }
       };
 
