@@ -7,8 +7,6 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
-* crash on `split` ([#62](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/62)) ([2038c32](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/2038c3285b4fbb65d9bc5c5a789dedbb72378ace))
-* crash on `split` ([#62](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/62)) ([10c79c9](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/10c79c9709320203d1cb4eff36dae0715c0bc60e))
 * crash on `split` ([#62](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/62)) ([db38f61](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/db38f611965cfdec83984364e0b982bbd7a678e0))
 
 ### [2.4.2](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.4.1...v2.4.2) (2021-01-19)
