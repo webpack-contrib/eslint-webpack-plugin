@@ -80,7 +80,7 @@ export class ESLintWebpackPlugin {
 
       // @ts-ignore
       const processModule = (module) => {
-        const file = module.resource;
+        const file = module.resource.split('?')[0];
 
         if (
           file &&
