@@ -2,7 +2,17 @@ import pack from './utils/pack';
 
 describe('query', () => {
   it('should correctly resolve file despite query path', (done) => {
-    const compiler = pack('query');
+    const compiler = pack(
+      'query',
+      {},
+      {
+        resolve: {
+          alias: {
+            'alias-ignore': false,
+          },
+        },
+      }
+    );
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
