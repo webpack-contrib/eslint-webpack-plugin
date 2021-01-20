@@ -113,7 +113,7 @@ export default function linter(options, compilation) {
       const { outputReport } = options;
       // @ts-ignore
       const save = (name, content) =>
-        new Promise((finish, bail) => {
+        /** @type {Promise<void>} */ (new Promise((finish, bail) => {
           const { mkdir, writeFile } = compiler.outputFileSystem;
           // ensure directory exists
           // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
@@ -128,7 +128,7 @@ export default function linter(options, compilation) {
                 else finish();
               });
           });
-        });
+        }));
 
       if (!outputReport || !outputReport.filePath) {
         return;

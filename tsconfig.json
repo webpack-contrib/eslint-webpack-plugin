@@ -6,7 +6,7 @@
     "checkJs": true,
     "strict": true,
     "types": ["node"],
-    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
   "include": ["./src/**/*"]
