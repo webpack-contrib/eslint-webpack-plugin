@@ -34,7 +34,16 @@ export class ESLintWebpackPlugin {
     // From my testing of compiler.watch() ... compiler.watching is always
     // undefined (webpack 4 doesn't define it either) I'm leaving it out
     // for now.
-    compiler.hooks.watchRun.tapPromise(ESLINT_PLUGIN, this.run);
+    let isFirstRun = this.options.lintDirtyModulesOnly;
+    compiler.hooks.watchRun.tapPromise(ESLINT_PLUGIN, (c) => {
+      if (isFirstRun) {
+        isFirstRun = false;
+
+        return Promise.resolve();
+      }
+
+      return this.run(c);
+    });
   }
 
   /**
@@ -81,7 +90,7 @@ export class ESLintWebpackPlugin {
       // @ts-ignore
       const processModule = (module) => {
         if (module.resource) {
-          const file = module.resource.split('?')[0];
+          const [file] = module.resource.split('?');
 
           if (
             file &&
