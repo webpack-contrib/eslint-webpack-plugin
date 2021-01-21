@@ -6,7 +6,7 @@ import { loadESLint, loadESLintThreaded } from '../src/getESLint';
 describe('Threading', () => {
   test('Threaded interface should look like non-threaded interface', async () => {
     const single = loadESLint({});
-    const threaded = loadESLintThreaded(1, {});
+    const threaded = loadESLintThreaded('foo', 1, {});
     for (const key of Object.keys(single)) {
       expect(typeof single[key]).toEqual(typeof threaded[key]);
     }
@@ -21,7 +21,7 @@ describe('Threading', () => {
   });
 
   test('Threaded should lint files', async () => {
-    const threaded = loadESLintThreaded(1, { ignore: false });
+    const threaded = loadESLintThreaded('bar', 1, { ignore: false });
     try {
       const [good, bad] = await Promise.all([
         threaded.lintFiles(join(__dirname, 'fixtures/good.js')),

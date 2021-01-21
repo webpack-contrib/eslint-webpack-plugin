@@ -17,6 +17,7 @@ export class ESLintWebpackPlugin {
    * @param {Options} options
    */
   constructor(options = {}) {
+    this.key = Math.random().toString();
     this.options = getOptions(options);
     this.run = this.run.bind(this);
   }
@@ -72,7 +73,7 @@ export class ESLintWebpackPlugin {
       let report;
 
       try {
-        ({ lint, report } = linter(options, compilation));
+        ({ lint, report } = linter(this.key, options, compilation));
       } catch (e) {
         compilation.errors.push(e);
         return;

@@ -46,12 +46,13 @@ export function loadESLint(options) {
 }
 
 /**
+ * @param {string} key
  * @param {number} poolSize
  * @param {Options} options
  * @returns {Linter}
  */
-export function loadESLintThreaded(poolSize, options) {
-  const key = getCacheKey(options);
+export function loadESLintThreaded(key, poolSize, options) {
+  const cacheKey = getCacheKey(key, options);
   const { eslintPath = 'eslint' } = options;
   const source = require.resolve('./worker');
   const workerOptions = {
@@ -74,7 +75,7 @@ export function loadESLintThreaded(poolSize, options) {
       (worker && (await worker.lintFiles(files))) ||
       /* istanbul ignore next */ [],
     cleanup: async () => {
-      cache[key] = local;
+      cache[cacheKey] = local;
       context.lintFiles = (files) => local.lintFiles(files);
       if (worker) {
         worker.end();
@@ -87,10 +88,11 @@ export function loadESLintThreaded(poolSize, options) {
 }
 
 /**
+ * @param {string} key
  * @param {Options} options
  * @returns {Linter}
  */
-export default function getESLint({ threads, ...options }) {
+export default function getESLint(key, { threads, ...options }) {
   const max =
     typeof threads !== 'number'
       ? threads
@@ -99,18 +101,19 @@ export default function getESLint({ threads, ...options }) {
       : /* istanbul ignore next */
         threads;
 
-  const key = getCacheKey({ threads, ...options });
-  if (!cache[key]) {
-    cache[key] =
-      max > 1 ? loadESLintThreaded(max, options) : loadESLint(options);
+  const cacheKey = getCacheKey(key, { threads, ...options });
+  if (!cache[cacheKey]) {
+    cache[cacheKey] =
+      max > 1 ? loadESLintThreaded(key, max, options) : loadESLint(options);
   }
-  return cache[key];
+  return cache[cacheKey];
 }
 
 /**
+ * @param {string} key
  * @param {Options} options
  * @returns {string}
  */
-function getCacheKey(options) {
-  return JSON.stringify(options, jsonStringifyReplacerSortKeys);
+function getCacheKey(key, options) {
+  return JSON.stringify({ key, options }, jsonStringifyReplacerSortKeys);
 }

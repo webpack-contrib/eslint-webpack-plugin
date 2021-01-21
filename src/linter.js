@@ -21,11 +21,12 @@ import getESLint from './getESLint';
 const resultStorage = new WeakMap();
 
 /**
+ * @param {string} key
  * @param {Options} options
  * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter}}
  */
-export default function linter(options, compilation) {
+export default function linter(key, options, compilation) {
   /** @type {ESLint} */
   let eslint;
 
@@ -41,7 +42,7 @@ export default function linter(options, compilation) {
   const crossRunResultStorage = getResultStorage(compilation);
 
   try {
-    ({ eslint, lintFiles, cleanup } = getESLint(options));
+    ({ eslint, lintFiles, cleanup } = getESLint(key, options));
   } catch (e) {
     throw new ESLintError(e.message);
   }
