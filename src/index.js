@@ -1,6 +1,8 @@
 import { isAbsolute, join } from 'path';
 
+// @ts-ignore
 import arrify from 'arrify';
+// @ts-ignore
 import micromatch from 'micromatch';
 
 import { getOptions } from './options';

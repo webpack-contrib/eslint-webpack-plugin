@@ -1,3 +1,4 @@
+// @ts-ignore
 import os from 'os';
 
 import JestWorker from 'jest-worker';

@@ -1,5 +1,6 @@
 import { validate } from 'schema-utils';
 
+// @ts-ignore
 import schema from './options.json';
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
