@@ -11,13 +11,13 @@ import { parseFiles, parseFoldersToGlobs } from './utils';
 /** @typedef {import('./options').Options} Options */
 
 const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
+let counter = 0;
 
 export class ESLintWebpackPlugin {
   /**
    * @param {Options} options
    */
   constructor(options = {}) {
-    this.key = Math.random().toString();
     this.options = getOptions(options);
     this.run = this.run.bind(this);
   }
@@ -27,6 +27,12 @@ export class ESLintWebpackPlugin {
    * @returns {void}
    */
   apply(compiler) {
+    // Generate key for each compilation,
+    // this differentiates one from the other when being cached.
+    this.key = compiler.name || `${ESLINT_PLUGIN}_${(counter += 1)}`;
+
+    // If `lintDirtyModulesOnly` is disabled,
+    // execute the linter on the build
     if (!this.options.lintDirtyModulesOnly) {
       compiler.hooks.run.tapPromise(ESLINT_PLUGIN, this.run);
     }

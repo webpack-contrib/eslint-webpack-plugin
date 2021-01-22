@@ -46,7 +46,7 @@ export function loadESLint(options) {
 }
 
 /**
- * @param {string} key
+ * @param {string|undefined} key
  * @param {number} poolSize
  * @param {Options} options
  * @returns {Linter}
@@ -88,7 +88,7 @@ export function loadESLintThreaded(key, poolSize, options) {
 }
 
 /**
- * @param {string} key
+ * @param {string|undefined} key
  * @param {Options} options
  * @returns {Linter}
  */
@@ -110,7 +110,7 @@ export default function getESLint(key, { threads, ...options }) {
 }
 
 /**
- * @param {string} key
+ * @param {string|undefined} key
  * @param {Options} options
  * @returns {string}
  */

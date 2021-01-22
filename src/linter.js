@@ -21,7 +21,7 @@ import getESLint from './getESLint';
 const resultStorage = new WeakMap();
 
 /**
- * @param {string} key
+ * @param {string|undefined} key
  * @param {Options} options
  * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter}}
