@@ -177,29 +177,48 @@ function formatResults(formatter, results) {
  */
 function parseResults(options, results) {
   /** @type {LintResult[]} */
-  let errors = [];
+  const errors = [];
 
   /** @type {LintResult[]} */
-  let warnings = [];
+  const warnings = [];
 
-  if (options.emitError) {
-    errors = results.filter(
-      (file) => fileHasErrors(file) || fileHasWarnings(file)
-    );
-  } else if (options.emitWarning) {
-    warnings = results.filter(
-      (file) => fileHasErrors(file) || fileHasWarnings(file)
-    );
-  } else {
-    warnings = results.filter(
-      (file) => !fileHasErrors(file) && fileHasWarnings(file)
-    );
-    errors = results.filter(fileHasErrors);
-  }
+  results.forEach((file) => {
+    if (fileHasErrors(file)) {
+      const messages = file.messages.filter((message) => {
+        if (options.emitError === undefined) {
+          return true;
+        } else if (options.emitError) {
+          return message.severity === 2;
+        }
+        return false;
+      });
 
-  if (options.quiet && warnings.length > 0) {
-    warnings = [];
-  }
+      if (messages.length > 0) {
+        errors.push({
+          ...file,
+          messages,
+        });
+      }
+    }
+
+    if (fileHasWarnings(file)) {
+      const messages = file.messages.filter((message) => {
+        if (options.emitWarning === undefined) {
+          return true;
+        } else if (options.emitWarning) {
+          return message.severity === 1;
+        }
+        return false;
+      });
+
+      if (messages.length > 0) {
+        warnings.push({
+          ...file,
+          messages,
+        });
+      }
+    }
+  });
 
   return {
     errors,
