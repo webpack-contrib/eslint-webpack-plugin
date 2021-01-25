@@ -49,6 +49,7 @@ export function getOptions(pluginOptions) {
   const options = {
     extensions: 'js',
     ...pluginOptions,
+    ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
   };
 
   // @ts-ignore

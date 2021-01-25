@@ -13,6 +13,7 @@ import { parseFiles, parseFoldersToGlobs } from './utils';
 /** @typedef {import('./options').Options} Options */
 
 const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
+let counter = 0;
 
 class ESLintWebpackPlugin {
   /**
@@ -28,6 +29,12 @@ class ESLintWebpackPlugin {
    * @returns {void}
    */
   apply(compiler) {
+    // Generate key for each compilation,
+    // this differentiates one from the other when being cached.
+    this.key = compiler.name || `${ESLINT_PLUGIN}_${(counter += 1)}`;
+
+    // If `lintDirtyModulesOnly` is disabled,
+    // execute the linter on the build
     if (!this.options.lintDirtyModulesOnly) {
       compiler.hooks.run.tapPromise(ESLINT_PLUGIN, this.run);
     }
@@ -36,7 +43,16 @@ class ESLintWebpackPlugin {
     // From my testing of compiler.watch() ... compiler.watching is always
     // undefined (webpack 4 doesn't define it either) I'm leaving it out
     // for now.
-    compiler.hooks.watchRun.tapPromise(ESLINT_PLUGIN, this.run);
+    let isFirstRun = this.options.lintDirtyModulesOnly;
+    compiler.hooks.watchRun.tapPromise(ESLINT_PLUGIN, (c) => {
+      if (isFirstRun) {
+        isFirstRun = false;
+
+        return Promise.resolve();
+      }
+
+      return this.run(c);
+    });
   }
 
   /**
@@ -74,7 +90,7 @@ class ESLintWebpackPlugin {
       let report;
 
       try {
-        ({ lint, report } = linter(options, compilation));
+        ({ lint, report } = linter(this.key, options, compilation));
       } catch (e) {
         compilation.errors.push(e);
         return;
@@ -83,7 +99,7 @@ class ESLintWebpackPlugin {
       // @ts-ignore
       const processModule = (module) => {
         if (module.resource) {
-          const file = module.resource.split('?')[0];
+          const [file] = module.resource.split('?');
 
           if (
             file &&

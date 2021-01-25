@@ -11,16 +11,25 @@
  */
 export function loadESLint(options: Options): Linter;
 /**
+ * @param {string|undefined} key
  * @param {number} poolSize
  * @param {Options} options
  * @returns {Linter}
  */
-export function loadESLintThreaded(poolSize: number, options: Options): Linter;
+export function loadESLintThreaded(
+  key: string | undefined,
+  poolSize: number,
+  options: Options
+): Linter;
 /**
+ * @param {string|undefined} key
  * @param {Options} options
  * @returns {Linter}
  */
-export default function getESLint({ threads, ...options }: Options): Linter;
+export default function getESLint(
+  key: string | undefined,
+  { threads, ...options }: Options
+): Linter;
 export type ESLint = import('eslint').ESLint;
 export type LintResult = import('eslint').ESLint.LintResult;
 export type Options = import('./options').PluginOptions &
