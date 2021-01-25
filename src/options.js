@@ -1,6 +1,7 @@
 import { validate } from 'schema-utils';
 
-import * as schema from './options.json';
+// @ts-ignore
+import schema from './options.json';
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -47,6 +48,8 @@ import * as schema from './options.json';
 export function getOptions(pluginOptions) {
   const options = {
     extensions: 'js',
+    emitError: true,
+    emitWarning: true,
     ...pluginOptions,
     ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
   };

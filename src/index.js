@@ -2,8 +2,7 @@ import { isAbsolute, join } from 'path';
 
 // @ts-ignore
 import arrify from 'arrify';
-// @ts-ignore
-import micromatch from 'micromatch';
+import { isMatch } from 'micromatch';
 
 import { getOptions } from './options';
 import linter from './linter';
@@ -101,11 +100,7 @@ class ESLintWebpackPlugin {
         if (module.resource) {
           const [file] = module.resource.split('?');
 
-          if (
-            file &&
-            micromatch.isMatch(file, wanted) &&
-            !micromatch.isMatch(file, exclude)
-          ) {
+          if (file && isMatch(file, wanted) && !isMatch(file, exclude)) {
             // Queue file for linting.
             lint(file);
           }
@@ -121,10 +116,12 @@ class ESLintWebpackPlugin {
         const { errors, warnings, generateReportAsset } = await report();
 
         if (warnings) {
+          // @ts-ignore
           compilation.warnings.push(warnings);
         }
 
         if (errors) {
+          // @ts-ignore
           compilation.errors.push(errors);
         }
 

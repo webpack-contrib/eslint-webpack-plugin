@@ -1,4 +1,5 @@
-import { WebpackError } from 'webpack';
+// @ts-ignore
+import WebpackError from 'webpack/lib/WebpackError';
 
 export default class ESLintError extends WebpackError {
   /**

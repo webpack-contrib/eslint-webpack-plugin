@@ -187,14 +187,9 @@ function parseResults(options, results) {
 
   results.forEach((file) => {
     if (fileHasErrors(file)) {
-      const messages = file.messages.filter((message) => {
-        if (options.emitError === undefined) {
-          return true;
-        } else if (options.emitError) {
-          return message.severity === 2;
-        }
-        return false;
-      });
+      const messages = file.messages.filter(
+        (message) => options.emitError && message.severity === 2
+      );
 
       if (messages.length > 0) {
         errors.push({
@@ -205,14 +200,9 @@ function parseResults(options, results) {
     }
 
     if (fileHasWarnings(file)) {
-      const messages = file.messages.filter((message) => {
-        if (options.emitWarning === undefined) {
-          return true;
-        } else if (options.emitWarning) {
-          return message.severity === 1;
-        }
-        return false;
-      });
+      const messages = file.messages.filter(
+        (message) => options.emitWarning && message.severity === 1
+      );
 
       if (messages.length > 0) {
         warnings.push({

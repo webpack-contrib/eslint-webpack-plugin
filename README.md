@@ -174,16 +174,16 @@ You can still force this behavior by using `emitError` **or** `emitWarning` opti
 #### `emitError`
 
 - Type: `Boolean`
-- Default: `false`
+- Default: `true`
 
-Will always return errors, if set to `true`.
+The errors found will always be emitted, to disable set to `false`.
 
 #### `emitWarning`
 
 - Type: `Boolean`
-- Default: `false`
+- Default: `true`
 
-Will always return warnings, if set to `true`.
+The warnings found will always be emitted, to disable set to `false`.
 
 #### `failOnError`
 
