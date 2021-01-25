@@ -1,9 +1,11 @@
 /**
+ * @param {string|undefined} key
  * @param {Options} options
  * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter}}
  */
 export default function linter(
+  key: string | undefined,
   options: Options,
   compilation: Compilation
 ): {

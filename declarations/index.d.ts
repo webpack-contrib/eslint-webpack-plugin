@@ -13,6 +13,7 @@ export class ESLintWebpackPlugin {
    * @returns {void}
    */
   apply(compiler: Compiler): void;
+  key: string | undefined;
   /**
    *
    * @param {Compiler} compiler
