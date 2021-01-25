@@ -112,7 +112,10 @@ export default function linter(key, options, compilation) {
      */
     async function generateReportAsset({ compiler }) {
       const { outputReport } = options;
-      // @ts-ignore
+      /**
+       * @param {string} name
+       * @param {string | Buffer} content
+       */
       const save = (name, content) =>
         /** @type {Promise<void>} */ (new Promise((finish, bail) => {
           const { mkdir, writeFile } = compiler.outputFileSystem;
@@ -121,7 +124,6 @@ export default function linter(key, options, compilation) {
           mkdir(dirname(name), { recursive: true }, (err) => {
             /* istanbul ignore if */
             if (err) bail(err);
-            // @ts-ignore
             else
               writeFile(name, content, (err2) => {
                 /* istanbul ignore if */

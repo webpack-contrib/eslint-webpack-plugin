@@ -121,12 +121,10 @@ class ESLintWebpackPlugin {
         const { errors, warnings, generateReportAsset } = await report();
 
         if (warnings) {
-          // @ts-ignore
           compilation.warnings.push(warnings);
         }
 
         if (errors) {
-          // @ts-ignore
           compilation.errors.push(errors);
         }
 

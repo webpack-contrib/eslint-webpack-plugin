@@ -1,8 +1,7 @@
-export default class ESLintError {
+export default class ESLintError extends WebpackError {
   /**
    * @param {string=} messages
    */
   constructor(messages?: string | undefined);
-  name: string;
-  stack: string;
 }
+import { WebpackError } from 'webpack';

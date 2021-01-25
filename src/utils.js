@@ -1,7 +1,7 @@
 import { statSync } from 'fs';
 
 // @ts-ignore
-import arrify from 'arrify';
+import * as arrify from 'arrify';
 
 const UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\())/g;
 

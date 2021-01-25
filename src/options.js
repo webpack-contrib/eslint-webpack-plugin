@@ -1,7 +1,6 @@
 import { validate } from 'schema-utils';
 
-// @ts-ignore
-import schema from './options.json';
+import * as schema from './options.json';
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -78,6 +77,5 @@ export function getESLintOptions(loaderOptions) {
     delete eslintOptions[option];
   }
 
-  // @ts-ignore
   return eslintOptions;
 }
