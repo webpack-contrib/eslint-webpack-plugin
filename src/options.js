@@ -1,5 +1,6 @@
 import { validate } from 'schema-utils';
 
+// @ts-ignore
 import schema from './options.json';
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
@@ -47,6 +48,8 @@ import schema from './options.json';
 export function getOptions(pluginOptions) {
   const options = {
     extensions: 'js',
+    emitError: true,
+    emitWarning: true,
     failOnError: true,
     ...pluginOptions,
     ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
@@ -78,6 +81,5 @@ export function getESLintOptions(loaderOptions) {
     delete eslintOptions[option];
   }
 
-  // @ts-ignore
   return eslintOptions;
 }

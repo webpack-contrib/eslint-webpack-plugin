@@ -7,11 +7,11 @@
       "type": "string"
     },
     "emitError": {
-      "description": "Will always return errors, if set to `true`.",
+      "description": "The errors found will always be emitted, to disable set to `false`.",
       "type": "boolean"
     },
     "emitWarning": {
-      "description": "Will always return warnings, if set to `true`.",
+      "description": "The warnings found will always be emitted, to disable set to `false`.",
       "type": "boolean"
     },
     "eslintPath": {
