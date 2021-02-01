@@ -190,14 +190,14 @@ Will always return warnings, if set to `true`.
 - Type: `Boolean`
 - Default: `false`
 
-Will cause the module build to fail if there are any errors, if set to `true`.
+Will cause the module build to fail and not emitted files if there are any errors, if set to `true`.
 
 #### `failOnWarning`
 
 - Type: `Boolean`
 - Default: `false`
 
-Will cause the module build to fail if there are any warnings, if set to `true`.
+Will cause the module build to fail and not emitted files if there are any warnings, if set to `true`.
 
 #### `quiet`
 

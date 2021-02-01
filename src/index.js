@@ -112,8 +112,9 @@ export class ESLintWebpackPlugin {
 
       // Gather Files to lint
       compilation.hooks.succeedModule.tap(ESLINT_PLUGIN, processModule);
+
       // await and interpret results
-      compilation.hooks.afterSeal.tapPromise(ESLINT_PLUGIN, processResults);
+      compilation.compiler.hooks.emit.tapPromise(ESLINT_PLUGIN, processResults);
 
       async function processResults() {
         const { errors, warnings, generateReportAsset } = await report();
