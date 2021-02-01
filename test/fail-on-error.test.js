@@ -4,8 +4,9 @@ describe('fail on error', () => {
   it('should emits errors', (done) => {
     const compiler = pack('error', { failOnError: true });
 
-    compiler.run((err) => {
-      expect(err.message).toContain('error.js');
+    compiler.run((err, stats) => {
+      expect(err).toBeNull();
+      expect(stats.hasErrors()).toBe(true);
       done();
     });
   });

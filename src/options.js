@@ -47,6 +47,7 @@ import schema from './options.json';
 export function getOptions(pluginOptions) {
   const options = {
     extensions: 'js',
+    failOnError: true,
     ...pluginOptions,
     ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
   };

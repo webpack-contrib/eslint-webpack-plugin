@@ -23,7 +23,7 @@
       "anyOf": [{ "type": "string" }, { "type": "array" }]
     },
     "failOnError": {
-      "description": "Will cause the module build to fail if there are any errors, if set to `true`.",
+      "description": "Will cause the module build to fail if there are any errors, to disable set to `false`.",
       "type": "boolean"
     },
     "failOnWarning": {

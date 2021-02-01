@@ -4,8 +4,9 @@ describe('fail on warning', () => {
   it('should emits errors', (done) => {
     const compiler = pack('warn', { failOnWarning: true });
 
-    compiler.run((err) => {
-      expect(err.message).toContain('warn.js');
+    compiler.run((err, stats) => {
+      expect(err).toBeNull();
+      expect(stats.hasErrors()).toBe(true);
       done();
     });
   });
