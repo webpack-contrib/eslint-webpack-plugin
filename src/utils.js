@@ -1,5 +1,6 @@
 import { statSync } from 'fs';
 
+// @ts-ignore
 import arrify from 'arrify';
 
 const UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\())/g;
@@ -11,7 +12,7 @@ const UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\())/g;
  */
 export function parseFiles(files, context) {
   return arrify(files).map(
-    (file) =>
+    (/** @type {string} */ file) =>
       `${replaceBackslashes(context).replace(
         UNESCAPED_GLOB_SYMBOLS_RE,
         '\\$2'
@@ -36,12 +37,12 @@ export function parseFoldersToGlobs(patterns, extensions = []) {
   const extensionsList = arrify(extensions);
   const [prefix, postfix] = extensionsList.length > 1 ? ['{', '}'] : ['', ''];
   const extensionsGlob = extensionsList
-    .map((extension) => extension.replace(/^\./u, ''))
+    .map((/** @type {string} */ extension) => extension.replace(/^\./u, ''))
     .join(',');
 
   return arrify(patterns)
-    .map((pattern) => replaceBackslashes(pattern))
-    .map((pattern) => {
+    .map((/** @type {string} */ pattern) => replaceBackslashes(pattern))
+    .map((/** @type {string} */ pattern) => {
       try {
         // The patterns are absolute because they are prepended with the context.
         const stats = statSync(pattern);

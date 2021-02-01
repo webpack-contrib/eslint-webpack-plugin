@@ -1,4 +1,4 @@
-import os from 'os';
+import { cpus } from 'os';
 
 import JestWorker from 'jest-worker';
 
@@ -96,7 +96,7 @@ export default function getESLint(key, { threads, ...options }) {
   const max =
     typeof threads !== 'number'
       ? threads
-        ? os.cpus().length - 1
+        ? cpus().length - 1
         : 1
       : /* istanbul ignore next */
         threads;

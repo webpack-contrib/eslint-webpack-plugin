@@ -112,16 +112,18 @@ export default function linter(key, options, compilation) {
      */
     async function generateReportAsset({ compiler }) {
       const { outputReport } = options;
-      // @ts-ignore
+      /**
+       * @param {string} name
+       * @param {string | Buffer} content
+       */
       const save = (name, content) =>
-        new Promise((finish, bail) => {
+        /** @type {Promise<void>} */ (new Promise((finish, bail) => {
           const { mkdir, writeFile } = compiler.outputFileSystem;
           // ensure directory exists
           // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
           mkdir(dirname(name), { recursive: true }, (err) => {
             /* istanbul ignore if */
             if (err) bail(err);
-            // @ts-ignore
             else
               writeFile(name, content, (err2) => {
                 /* istanbul ignore if */
@@ -129,7 +131,7 @@ export default function linter(key, options, compilation) {
                 else finish();
               });
           });
-        });
+        }));
 
       if (!outputReport || !outputReport.filePath) {
         return;
@@ -185,14 +187,9 @@ function parseResults(options, results) {
 
   results.forEach((file) => {
     if (fileHasErrors(file)) {
-      const messages = file.messages.filter((message) => {
-        if (options.emitError === undefined) {
-          return true;
-        } else if (options.emitError) {
-          return message.severity === 2;
-        }
-        return false;
-      });
+      const messages = file.messages.filter(
+        (message) => options.emitError && message.severity === 2
+      );
 
       if (messages.length > 0) {
         errors.push({
@@ -203,14 +200,9 @@ function parseResults(options, results) {
     }
 
     if (fileHasWarnings(file)) {
-      const messages = file.messages.filter((message) => {
-        if (options.emitWarning === undefined) {
-          return true;
-        } else if (options.emitWarning) {
-          return message.severity === 1;
-        }
-        return false;
-      });
+      const messages = file.messages.filter(
+        (message) => options.emitWarning && message.severity === 1
+      );
 
       if (messages.length > 0) {
         warnings.push({

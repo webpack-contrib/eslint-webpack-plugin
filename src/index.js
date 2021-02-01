@@ -1,7 +1,8 @@
 import { isAbsolute, join } from 'path';
 
+// @ts-ignore
 import arrify from 'arrify';
-import micromatch from 'micromatch';
+import { isMatch } from 'micromatch';
 
 import { getOptions } from './options';
 import linter from './linter';
@@ -13,7 +14,7 @@ import { parseFiles, parseFoldersToGlobs } from './utils';
 const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
 let counter = 0;
 
-export class ESLintWebpackPlugin {
+class ESLintWebpackPlugin {
   /**
    * @param {Options} options
    */
@@ -99,11 +100,7 @@ export class ESLintWebpackPlugin {
         if (module.resource) {
           const [file] = module.resource.split('?');
 
-          if (
-            file &&
-            micromatch.isMatch(file, wanted) &&
-            !micromatch.isMatch(file, exclude)
-          ) {
+          if (file && isMatch(file, wanted) && !isMatch(file, exclude)) {
             // Queue file for linting.
             lint(file);
           }
