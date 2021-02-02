@@ -44,16 +44,18 @@ describe('Threading', () => {
     test('worker can start', async () => {
       const mockThread = { parentPort: { on: jest.fn() }, workerData: {} };
       const mockLintFiles = jest.fn();
-      jest.mock('eslint', () => ({
-        ESLint: Object.assign(
-          function ESLint() {
-            this.lintFiles = mockLintFiles;
-          },
-          {
-            outputFixes: jest.fn(),
-          }
-        ),
-      }));
+      jest.mock('eslint', () => {
+        return {
+          ESLint: Object.assign(
+            function ESLint() {
+              this.lintFiles = mockLintFiles;
+            },
+            {
+              outputFixes: jest.fn(),
+            }
+          ),
+        };
+      });
       jest.mock('worker_threads', () => mockThread);
       const { setup, lintFiles } = require('../src/worker');
 

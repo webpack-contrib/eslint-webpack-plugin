@@ -28,9 +28,7 @@ export type GenerateReport = (compilation: Compilation) => Promise<void>;
 export type Report = {
   errors?: ESLintError | undefined;
   warnings?: ESLintError | undefined;
-  generateReportAsset?:
-    | ((compilation: Compilation) => Promise<void>)
-    | undefined;
+  generateReportAsset?: GenerateReport | undefined;
 };
 export type Reporter = () => Promise<Report>;
 export type Linter = (files: string | string[]) => void;
