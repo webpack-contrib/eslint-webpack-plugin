@@ -17,11 +17,13 @@ describe('error', () => {
   });
 
   it('should propagate eslint exceptions as errors', (done) => {
-    jest.mock('eslint', () => ({
-      ESLint: function ESLint() {
-        this.lintFiles = async () => Promise.reject(new Error('Oh no!'));
-      },
-    }));
+    jest.mock('eslint', () => {
+      return {
+        ESLint: function ESLint() {
+          this.lintFiles = async () => Promise.reject(new Error('Oh no!'));
+        },
+      };
+    });
 
     const compiler = pack('good', { threads: false });
 

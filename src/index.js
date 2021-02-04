@@ -95,20 +95,31 @@ class ESLintWebpackPlugin {
         return;
       }
 
-      // @ts-ignore
-      const processModule = (module) => {
-        if (module.resource) {
-          const [file] = module.resource.split('?');
+      // Gather Files to lint
+      compilation.hooks.finishModules.tap(ESLINT_PLUGIN, (modules) => {
+        /** @type {string[]} */
+        const files = [];
 
-          if (file && isMatch(file, wanted) && !isMatch(file, exclude)) {
-            // Queue file for linting.
-            lint(file);
+        // @ts-ignore
+        for (const { resource } of modules) {
+          if (resource) {
+            const [file] = resource.split('?');
+
+            if (
+              file &&
+              !files.includes(file) &&
+              isMatch(file, wanted) &&
+              !isMatch(file, exclude)
+            ) {
+              files.push(file);
+            }
           }
         }
-      };
 
-      // Gather Files to lint
-      compilation.hooks.succeedModule.tap(ESLINT_PLUGIN, processModule);
+        if (files.length > 0) {
+          lint(files);
+        }
+      });
 
       // await and interpret results
       compilation.hooks.additionalAssets.tapPromise(
