@@ -24,8 +24,6 @@ and emitWarning to false
 * lint dirty modules only ([#67](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/67)) ([f7f372e](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/f7f372e800e75fcd2928655648fee01266c6d158))
 * threads multi-compiler ([#69](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/69)) ([cef4f74](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/cef4f7473707fb3f069ec44c54b5ed2d27d931f8))
 * types ([#66](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/66)) ([4daddf5](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/4daddf5335b2c78203482d7e7f6d82a909277212))
-
-
 * Fix emit warning error quiet (#46) ([d38165b](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/d38165bef1e2d73a9d53f42d80b926c9eab12707)), closes [#46](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/46) [#19](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/19) [#19](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/19)
 
 ### [2.4.3](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.4.2...v2.4.3) (2021-01-19)
