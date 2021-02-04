@@ -1,7 +1,4 @@
-// @ts-ignore
-import WebpackError from 'webpack/lib/WebpackError';
-
-export default class ESLintError extends WebpackError {
+class ESLintError extends Error {
   /**
    * @param {string=} messages
    */
@@ -11,3 +8,5 @@ export default class ESLintError extends WebpackError {
     this.stack = '';
   }
 }
+
+export default ESLintError;

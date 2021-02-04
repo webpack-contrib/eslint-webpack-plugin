@@ -188,9 +188,9 @@ The warnings found will always be emitted, to disable set to `false`.
 #### `failOnError`
 
 - Type: `Boolean`
-- Default: `false`
+- Default: `true`
 
-Will cause the module build to fail if there are any errors, if set to `true`.
+Will cause the module build to fail if there are any errors, to disable set to `false`.
 
 #### `failOnWarning`
 
