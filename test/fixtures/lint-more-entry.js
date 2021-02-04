@@ -1,2 +1,1 @@
-require('./lint-1')
-require('./lint-2')
+require('./lint-more')

@@ -13,6 +13,10 @@ describe('eslint lint', () => {
     });
   });
 
+  beforeEach(() => {
+    mockLintFiles.mockClear();
+  });
+
   it('should lint one file', (done) => {
     const compiler = pack('lint-one', { threads: false });
 
@@ -30,7 +34,7 @@ describe('eslint lint', () => {
     compiler.run((err) => {
       const files = [
         expect.stringMatching('lint-two-entry.js'),
-        expect.stringMatching('lint-1.js'),
+        expect.stringMatching('lint.js'),
       ];
       expect(mockLintFiles).toHaveBeenCalledWith(files);
       expect(err).toBeNull();
@@ -44,8 +48,8 @@ describe('eslint lint', () => {
     compiler.run((err) => {
       const files = [
         expect.stringMatching('lint-more-entry.js'),
-        expect.stringMatching('lint-2.js'),
-        expect.stringMatching('lint-1.js'),
+        expect.stringMatching('lint-more.js'),
+        expect.stringMatching('lint.js'),
       ];
       expect(mockLintFiles).toHaveBeenCalledWith(files);
       expect(err).toBeNull();
