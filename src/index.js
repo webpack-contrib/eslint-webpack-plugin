@@ -122,17 +122,23 @@ class ESLintWebpackPlugin {
       });
 
       // await and interpret results
-      compilation.hooks.afterSeal.tapPromise(ESLINT_PLUGIN, processResults);
+      compilation.hooks.additionalAssets.tapPromise(
+        ESLINT_PLUGIN,
+        processResults
+      );
 
       async function processResults() {
         const { errors, warnings, generateReportAsset } = await report();
 
-        if (warnings) {
+        if (warnings && !options.failOnWarning) {
           // @ts-ignore
           compilation.warnings.push(warnings);
+        } else if (warnings && options.failOnWarning) {
+          // @ts-ignore
+          compilation.errors.push(warnings);
         }
 
-        if (errors) {
+        if (errors && options.failOnError) {
           // @ts-ignore
           compilation.errors.push(errors);
         }

@@ -94,12 +94,6 @@ export default function linter(key, options, compilation) {
       parseResults(options, results)
     );
 
-    if (options.failOnError && errors) {
-      throw errors;
-    } else if (options.failOnWarning && warnings) {
-      throw warnings;
-    }
-
     return {
       errors,
       warnings,

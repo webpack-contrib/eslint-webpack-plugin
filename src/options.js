@@ -50,6 +50,7 @@ export function getOptions(pluginOptions) {
     extensions: 'js',
     emitError: true,
     emitWarning: true,
+    failOnError: true,
     ...pluginOptions,
     ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
   };
