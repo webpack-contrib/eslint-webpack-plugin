@@ -1,29 +1,54 @@
 import pack from './utils/pack';
 
 describe('eslint lint', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
+  const mockLintFiles = jest.fn().mockReturnValue([]);
 
-  it('should lint more files at once', (done) => {
+  beforeAll(() => {
     jest.mock('eslint', () => {
       return {
         ESLint: function ESLint() {
-          this.lintFiles = async (files) => {
-            expect(files.length).toBe(2);
-
-            return [];
-          };
+          this.lintFiles = mockLintFiles;
         },
       };
     });
+  });
 
-    const compiler = pack('good', { threads: false });
+  it('should lint one file', (done) => {
+    const compiler = pack('lint-one', { threads: false });
 
-    compiler.run((err, stats) => {
+    compiler.run((err) => {
+      const files = [expect.stringMatching('lint-one-entry.js')];
+      expect(mockLintFiles).toHaveBeenCalledWith(files);
       expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      done();
+    });
+  });
+
+  it('should lint two files', (done) => {
+    const compiler = pack('lint-two', { threads: false });
+
+    compiler.run((err) => {
+      const files = [
+        expect.stringMatching('lint-two-entry.js'),
+        expect.stringMatching('lint-1.js'),
+      ];
+      expect(mockLintFiles).toHaveBeenCalledWith(files);
+      expect(err).toBeNull();
+      done();
+    });
+  });
+
+  it('should lint more files', (done) => {
+    const compiler = pack('lint-more', { threads: false });
+
+    compiler.run((err) => {
+      const files = [
+        expect.stringMatching('lint-more-entry.js'),
+        expect.stringMatching('lint-2.js'),
+        expect.stringMatching('lint-1.js'),
+      ];
+      expect(mockLintFiles).toHaveBeenCalledWith(files);
+      expect(err).toBeNull();
       done();
     });
   });
