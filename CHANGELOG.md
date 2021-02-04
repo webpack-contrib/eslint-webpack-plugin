@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. See [standa
 ## [2.5.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.4.3...v2.5.0) (2021-02-04)
 
 
-### ⚠ BREAKING CHANGES
+### Refactor
 
 * Updates to emitError and emitWarning
 
