@@ -103,11 +103,7 @@ describe('watch', () => {
     function finish(err, stats) {
       expect(err).toBeNull();
       expect(stats.hasWarnings()).toBe(false);
-      const { errors } = stats.compilation;
-      const [{ message }] = errors;
-      expect(stats.hasErrors()).toBe(true);
-      expect(message).toEqual(expect.stringMatching('prefer-const'));
-      expect(message).toEqual(expect.stringMatching('\\(2 errors,'));
+      expect(stats.hasErrors()).toBe(false);
       done();
     }
   });

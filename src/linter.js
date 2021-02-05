@@ -3,6 +3,9 @@ import { dirname, isAbsolute, join } from 'path';
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
 
+/** @type {Map<string, LintResult>} */
+const linterCache = new Map();
+
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -15,16 +18,14 @@ import getESLint from './getESLint';
 /** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
 /** @typedef {() => Promise<Report>} Reporter */
 /** @typedef {(files: string|string[]) => void} Linter */
+/** @typedef {(filesChanged: string[]) => void} InvalidateLinterCache */
 /** @typedef {{[files: string]: LintResult}} LintResultMap */
-
-/** @type {WeakMap<Compiler, LintResultMap>} */
-const resultStorage = new WeakMap();
 
 /**
  * @param {string|undefined} key
  * @param {Options} options
  * @param {Compilation} compilation
- * @returns {{lint: Linter, report: Reporter}}
+ * @returns {{lint: Linter, report: Reporter, invalidateLinterCache: InvalidateLinterCache}}
  */
 export default function linter(key, options, compilation) {
   /** @type {ESLint} */
@@ -39,8 +40,6 @@ export default function linter(key, options, compilation) {
   /** @type {Promise<LintResult[]>[]} */
   const rawResults = [];
 
-  const crossRunResultStorage = getResultStorage(compilation);
-
   try {
     ({ eslint, lintFiles, cleanup } = getESLint(key, options));
   } catch (e) {
@@ -50,38 +49,51 @@ export default function linter(key, options, compilation) {
   return {
     lint,
     report,
+    invalidateLinterCache,
   };
 
   /**
    * @param {string | string[]} files
    */
   function lint(files) {
-    for (const file of asList(files)) {
-      delete crossRunResultStorage[file];
+    /** @type {string[]} */
+    const filesToLint = [];
+
+    /** @type {LintResult[]} */
+    const cacheResults = [];
+
+    for (const file of files) {
+      const cacheResult = linterCache.get(file);
+      if (cacheResult) cacheResults.push(cacheResult);
+      else filesToLint.push(file);
     }
-    rawResults.push(
-      lintFiles(files).catch((e) => {
-        compilation.errors.push(e);
-        return [];
-      })
-    );
+
+    const resultsPromise = new Promise((resolve) => {
+      lintFiles(filesToLint)
+        .then((lintResults) => {
+          // add lintResults to cache
+          for (const lintResult of lintResults)
+            linterCache.set(lintResult.filePath, lintResult);
+          resolve([...lintResults, ...cacheResults]);
+        })
+        .catch((e) => {
+          compilation.errors.push(e);
+          resolve([]);
+        });
+    });
+
+    rawResults.push(resultsPromise);
   }
 
   async function report() {
     // Filter out ignored files.
-    let results = await removeIgnoredWarnings(
+    const results = await removeIgnoredWarnings(
       eslint,
       // Get the current results, resetting the rawResults to empty
       await flatten(rawResults.splice(0, rawResults.length))
     );
 
     await cleanup();
-
-    for (const result of results) {
-      crossRunResultStorage[result.filePath] = result;
-    }
-
-    results = Object.values(crossRunResultStorage);
 
     // do not analyze if there are no results or eslint config
     if (!results || results.length < 1) {
@@ -141,6 +153,16 @@ export default function linter(key, options, compilation) {
       }
 
       await save(filePath, content);
+    }
+  }
+
+  /**
+   * @param {string[]} filesChanged
+   */
+  function invalidateLinterCache(filesChanged) {
+    // remove modified files
+    for (const fileChanged of filesChanged) {
+      linterCache.delete(fileChanged);
     }
   }
 }
@@ -288,24 +310,4 @@ async function flatten(results) {
    */
   const flat = (acc, list) => [...acc, ...list];
   return (await Promise.all(results)).reduce(flat, []);
-}
-
-/**
- * @param {Compilation} compilation
- * @returns {LintResultMap}
- */
-function getResultStorage({ compiler }) {
-  let storage = resultStorage.get(compiler);
-  if (!storage) {
-    resultStorage.set(compiler, (storage = {}));
-  }
-  return storage;
-}
-
-/**
- * @param {string | string[]} x
- */
-function asList(x) {
-  /* istanbul ignore next */
-  return Array.isArray(x) ? x : [x];
 }

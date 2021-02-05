@@ -82,6 +82,35 @@ class ESLintWebpackPlugin {
     const wanted = parseFoldersToGlobs(options.files, options.extensions);
     const exclude = parseFoldersToGlobs(options.exclude, []);
 
+    /** @type {import('./linter').InvalidateLinterCache} */
+    let invalidateLinterCache;
+
+    // TODO: Remove on v3
+    // use `compiler.modifiedFiles` and `compiler.removedFiles`
+    // directly on hook finishModules
+    compiler.hooks.invalid.tap(ESLINT_PLUGIN, (invalidFile) => {
+      /* istanbul ignore else  */
+      if (invalidateLinterCache) {
+        /** @type {string[]} */
+        const invalidFiles = [];
+
+        /* istanbul ignore else  */
+        if (invalidFile) {
+          invalidFiles.push(invalidFile);
+        }
+
+        if (compiler.modifiedFiles) {
+          invalidFiles.push(...compiler.modifiedFiles);
+        }
+
+        if (compiler.removedFiles) {
+          invalidFiles.push(...compiler.removedFiles);
+        }
+
+        invalidateLinterCache(invalidFiles);
+      }
+    });
+
     compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) => {
       /** @type {import('./linter').Linter} */
       let lint;
@@ -89,7 +118,11 @@ class ESLintWebpackPlugin {
       let report;
 
       try {
-        ({ lint, report } = linter(this.key, options, compilation));
+        ({ lint, report, invalidateLinterCache } = linter(
+          this.key,
+          options,
+          compilation
+        ));
       } catch (e) {
         compilation.errors.push(e);
         return;
@@ -122,12 +155,7 @@ class ESLintWebpackPlugin {
       });
 
       // await and interpret results
-      compilation.hooks.additionalAssets.tapPromise(
-        ESLINT_PLUGIN,
-        processResults
-      );
-
-      async function processResults() {
+      compilation.hooks.additionalAssets.tapPromise(ESLINT_PLUGIN, async () => {
         const { errors, warnings, generateReportAsset } = await report();
 
         if (warnings && !options.failOnWarning) {
@@ -146,7 +174,7 @@ class ESLintWebpackPlugin {
         if (generateReportAsset) {
           await generateReportAsset(compilation);
         }
-      }
+      });
     });
   }
 
