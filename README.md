@@ -123,11 +123,9 @@ Specify extensions that should be checked.
 ### `exclude`
 
 - Type: `String|Array[String]`
-- Default: `null`
+- Default: `'node_modules'`
 
 Specify the files and/or directories to exclude. Must be relative to `options.context`.
-
-**Note**: The folder `node_modules` always be excluded.
 
 ### `files`
 
