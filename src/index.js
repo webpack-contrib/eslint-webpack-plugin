@@ -72,9 +72,9 @@ class ESLintWebpackPlugin {
     const options = {
       ...this.options,
       exclude: parseFiles(
-        this.options.exclude || 'node_modules',
+        this.options.exclude || [],
         this.getContext(compiler)
-      ),
+      ).concat('**/node_modules/**'),
       extensions: arrify(this.options.extensions),
       files: parseFiles(this.options.files || '', this.getContext(compiler)),
     };
