@@ -72,7 +72,7 @@ class ESLintWebpackPlugin {
     const options = {
       ...this.options,
       exclude: parseFiles(
-        this.options.exclude || 'node_modules',
+        this.options.exclude || [],
         this.getContext(compiler)
       ),
       extensions: arrify(this.options.extensions),
@@ -80,7 +80,10 @@ class ESLintWebpackPlugin {
     };
 
     const wanted = parseFoldersToGlobs(options.files, options.extensions);
-    const exclude = parseFoldersToGlobs(options.exclude, []);
+    const exclude = parseFoldersToGlobs(
+      this.options.exclude ? options.exclude : '**/node_modules/**',
+      []
+    );
 
     compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) => {
       /** @type {import('./linter').Linter} */
