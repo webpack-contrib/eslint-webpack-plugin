@@ -3,15 +3,14 @@ import { dirname, isAbsolute, join } from 'path';
 import ESLintError from './ESLintError';
 import getESLint from './getESLint';
 
-/** @type {Map<string, LintResult>} */
-const linterCache = new Map();
+/** @type {WeakMap<Compiler, LintResultMap>} */
+const resultStorage = new WeakMap();
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('webpack').Compilation} Compilation */
-/** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
 /** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
@@ -19,7 +18,7 @@ const linterCache = new Map();
 /** @typedef {() => Promise<Report>} Reporter */
 /** @typedef {(files: string|string[]) => void} Linter */
 /** @typedef {(filesChanged: string[]) => void} InvalidateLinterCache */
-/** @typedef {{[files: string]: LintResult}} LintResultMap */
+/** @typedef {Map<string, LintResult>} LintResultMap */
 
 /**
  * @param {string|undefined} key
@@ -28,6 +27,8 @@ const linterCache = new Map();
  * @returns {{lint: Linter, report: Reporter, invalidateLinterCache: InvalidateLinterCache}}
  */
 export default function linter(key, options, compilation) {
+  const linterCache = getResultStorage(compilation);
+
   /** @type {ESLint} */
   let eslint;
 
@@ -310,4 +311,16 @@ async function flatten(results) {
    */
   const flat = (acc, list) => [...acc, ...list];
   return (await Promise.all(results)).reduce(flat, []);
+}
+
+/**
+ * @param {Compilation} compilation
+ * @returns {LintResultMap}
+ */
+function getResultStorage({ compiler }) {
+  let storage = resultStorage.get(compiler);
+  if (!storage) {
+    resultStorage.set(compiler, (storage = new Map()));
+  }
+  return storage;
 }
