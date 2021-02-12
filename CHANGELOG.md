@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.1](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.5.0...v2.5.1) (2021-02-12)
+
+
+### Bug Fixes
+
+* exclude node_modules root ([#80](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/80)) ([be0391e](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/be0391e28322e220cf628f842f35b3d800c284c0))
+* prevent lint all files ([#77](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/77)) ([f57cb8e](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/f57cb8e1f01c522e562f0af3460d900d7fbba94f))
+* update types ([#81](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/81)) ([90608da](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/90608da93f13ae2de70c2696d4284c1558a3f301))
+
 ## [2.5.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.4.3...v2.5.0) (2021-02-04)
 
 
