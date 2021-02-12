@@ -98,27 +98,28 @@ class ESLintWebpackPlugin {
         return;
       }
 
-      // Gather Files to lint
-      compilation.hooks.finishModules.tap(ESLINT_PLUGIN, (modules) => {
-        /** @type {string[]} */
-        const files = [];
+      /** @type {string[]} */
+      const files = [];
 
-        // @ts-ignore
-        for (const { resource } of modules) {
-          if (resource) {
-            const [file] = resource.split('?');
+      // @ts-ignore
+      // Add the file to be linted
+      compilation.hooks.succeedModule.tap(ESLINT_PLUGIN, ({ resource }) => {
+        if (resource) {
+          const [file] = resource.split('?');
 
-            if (
-              file &&
-              !files.includes(file) &&
-              isMatch(file, wanted) &&
-              !isMatch(file, exclude)
-            ) {
-              files.push(file);
-            }
+          if (
+            file &&
+            !files.includes(file) &&
+            isMatch(file, wanted) &&
+            !isMatch(file, exclude)
+          ) {
+            files.push(file);
           }
         }
+      });
 
+      // Lint all files added
+      compilation.hooks.finishModules.tap(ESLINT_PLUGIN, () => {
         if (files.length > 0) {
           lint(files);
         }
