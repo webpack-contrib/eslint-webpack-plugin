@@ -11,6 +11,17 @@ describe('fail on error', () => {
     });
   });
 
+  it('should emit warnings when disabled', (done) => {
+    const compiler = pack('error', { failOnError: false });
+
+    compiler.run((err, stats) => {
+      expect(err).toBeNull();
+      expect(stats.hasErrors()).toBe(false);
+      expect(stats.hasWarnings()).toBe(true);
+      done();
+    });
+  });
+
   it('should correctly indentifies a success', (done) => {
     const compiler = pack('good', { failOnError: true });
 
