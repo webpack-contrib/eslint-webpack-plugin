@@ -145,6 +145,9 @@ class ESLintWebpackPlugin {
         if (errors && options.failOnError) {
           // @ts-ignore
           compilation.errors.push(errors);
+        } else if (errors && !options.failOnError) {
+          // @ts-ignore
+          compilation.warnings.push(errors);
         }
 
         if (generateReportAsset) {
