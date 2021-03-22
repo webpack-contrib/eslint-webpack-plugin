@@ -7,6 +7,7 @@ declare class ESLintWebpackPlugin {
    * @param {Options} options
    */
   constructor(options?: Options);
+  key: string;
   options: import('./options').PluginOptions;
   /**
    * @param {Compiler} compiler
@@ -17,7 +18,6 @@ declare class ESLintWebpackPlugin {
    * @returns {void}
    */
   apply(compiler: Compiler): void;
-  key: string | undefined;
   /**
    *
    * @param {Compiler} compiler

@@ -19,6 +19,7 @@ class ESLintWebpackPlugin {
    * @param {Options} options
    */
   constructor(options = {}) {
+    this.key = '';
     this.options = getOptions(options);
     this.run = this.run.bind(this);
   }
@@ -35,7 +36,7 @@ class ESLintWebpackPlugin {
     // If `lintDirtyModulesOnly` is disabled,
     // execute the linter on the build
     if (!this.options.lintDirtyModulesOnly) {
-      compiler.hooks.run.tapPromise(ESLINT_PLUGIN, this.run);
+      compiler.hooks.run.tapPromise(this.key, this.run);
     }
 
     // TODO: Figure out want `compiler.watching` is and how to use it in Webpack5.
@@ -43,7 +44,7 @@ class ESLintWebpackPlugin {
     // undefined (webpack 4 doesn't define it either) I'm leaving it out
     // for now.
     let isFirstRun = this.options.lintDirtyModulesOnly;
-    compiler.hooks.watchRun.tapPromise(ESLINT_PLUGIN, (c) => {
+    compiler.hooks.watchRun.tapPromise(this.key, (c) => {
       if (isFirstRun) {
         isFirstRun = false;
 
@@ -61,10 +62,7 @@ class ESLintWebpackPlugin {
     // Do not re-hook
     if (
       // @ts-ignore
-      compiler.hooks.thisCompilation.taps.find(
-        // @ts-ignore
-        ({ name }) => name === ESLINT_PLUGIN
-      )
+      compiler.hooks.thisCompilation.taps.find(({ name }) => name === this.key)
     ) {
       return;
     }
@@ -85,7 +83,7 @@ class ESLintWebpackPlugin {
       []
     );
 
-    compiler.hooks.thisCompilation.tap(ESLINT_PLUGIN, (compilation) => {
+    compiler.hooks.thisCompilation.tap(this.key, (compilation) => {
       /** @type {import('./linter').Linter} */
       let lint;
       /** @type {import('./linter').Reporter} */
@@ -103,7 +101,7 @@ class ESLintWebpackPlugin {
 
       // @ts-ignore
       // Add the file to be linted
-      compilation.hooks.succeedModule.tap(ESLINT_PLUGIN, ({ resource }) => {
+      compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
         if (resource) {
           const [file] = resource.split('?');
 
@@ -119,17 +117,14 @@ class ESLintWebpackPlugin {
       });
 
       // Lint all files added
-      compilation.hooks.finishModules.tap(ESLINT_PLUGIN, () => {
+      compilation.hooks.finishModules.tap(this.key, () => {
         if (files.length > 0) {
           lint(files);
         }
       });
 
       // await and interpret results
-      compilation.hooks.additionalAssets.tapPromise(
-        ESLINT_PLUGIN,
-        processResults
-      );
+      compilation.hooks.additionalAssets.tapPromise(this.key, processResults);
 
       async function processResults() {
         const { errors, warnings, generateReportAsset } = await report();
