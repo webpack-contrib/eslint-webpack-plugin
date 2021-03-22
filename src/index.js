@@ -19,7 +19,7 @@ class ESLintWebpackPlugin {
    * @param {Options} options
    */
   constructor(options = {}) {
-    this.key = '';
+    this.key = ESLINT_PLUGIN;
     this.options = getOptions(options);
     this.run = this.run.bind(this);
   }
@@ -31,7 +31,7 @@ class ESLintWebpackPlugin {
   apply(compiler) {
     // Generate key for each compilation,
     // this differentiates one from the other when being cached.
-    this.key = compiler.name || `${ESLINT_PLUGIN}_${(counter += 1)}`;
+    this.key = compiler.name || `${this.key}_${(counter += 1)}`;
 
     // If `lintDirtyModulesOnly` is disabled,
     // execute the linter on the build
