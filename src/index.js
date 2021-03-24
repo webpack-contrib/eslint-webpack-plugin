@@ -110,7 +110,7 @@ class ESLintWebpackPlugin {
           if (
             file &&
             !files.includes(file) &&
-            isMatch(file, wanted) &&
+            isMatch(file, wanted, { dot: true }) &&
             !isMatch(file, exclude, { dot: true })
           ) {
             files.push(file);
