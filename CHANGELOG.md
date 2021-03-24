@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.3](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.5.2...v2.5.3) (2021-03-24)
+
+
+### Bug Fixes
+
+* allow multiple instances ([#92](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/92)) ([0cdd621](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/0cdd621be597c643cad6c4a41c7fed31c29fb1a5))
+* match hidden directories for path exclusions ([#87](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/87)) ([bb8750c](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/bb8750cb8a1cb4f6297a07b579ad4e394e11d968))
+
 ### [2.5.2](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.5.1...v2.5.2) (2021-02-18)
 
 
