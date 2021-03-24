@@ -1,0 +1,2 @@
+require('./good');
+require('./error');
