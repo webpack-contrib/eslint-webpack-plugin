@@ -88,9 +88,11 @@ class ESLintWebpackPlugin {
       let lint;
       /** @type {import('./linter').Reporter} */
       let report;
+      /** @type number */
+      let threads;
 
       try {
-        ({ lint, report } = linter(this.key, options, compilation));
+        ({ lint, report, threads } = linter(this.key, options, compilation));
       } catch (e) {
         compilation.errors.push(e);
         return;
@@ -112,13 +114,17 @@ class ESLintWebpackPlugin {
             !isMatch(file, exclude, { dot: true })
           ) {
             files.push(file);
+
+            if (threads > 1) {
+              lint(file);
+            }
           }
         }
       });
 
       // Lint all files added
       compilation.hooks.finishModules.tap(this.key, () => {
-        if (files.length > 0) {
+        if (files.length > 0 && threads <= 1) {
           lint(files);
         }
       });
