@@ -1,9 +1,8 @@
+import { join } from 'path';
 import { statSync } from 'fs';
 
 // @ts-ignore
 import arrify from 'arrify';
-
-const UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\())/g;
 
 /**
  * @param {string|string[]} files
@@ -11,12 +10,8 @@ const UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\())/g;
  * @returns {string[]}
  */
 export function parseFiles(files, context) {
-  return arrify(files).map(
-    (/** @type {string} */ file) =>
-      `${replaceBackslashes(context).replace(
-        UNESCAPED_GLOB_SYMBOLS_RE,
-        '\\$2'
-      )}/${replaceBackslashes(file)}`
+  return arrify(files).map((/** @type {string} */ file) =>
+    replaceBackslashes(join(context, file))
   );
 }
 
