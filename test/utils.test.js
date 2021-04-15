@@ -1,4 +1,4 @@
-import { parseFoldersToGlobs } from '../src/utils';
+import { parseFoldersToGlobs, parseFiles } from '../src/utils';
 
 jest.mock('fs', () => {
   return {
@@ -10,6 +10,21 @@ jest.mock('fs', () => {
       };
     },
   };
+});
+
+test('parseFiles should return relative files from context', () => {
+  expect(
+    parseFiles(
+      ['**/*', '../package-a/src/**/', '../package-b/src/**/'],
+      'main/src'
+    )
+  ).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining('main/src/**/*'),
+      expect.stringContaining('main/package-a/src/**'),
+      expect.stringContaining('main/package-b/src/**'),
+    ])
+  );
 });
 
 test('parseFoldersToGlobs should return globs for folders', () => {

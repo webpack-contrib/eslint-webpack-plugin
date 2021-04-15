@@ -5,11 +5,6 @@
  */
 export function parseFiles(files: string | string[], context: string): string[];
 /**
- * @param {string} str
- * @returns {string}
- */
-export function replaceBackslashes(str: string): string;
-/**
  * @param {string|string[]} patterns
  * @param {string|string[]} extensions
  * @returns {string[]}

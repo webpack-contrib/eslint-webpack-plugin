@@ -50,6 +50,7 @@
     "arrify": "^2.0.1",
     "jest-worker": "^26.6.2",
     "micromatch": "^4.0.2",
+    "normalize-path": "^3.0.0",
     "schema-utils": "^3.0.0"
   },
   "devDependencies": {
@@ -60,6 +61,7 @@
     "@commitlint/config-conventional": "^11.0.0",
     "@types/fs-extra": "^9.0.6",
     "@types/micromatch": "^4.0.1",
+    "@types/normalize-path": "^3.0.0",
     "@types/webpack": "^4.41.26",
     "@webpack-contrib/eslint-config-webpack": "^3.0.0",
     "babel-eslint": "^10.1.0",
