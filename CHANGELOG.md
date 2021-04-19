@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.5.4](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.5.3...v2.5.4) (2021-04-19)
+
+
+### Bug Fixes
+
+* context with symbols ([#94](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/94)) ([6fc6874](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/6fc6874f4ee295eea372dcfa0a86799b355dab70))
+* resolve paths and normalize ([#97](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/97)) ([818b825](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/818b825db119dde0b53b24d96688f1af89344b29))
+* use `finishModules` if thread is less than or equal 1 ([#95](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/95)) ([c12e7be](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/c12e7be0be49f95fa8f2d9ae354acba3bd412b5c))
+
 ### [2.5.3](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.5.2...v2.5.3) (2021-03-24)
 
 
