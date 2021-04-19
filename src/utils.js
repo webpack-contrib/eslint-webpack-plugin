@@ -1,6 +1,8 @@
-import { join } from 'path';
+import { resolve } from 'path';
 import { statSync } from 'fs';
 
+// @ts-ignore
+import normalizePath from 'normalize-path';
 // @ts-ignore
 import arrify from 'arrify';
 
@@ -11,16 +13,8 @@ import arrify from 'arrify';
  */
 export function parseFiles(files, context) {
   return arrify(files).map((/** @type {string} */ file) =>
-    replaceBackslashes(join(context, file))
+    normalizePath(resolve(context, file))
   );
-}
-
-/**
- * @param {string} str
- * @returns {string}
- */
-export function replaceBackslashes(str) {
-  return str.replace(/\\/g, '/');
 }
 
 /**
@@ -35,26 +29,24 @@ export function parseFoldersToGlobs(patterns, extensions = []) {
     .map((/** @type {string} */ extension) => extension.replace(/^\./u, ''))
     .join(',');
 
-  return arrify(patterns)
-    .map((/** @type {string} */ pattern) => replaceBackslashes(pattern))
-    .map((/** @type {string} */ pattern) => {
-      try {
-        // The patterns are absolute because they are prepended with the context.
-        const stats = statSync(pattern);
-        /* istanbul ignore else */
-        if (stats.isDirectory()) {
-          return pattern.replace(
-            /[/\\]*?$/u,
-            `/**${
-              extensionsGlob ? `/*.${prefix + extensionsGlob + postfix}` : ''
-            }`
-          );
-        }
-      } catch (_) {
-        // Return the pattern as is on error.
+  return arrify(patterns).map((/** @type {string} */ pattern) => {
+    try {
+      // The patterns are absolute because they are prepended with the context.
+      const stats = statSync(pattern);
+      /* istanbul ignore else */
+      if (stats.isDirectory()) {
+        return pattern.replace(
+          /[/\\]*?$/u,
+          `/**${
+            extensionsGlob ? `/*.${prefix + extensionsGlob + postfix}` : ''
+          }`
+        );
       }
-      return pattern;
-    });
+    } catch (_) {
+      // Return the pattern as is on error.
+    }
+    return pattern;
+  });
 }
 
 /**

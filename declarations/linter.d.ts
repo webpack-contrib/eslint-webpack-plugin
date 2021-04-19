@@ -2,7 +2,7 @@
  * @param {string|undefined} key
  * @param {Options} options
  * @param {Compilation} compilation
- * @returns {{lint: Linter, report: Reporter}}
+ * @returns {{lint: Linter, report: Reporter, threads: number}}
  */
 export default function linter(
   key: string | undefined,
@@ -11,6 +11,7 @@ export default function linter(
 ): {
   lint: Linter;
   report: Reporter;
+  threads: number;
 };
 export type ESLint = import('eslint').ESLint;
 export type Formatter = import('eslint').ESLint.Formatter;
