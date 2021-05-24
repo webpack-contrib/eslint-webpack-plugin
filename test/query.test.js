@@ -1,21 +1,21 @@
-import path from 'path';
+import path from "path";
 
-import webpack from 'webpack';
+import webpack from "webpack";
 
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('query', () => {
-  it('should correctly resolve file despite query path', (done) => {
-    const isWebpack5 = webpack.version.startsWith('5');
+describe("query", () => {
+  it("should correctly resolve file despite query path", (done) => {
+    const isWebpack5 = webpack.version.startsWith("5");
     const compiler = pack(
-      'query',
+      "query",
       {},
       {
         resolve: {
           alias: {
-            'alias-ignore': isWebpack5
+            "alias-ignore": isWebpack5
               ? false
-              : path.resolve(__dirname, './fixtures/good.js'),
+              : path.resolve(__dirname, "./fixtures/good.js"),
           },
         },
       }

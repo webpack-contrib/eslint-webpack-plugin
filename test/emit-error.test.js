@@ -1,8 +1,8 @@
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('emit error', () => {
-  it('should not emit errors if emitError is false', (done) => {
-    const compiler = pack('error', { emitError: false });
+describe("emit error", () => {
+  it("should not emit errors if emitError is false", (done) => {
+    const compiler = pack("error", { emitError: false });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
@@ -11,8 +11,8 @@ describe('emit error', () => {
     });
   });
 
-  it('should emit errors if emitError is undefined', (done) => {
-    const compiler = pack('error', {});
+  it("should emit errors if emitError is undefined", (done) => {
+    const compiler = pack("error", {});
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
@@ -21,8 +21,8 @@ describe('emit error', () => {
     });
   });
 
-  it('should emit errors if emitError is true', (done) => {
-    const compiler = pack('error', { emitError: true });
+  it("should emit errors if emitError is true", (done) => {
+    const compiler = pack("error", { emitError: true });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
@@ -31,8 +31,8 @@ describe('emit error', () => {
     });
   });
 
-  it('should emit errors, but not warnings if emitError is true and emitWarning is false', (done) => {
-    const compiler = pack('full-of-problems', {
+  it("should emit errors, but not warnings if emitError is true and emitWarning is false", (done) => {
+    const compiler = pack("full-of-problems", {
       emitError: true,
       emitWarning: false,
     });
@@ -45,8 +45,8 @@ describe('emit error', () => {
     });
   });
 
-  it('should emit errors and warnings if emitError is true and emitWarning is undefined', (done) => {
-    const compiler = pack('full-of-problems', { emitError: true });
+  it("should emit errors and warnings if emitError is true and emitWarning is undefined", (done) => {
+    const compiler = pack("full-of-problems", { emitError: true });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();

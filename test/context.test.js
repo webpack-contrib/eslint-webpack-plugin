@@ -1,10 +1,10 @@
-import { join } from 'path';
+import { join } from "path";
 
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('context', () => {
-  it('absolute', (done) => {
-    const compiler = pack('good', { context: join(__dirname, 'fixtures') });
+describe("context", () => {
+  it("absolute", (done) => {
+    const compiler = pack("good", { context: join(__dirname, "fixtures") });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
@@ -14,8 +14,8 @@ describe('context', () => {
     });
   });
 
-  it('relative', (done) => {
-    const compiler = pack('good', { context: '../fixtures/' });
+  it("relative", (done) => {
+    const compiler = pack("good", { context: "../fixtures/" });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();

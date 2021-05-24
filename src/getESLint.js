@@ -1,9 +1,9 @@
-import { cpus } from 'os';
+import { cpus } from "os";
 
-import JestWorker from 'jest-worker';
+import JestWorker from "jest-worker";
 
-import { getESLintOptions } from './options';
-import { jsonStringifyReplacerSortKeys } from './utils';
+import { getESLintOptions } from "./options";
+import { jsonStringifyReplacerSortKeys } from "./utils";
 
 /** @type {{[key: string]: any}} */
 const cache = {};
@@ -23,7 +23,7 @@ const cache = {};
 export function loadESLint(options) {
   const { eslintPath } = options;
 
-  const { ESLint } = require(eslintPath || 'eslint');
+  const { ESLint } = require(eslintPath || "eslint");
 
   // Filter out loader options before passing the options to ESLint.
   const eslint = new ESLint(getESLintOptions(options));
@@ -53,8 +53,8 @@ export function loadESLint(options) {
  */
 export function loadESLintThreaded(key, poolSize, options) {
   const cacheKey = getCacheKey(key, options);
-  const { eslintPath = 'eslint' } = options;
-  const source = require.resolve('./worker');
+  const { eslintPath = "eslint" } = options;
+  const source = require.resolve("./worker");
   const workerOptions = {
     enableWorkerThreads: true,
     numWorkers: poolSize,
@@ -94,7 +94,7 @@ export function loadESLintThreaded(key, poolSize, options) {
  */
 export default function getESLint(key, { threads, ...options }) {
   const max =
-    typeof threads !== 'number'
+    typeof threads !== "number"
       ? threads
         ? cpus().length - 1
         : 1

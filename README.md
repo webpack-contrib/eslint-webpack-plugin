@@ -40,7 +40,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'eslint-loader',
+        loader: "eslint-loader",
         options: {
           // eslint options (if necessary)
         },
@@ -54,7 +54,7 @@ module.exports = {
 After:
 
 ```js
-const ESLintPlugin = require('eslint-webpack-plugin');
+const ESLintPlugin = require("eslint-webpack-plugin");
 
 module.exports = {
   // ...
@@ -80,7 +80,7 @@ npm install eslint --save-dev
 In your webpack configuration:
 
 ```js
-const ESLintPlugin = require('eslint-webpack-plugin');
+const ESLintPlugin = require("eslint-webpack-plugin");
 
 module.exports = {
   // ...

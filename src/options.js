@@ -1,7 +1,7 @@
-import { validate } from 'schema-utils';
+import { validate } from "schema-utils";
 
 // @ts-ignore
-import schema from './options.json';
+import schema from "./options.json";
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -47,7 +47,7 @@ import schema from './options.json';
  */
 export function getOptions(pluginOptions) {
   const options = {
-    extensions: 'js',
+    extensions: "js",
     emitError: true,
     emitWarning: true,
     failOnError: true,
@@ -57,8 +57,8 @@ export function getOptions(pluginOptions) {
 
   // @ts-ignore
   validate(schema, options, {
-    name: 'ESLint Webpack Plugin',
-    baseDataPath: 'options',
+    name: "ESLint Webpack Plugin",
+    baseDataPath: "options",
   });
 
   return options;

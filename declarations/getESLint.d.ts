@@ -30,10 +30,10 @@ export default function getESLint(
   key: string | undefined,
   { threads, ...options }: Options
 ): Linter;
-export type ESLint = import('eslint').ESLint;
-export type LintResult = import('eslint').ESLint.LintResult;
-export type Options = import('./options').PluginOptions &
-  import('eslint').ESLint.Options;
+export type ESLint = import("eslint").ESLint;
+export type LintResult = import("eslint").ESLint.LintResult;
+export type Options = import("./options").PluginOptions &
+  import("eslint").ESLint.Options;
 export type AsyncTask = () => Promise<void>;
 export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
 export type Worker = JestWorker & {
@@ -46,4 +46,4 @@ export type Linter = {
   lintFiles: LintTask;
   cleanup: AsyncTask;
 };
-import JestWorker from 'jest-worker';
+import JestWorker from "jest-worker";

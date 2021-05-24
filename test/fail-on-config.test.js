@@ -1,11 +1,11 @@
-import { join } from 'path';
+import { join } from "path";
 
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('fail on config', () => {
-  it('fails when .eslintrc is not a proper format', (done) => {
-    const overrideConfigFile = join(__dirname, '.badeslintrc');
-    const compiler = pack('error', { overrideConfigFile });
+describe("fail on config", () => {
+  it("fails when .eslintrc is not a proper format", (done) => {
+    const overrideConfigFile = join(__dirname, ".badeslintrc");
+    const compiler = pack("error", { overrideConfigFile });
 
     compiler.run((err, stats) => {
       const { errors } = stats.compilation;

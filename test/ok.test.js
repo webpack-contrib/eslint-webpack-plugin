@@ -1,8 +1,8 @@
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('ok', () => {
+describe("ok", () => {
   it("should don't throw error if file is ok", (done) => {
-    const compiler = pack('good');
+    const compiler = pack("good");
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();

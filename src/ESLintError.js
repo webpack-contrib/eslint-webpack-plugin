@@ -4,8 +4,8 @@ class ESLintError extends Error {
    */
   constructor(messages) {
     super(messages);
-    this.name = 'ESLintError';
-    this.stack = '';
+    this.name = "ESLintError";
+    this.stack = "";
   }
 }
 

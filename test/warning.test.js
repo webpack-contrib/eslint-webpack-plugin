@@ -1,8 +1,8 @@
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('warning', () => {
-  it('should emit warnings', (done) => {
-    const compiler = pack('warn');
+describe("warning", () => {
+  it("should emit warnings", (done) => {
+    const compiler = pack("warn");
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();

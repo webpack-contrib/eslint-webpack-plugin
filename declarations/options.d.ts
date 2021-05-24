@@ -41,9 +41,9 @@ export function getOptions(pluginOptions: Options): PluginOptions;
  * @returns {ESLintOptions}
  */
 export function getESLintOptions(loaderOptions: Options): ESLintOptions;
-export type ESLintOptions = import('eslint').ESLint.Options;
-export type LintResult = import('eslint').ESLint.LintResult;
-export type LintResultData = import('eslint').ESLint.LintResultData;
+export type ESLintOptions = import("eslint").ESLint.Options;
+export type LintResult = import("eslint").ESLint.LintResult;
+export type LintResultData = import("eslint").ESLint.LintResultData;
 export type FormatterFunction = (
   results: LintResult[],
   data?: LintResultData | undefined
@@ -69,4 +69,4 @@ export type PluginOptions = {
   outputReport?: OutputReport | undefined;
   threads?: (number | boolean) | undefined;
 };
-export type Options = PluginOptions & import('eslint').ESLint.Options;
+export type Options = PluginOptions & import("eslint").ESLint.Options;

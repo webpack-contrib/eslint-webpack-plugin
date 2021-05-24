@@ -1,12 +1,12 @@
 /* eslint-env jest */
-import { join } from 'path';
+import { join } from "path";
 
-import { loadESLint, loadESLintThreaded } from '../src/getESLint';
+import { loadESLint, loadESLintThreaded } from "../src/getESLint";
 
-describe('Threading', () => {
-  test('Threaded interface should look like non-threaded interface', async () => {
+describe("Threading", () => {
+  test("Threaded interface should look like non-threaded interface", async () => {
     const single = loadESLint({});
-    const threaded = loadESLintThreaded('foo', 1, {});
+    const threaded = loadESLintThreaded("foo", 1, {});
     for (const key of Object.keys(single)) {
       expect(typeof single[key]).toEqual(typeof threaded[key]);
     }
@@ -20,12 +20,12 @@ describe('Threading', () => {
     threaded.cleanup();
   });
 
-  test('Threaded should lint files', async () => {
-    const threaded = loadESLintThreaded('bar', 1, { ignore: false });
+  test("Threaded should lint files", async () => {
+    const threaded = loadESLintThreaded("bar", 1, { ignore: false });
     try {
       const [good, bad] = await Promise.all([
-        threaded.lintFiles(join(__dirname, 'fixtures/good.js')),
-        threaded.lintFiles(join(__dirname, 'fixtures/error.js')),
+        threaded.lintFiles(join(__dirname, "fixtures/good.js")),
+        threaded.lintFiles(join(__dirname, "fixtures/error.js")),
       ]);
       expect(good[0].errorCount).toBe(0);
       expect(good[0].warningCount).toBe(0);
@@ -36,15 +36,15 @@ describe('Threading', () => {
     }
   });
 
-  describe('worker coverage', () => {
+  describe("worker coverage", () => {
     beforeEach(() => {
       jest.resetModules();
     });
 
-    test('worker can start', async () => {
+    test("worker can start", async () => {
       const mockThread = { parentPort: { on: jest.fn() }, workerData: {} };
       const mockLintFiles = jest.fn();
-      jest.mock('eslint', () => {
+      jest.mock("eslint", () => {
         return {
           ESLint: Object.assign(
             function ESLint() {
@@ -56,14 +56,14 @@ describe('Threading', () => {
           ),
         };
       });
-      jest.mock('worker_threads', () => mockThread);
-      const { setup, lintFiles } = require('../src/worker');
+      jest.mock("worker_threads", () => mockThread);
+      const { setup, lintFiles } = require("../src/worker");
 
       await setup({});
-      await lintFiles('foo');
-      expect(mockLintFiles).toHaveBeenCalledWith('foo');
+      await lintFiles("foo");
+      expect(mockLintFiles).toHaveBeenCalledWith("foo");
       await setup({ eslintOptions: { fix: true } });
-      await lintFiles('foo');
+      await lintFiles("foo");
     });
   });
 });

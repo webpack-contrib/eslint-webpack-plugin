@@ -1,10 +1,10 @@
-import { resolve } from 'path';
-import { statSync } from 'fs';
+import { resolve } from "path";
+import { statSync } from "fs";
 
 // @ts-ignore
-import normalizePath from 'normalize-path';
+import normalizePath from "normalize-path";
 // @ts-ignore
-import arrify from 'arrify';
+import arrify from "arrify";
 
 /**
  * @param {string|string[]} files
@@ -24,10 +24,10 @@ export function parseFiles(files, context) {
  */
 export function parseFoldersToGlobs(patterns, extensions = []) {
   const extensionsList = arrify(extensions);
-  const [prefix, postfix] = extensionsList.length > 1 ? ['{', '}'] : ['', ''];
+  const [prefix, postfix] = extensionsList.length > 1 ? ["{", "}"] : ["", ""];
   const extensionsGlob = extensionsList
-    .map((/** @type {string} */ extension) => extension.replace(/^\./u, ''))
-    .join(',');
+    .map((/** @type {string} */ extension) => extension.replace(/^\./u, ""))
+    .join(",");
 
   return arrify(patterns).map((/** @type {string} */ pattern) => {
     try {
@@ -38,7 +38,7 @@ export function parseFoldersToGlobs(patterns, extensions = []) {
         return pattern.replace(
           /[/\\]*?$/u,
           `/**${
-            extensionsGlob ? `/*.${prefix + extensionsGlob + postfix}` : ''
+            extensionsGlob ? `/*.${prefix + extensionsGlob + postfix}` : ""
           }`
         );
       }

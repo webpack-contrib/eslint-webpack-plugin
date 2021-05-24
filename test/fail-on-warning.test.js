@@ -1,8 +1,8 @@
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('fail on warning', () => {
-  it('should emits errors', (done) => {
-    const compiler = pack('warn', { failOnWarning: true });
+describe("fail on warning", () => {
+  it("should emits errors", (done) => {
+    const compiler = pack("warn", { failOnWarning: true });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
@@ -11,8 +11,8 @@ describe('fail on warning', () => {
     });
   });
 
-  it('should correctly indentifies a success', (done) => {
-    const compiler = pack('good', { failOnWarning: true });
+  it("should correctly indentifies a success", (done) => {
+    const compiler = pack("good", { failOnWarning: true });
 
     compiler.run((err) => {
       expect(err).toBeNull();

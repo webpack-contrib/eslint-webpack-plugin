@@ -1,12 +1,12 @@
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('error', () => {
+describe("error", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('should return error if file is bad', (done) => {
-    const compiler = pack('error');
+  it("should return error if file is bad", (done) => {
+    const compiler = pack("error");
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();
@@ -16,16 +16,16 @@ describe('error', () => {
     });
   });
 
-  it('should propagate eslint exceptions as errors', (done) => {
-    jest.mock('eslint', () => {
+  it("should propagate eslint exceptions as errors", (done) => {
+    jest.mock("eslint", () => {
       return {
         ESLint: function ESLint() {
-          this.lintFiles = async () => Promise.reject(new Error('Oh no!'));
+          this.lintFiles = async () => Promise.reject(new Error("Oh no!"));
         },
       };
     });
 
-    const compiler = pack('good', { threads: false });
+    const compiler = pack("good", { threads: false });
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();

@@ -1,17 +1,17 @@
-import { isAbsolute, join } from 'path';
+import { isAbsolute, join } from "path";
 
 // @ts-ignore
-import arrify from 'arrify';
-import { isMatch } from 'micromatch';
+import arrify from "arrify";
+import { isMatch } from "micromatch";
 
-import { getOptions } from './options';
-import linter from './linter';
-import { parseFiles, parseFoldersToGlobs } from './utils';
+import { getOptions } from "./options";
+import linter from "./linter";
+import { parseFiles, parseFoldersToGlobs } from "./utils";
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
 
-const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
+const ESLINT_PLUGIN = "ESLintWebpackPlugin";
 let counter = 0;
 
 class ESLintWebpackPlugin {
@@ -74,12 +74,12 @@ class ESLintWebpackPlugin {
         this.getContext(compiler)
       ),
       extensions: arrify(this.options.extensions),
-      files: parseFiles(this.options.files || '', this.getContext(compiler)),
+      files: parseFiles(this.options.files || "", this.getContext(compiler)),
     };
 
     const wanted = parseFoldersToGlobs(options.files, options.extensions);
     const exclude = parseFoldersToGlobs(
-      this.options.exclude ? options.exclude : '**/node_modules/**',
+      this.options.exclude ? options.exclude : "**/node_modules/**",
       []
     );
 
@@ -105,7 +105,7 @@ class ESLintWebpackPlugin {
       // Add the file to be linted
       compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
         if (resource) {
-          const [file] = resource.split('?');
+          const [file] = resource.split("?");
 
           if (
             file &&

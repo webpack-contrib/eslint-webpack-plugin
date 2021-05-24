@@ -1,13 +1,13 @@
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('parameters', () => {
-  it('should supports query strings parameters', (done) => {
+describe("parameters", () => {
+  it("should supports query strings parameters", (done) => {
     const loaderOptions = {
       overrideConfig: {
         rules: { semi: 0 },
       },
     };
-    const compiler = pack('good', loaderOptions);
+    const compiler = pack("good", loaderOptions);
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();

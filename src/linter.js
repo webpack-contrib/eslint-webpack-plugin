@@ -1,7 +1,7 @@
-import { dirname, isAbsolute, join } from 'path';
+import { dirname, isAbsolute, join } from "path";
 
-import ESLintError from './ESLintError';
-import getESLint from './getESLint';
+import ESLintError from "./ESLintError";
+import getESLint from "./getESLint";
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
@@ -115,21 +115,23 @@ export default function linter(key, options, compilation) {
        * @param {string | Buffer} content
        */
       const save = (name, content) =>
-        /** @type {Promise<void>} */ (new Promise((finish, bail) => {
-          const { mkdir, writeFile } = compiler.outputFileSystem;
-          // ensure directory exists
-          // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
-          mkdir(dirname(name), { recursive: true }, (err) => {
-            /* istanbul ignore if */
-            if (err) bail(err);
-            else
-              writeFile(name, content, (err2) => {
-                /* istanbul ignore if */
-                if (err2) bail(err2);
-                else finish();
-              });
-          });
-        }));
+        /** @type {Promise<void>} */ (
+          new Promise((finish, bail) => {
+            const { mkdir, writeFile } = compiler.outputFileSystem;
+            // ensure directory exists
+            // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
+            mkdir(dirname(name), { recursive: true }, (err) => {
+              /* istanbul ignore if */
+              if (err) bail(err);
+              else
+                writeFile(name, content, (err2) => {
+                  /* istanbul ignore if */
+                  if (err2) bail(err2);
+                  else finish();
+                });
+            });
+          })
+        );
 
       if (!outputReport || !outputReport.filePath) {
         return;
@@ -239,11 +241,11 @@ function fileHasWarnings(file) {
  * @returns {Promise<Formatter>}
  */
 async function loadFormatter(eslint, formatter) {
-  if (typeof formatter === 'function') {
+  if (typeof formatter === "function") {
     return { format: formatter };
   }
 
-  if (typeof formatter === 'string') {
+  if (typeof formatter === "string") {
     try {
       return eslint.loadFormatter(formatter);
     } catch (_) {

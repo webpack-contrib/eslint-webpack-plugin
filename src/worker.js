@@ -24,7 +24,7 @@ let fix;
  */
 function setup({ eslintPath, eslintOptions = {} }) {
   fix = !!(eslintOptions && eslintOptions.fix);
-  ({ ESLint } = require(eslintPath || 'eslint'));
+  ({ ESLint } = require(eslintPath || "eslint"));
   eslint = new ESLint(eslintOptions);
 }
 

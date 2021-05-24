@@ -8,5 +8,5 @@ export type setupOptions = {
    */
   eslintOptions?: ESLintOptions | undefined;
 };
-export type ESLint = import('eslint').ESLint;
-export type ESLintOptions = import('eslint').ESLint.Options;
+export type ESLint = import("eslint").ESLint;
+export type ESLintOptions = import("eslint").ESLint.Options;

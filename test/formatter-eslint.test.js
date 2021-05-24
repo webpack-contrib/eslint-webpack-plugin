@@ -1,8 +1,8 @@
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('formatter eslint', () => {
-  it('should use eslint formatter', (done) => {
-    const compiler = pack('error');
+describe("formatter eslint", () => {
+  it("should use eslint formatter", (done) => {
+    const compiler = pack("error");
 
     compiler.run((err, stats) => {
       expect(err).toBeNull();

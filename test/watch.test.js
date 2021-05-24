@@ -1,17 +1,17 @@
-import { join } from 'path';
-import { writeFileSync } from 'fs';
+import { join } from "path";
+import { writeFileSync } from "fs";
 
-import { removeSync } from 'fs-extra';
+import { removeSync } from "fs-extra";
 
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-const target = join(__dirname, 'fixtures', 'watch-entry.js');
-const target2 = join(__dirname, 'fixtures', 'watch-leaf.js');
+const target = join(__dirname, "fixtures", "watch-entry.js");
+const target2 = join(__dirname, "fixtures", "watch-leaf.js");
 const targetExpectedPattern = expect.stringMatching(
-  target.replace(/\\/g, '\\\\')
+  target.replace(/\\/g, "\\\\")
 );
 
-describe('watch', () => {
+describe("watch", () => {
   let watch;
   afterEach(() => {
     if (watch) {
@@ -21,8 +21,8 @@ describe('watch', () => {
     removeSync(target2);
   });
 
-  it('should watch', (done) => {
-    const compiler = pack('good');
+  it("should watch", (done) => {
+    const compiler = pack("good");
 
     watch = compiler.watch({}, (err, stats) => {
       expect(err).toBeNull();
@@ -32,11 +32,11 @@ describe('watch', () => {
     });
   });
 
-  it('should watch with unique messages', (done) => {
-    writeFileSync(target, 'var foo = stuff\n');
+  it("should watch with unique messages", (done) => {
+    writeFileSync(target, "var foo = stuff\n");
 
     let next = firstPass;
-    const compiler = pack('watch');
+    const compiler = pack("watch");
     watch = compiler.watch({}, (err, stats) => next(err, stats));
 
     function firstPass(err, stats) {
@@ -47,11 +47,11 @@ describe('watch', () => {
       expect(errors.length).toBe(1);
       const [{ message }] = errors;
       expect(message).toEqual(targetExpectedPattern);
-      expect(message).toEqual(expect.stringMatching('\\(3 errors,'));
+      expect(message).toEqual(expect.stringMatching("\\(3 errors,"));
 
       next = secondPass;
 
-      writeFileSync(target2, 'let bar = false;\n');
+      writeFileSync(target2, "let bar = false;\n");
       writeFileSync(
         target,
         "const x = require('./watch-leaf.js')\n\nconst foo = false;\n"
@@ -66,10 +66,10 @@ describe('watch', () => {
       expect(errors.length).toBe(1);
       const [{ message }] = errors;
       expect(message).toEqual(targetExpectedPattern);
-      expect(message).toEqual(expect.stringMatching('no-unused-vars'));
+      expect(message).toEqual(expect.stringMatching("no-unused-vars"));
       // `prefer-const` passes here
-      expect(message).toEqual(expect.stringMatching('prefer-const'));
-      expect(message).toEqual(expect.stringMatching('\\(4 errors,'));
+      expect(message).toEqual(expect.stringMatching("prefer-const"));
+      expect(message).toEqual(expect.stringMatching("\\(4 errors,"));
 
       next = thirdPass;
 
@@ -87,16 +87,16 @@ describe('watch', () => {
       expect(errors.length).toBe(1);
       const [{ message }] = errors;
       expect(message).toEqual(targetExpectedPattern);
-      expect(message).toEqual(expect.stringMatching('no-unused-vars'));
+      expect(message).toEqual(expect.stringMatching("no-unused-vars"));
       // `prefer-const` fails here
-      expect(message).toEqual(expect.stringMatching('prefer-const'));
-      expect(message).toEqual(expect.stringMatching('\\(5 errors,'));
+      expect(message).toEqual(expect.stringMatching("prefer-const"));
+      expect(message).toEqual(expect.stringMatching("\\(5 errors,"));
 
       next = finish;
 
       writeFileSync(
         target,
-        '/* eslint-disable no-unused-vars */\nconst foo = false;\n'
+        "/* eslint-disable no-unused-vars */\nconst foo = false;\n"
       );
     }
 
@@ -106,8 +106,8 @@ describe('watch', () => {
       const { errors } = stats.compilation;
       const [{ message }] = errors;
       expect(stats.hasErrors()).toBe(true);
-      expect(message).toEqual(expect.stringMatching('prefer-const'));
-      expect(message).toEqual(expect.stringMatching('\\(2 errors,'));
+      expect(message).toEqual(expect.stringMatching("prefer-const"));
+      expect(message).toEqual(expect.stringMatching("\\(2 errors,"));
       done();
     }
   });

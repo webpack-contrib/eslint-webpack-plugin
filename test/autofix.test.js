@@ -1,14 +1,14 @@
-import { join } from 'path';
+import { join } from "path";
 
-import { copySync, removeSync, readFileSync } from 'fs-extra';
+import { copySync, removeSync, readFileSync } from "fs-extra";
 
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('autofix stop', () => {
-  const entry = join(__dirname, 'fixtures/fixable-clone.js');
+describe("autofix stop", () => {
+  const entry = join(__dirname, "fixtures/fixable-clone.js");
 
   beforeAll(() => {
-    copySync(join(__dirname, 'fixtures/fixable.js'), entry);
+    copySync(join(__dirname, "fixtures/fixable.js"), entry);
   });
 
   afterAll(() => {
@@ -16,14 +16,14 @@ describe('autofix stop', () => {
   });
 
   test.each([[{}], [{ threads: false }]])(
-    'should not throw error if file ok after auto-fixing',
+    "should not throw error if file ok after auto-fixing",
     (cfg, done) => {
-      const compiler = pack('fixable-clone', {
+      const compiler = pack("fixable-clone", {
         ...cfg,
         fix: true,
-        extensions: ['js', 'cjs', 'mjs'],
+        extensions: ["js", "cjs", "mjs"],
         overrideConfig: {
-          rules: { semi: ['error', 'always'] },
+          rules: { semi: ["error", "always"] },
         },
       });
 
@@ -31,7 +31,7 @@ describe('autofix stop', () => {
         expect(err).toBeNull();
         expect(stats.hasWarnings()).toBe(false);
         expect(stats.hasErrors()).toBe(false);
-        expect(readFileSync(entry).toString('utf8')).toMatchInlineSnapshot(`
+        expect(readFileSync(entry).toString("utf8")).toMatchInlineSnapshot(`
         "function foo() {
           return true;
         }

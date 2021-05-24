@@ -1,16 +1,16 @@
-import ESLintPlugin from '../src';
+import ESLintPlugin from "../src";
 
-import pack from './utils/pack';
+import pack from "./utils/pack";
 
-describe('multiple instances', () => {
+describe("multiple instances", () => {
   it("should don't fail", (done) => {
     const compiler = pack(
-      'multiple',
+      "multiple",
       {},
       {
         plugins: [
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
+          new ESLintPlugin({ ignore: false, exclude: "error.js" }),
+          new ESLintPlugin({ ignore: false, exclude: "error.js" }),
         ],
       }
     );
@@ -23,14 +23,14 @@ describe('multiple instances', () => {
     });
   });
 
-  it('should fail on first instance', (done) => {
+  it("should fail on first instance", (done) => {
     const compiler = pack(
-      'multiple',
+      "multiple",
       {},
       {
         plugins: [
-          new ESLintPlugin({ ignore: false, exclude: 'good.js' }),
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
+          new ESLintPlugin({ ignore: false, exclude: "good.js" }),
+          new ESLintPlugin({ ignore: false, exclude: "error.js" }),
         ],
       }
     );
@@ -43,14 +43,14 @@ describe('multiple instances', () => {
     });
   });
 
-  it('should fail on second instance', (done) => {
+  it("should fail on second instance", (done) => {
     const compiler = pack(
-      'multiple',
+      "multiple",
       {},
       {
         plugins: [
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
-          new ESLintPlugin({ ignore: false, exclude: 'good.js' }),
+          new ESLintPlugin({ ignore: false, exclude: "error.js" }),
+          new ESLintPlugin({ ignore: false, exclude: "good.js" }),
         ],
       }
     );

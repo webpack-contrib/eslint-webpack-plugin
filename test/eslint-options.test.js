@@ -1,9 +1,9 @@
-import { getESLintOptions } from '../src/options';
+import { getESLintOptions } from "../src/options";
 
-describe('eslint options', () => {
-  it('should filter loader options', () => {
+describe("eslint options", () => {
+  it("should filter loader options", () => {
     const options = {
-      formatter: 'table',
+      formatter: "table",
       ignore: false,
     };
     expect(getESLintOptions(options)).toStrictEqual({
@@ -11,11 +11,11 @@ describe('eslint options', () => {
     });
   });
 
-  it('should keep the fix option', () => {
+  it("should keep the fix option", () => {
     // The fix option should be kept because it is common to both the loader and ESLint.
     const options = {
-      eslintPath: 'some/place/where/eslint/lives',
-      formatter: 'table',
+      eslintPath: "some/place/where/eslint/lives",
+      formatter: "table",
       fix: true,
       emitError: false,
       emitWarning: false,

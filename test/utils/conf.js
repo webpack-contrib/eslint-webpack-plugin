@@ -1,16 +1,16 @@
-import { join } from 'path';
+import { join } from "path";
 
-import ESLintPlugin from '../../src';
+import ESLintPlugin from "../../src";
 
 export default (entry, pluginConf = {}, webpackConf = {}) => {
-  const testDir = join(__dirname, '..');
+  const testDir = join(__dirname, "..");
 
   return {
     entry: `./${entry}-entry.js`,
-    context: join(testDir, 'fixtures'),
-    mode: 'development',
+    context: join(testDir, "fixtures"),
+    mode: "development",
     output: {
-      path: join(testDir, 'output'),
+      path: join(testDir, "output"),
     },
     plugins: [
       new ESLintPlugin({

@@ -1,15 +1,15 @@
-import { join } from 'path';
+import { join } from "path";
 
-import webpack from 'webpack';
+import webpack from "webpack";
 
-import ESLintPlugin from '../src';
+import ESLintPlugin from "../src";
 
-describe('empty', () => {
-  it('no error when no files matching', (done) => {
+describe("empty", () => {
+  it("no error when no files matching", (done) => {
     const compiler = webpack({
-      context: join(__dirname, 'fixtures', 'empty'),
-      mode: 'development',
-      entry: '../',
+      context: join(__dirname, "fixtures", "empty"),
+      mode: "development",
+      entry: "../",
       plugins: [new ESLintPlugin()],
     });
 
