@@ -8,7 +8,6 @@ import getESLint from './getESLint';
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('webpack').Compilation} Compilation */
-/** @typedef {import('webpack-sources').Source} Source */
 /** @typedef {import('./options').Options} Options */
 /** @typedef {import('./options').FormatterFunction} FormatterFunction */
 /** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
@@ -115,21 +114,23 @@ export default function linter(key, options, compilation) {
        * @param {string | Buffer} content
        */
       const save = (name, content) =>
-        /** @type {Promise<void>} */ (new Promise((finish, bail) => {
-          const { mkdir, writeFile } = compiler.outputFileSystem;
-          // ensure directory exists
-          // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
-          mkdir(dirname(name), { recursive: true }, (err) => {
-            /* istanbul ignore if */
-            if (err) bail(err);
-            else
-              writeFile(name, content, (err2) => {
-                /* istanbul ignore if */
-                if (err2) bail(err2);
-                else finish();
-              });
-          });
-        }));
+        /** @type {Promise<void>} */ (
+          new Promise((finish, bail) => {
+            const { mkdir, writeFile } = compiler.outputFileSystem;
+            // ensure directory exists
+            // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
+            mkdir(dirname(name), { recursive: true }, (err) => {
+              /* istanbul ignore if */
+              if (err) bail(err);
+              else
+                writeFile(name, content, (err2) => {
+                  /* istanbul ignore if */
+                  if (err2) bail(err2);
+                  else finish();
+                });
+            });
+          })
+        );
 
       if (!outputReport || !outputReport.filePath) {
         return;

@@ -1,10 +1,10 @@
 import { resolve } from 'path';
 import { statSync } from 'fs';
 
+import arrify from 'arrify';
+
 // @ts-ignore
 import normalizePath from 'normalize-path';
-// @ts-ignore
-import arrify from 'arrify';
 
 /**
  * @param {string|string[]} files

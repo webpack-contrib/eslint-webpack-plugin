@@ -54,7 +54,7 @@ describe('watch', () => {
       writeFileSync(target2, 'let bar = false;\n');
       writeFileSync(
         target,
-        "const x = require('./watch-leaf.js')\n\nconst foo = false;\n"
+        "const x = require('./watch-leaf')\n\nconst foo = false;\n"
       );
     }
 
@@ -75,7 +75,7 @@ describe('watch', () => {
 
       writeFileSync(
         target,
-        "const x = require('./watch-leaf.js')\nconst foo = 0\n"
+        "const x = require('./watch-leaf')\nconst foo = 0\n"
       );
     }
 
