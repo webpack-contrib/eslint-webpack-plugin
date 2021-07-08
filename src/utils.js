@@ -50,7 +50,6 @@ export function parseFoldersToGlobs(patterns, extensions = []) {
 }
 
 /**
- *
  * @param {string} _ key, but unused
  * @param {any} value
  */
