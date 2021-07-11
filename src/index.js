@@ -1,6 +1,5 @@
 import { isAbsolute, join } from 'path';
 
-// @ts-ignore
 import arrify from 'arrify';
 import { isMatch } from 'micromatch';
 
@@ -39,10 +38,6 @@ class ESLintWebpackPlugin {
       compiler.hooks.run.tapPromise(this.key, this.run);
     }
 
-    // TODO: Figure out want `compiler.watching` is and how to use it in Webpack5.
-    // From my testing of compiler.watch() ... compiler.watching is always
-    // undefined (webpack 4 doesn't define it either) I'm leaving it out
-    // for now.
     let isFirstRun = this.options.lintDirtyModulesOnly;
     compiler.hooks.watchRun.tapPromise(this.key, (c) => {
       if (isFirstRun) {

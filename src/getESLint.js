@@ -1,6 +1,6 @@
 import { cpus } from 'os';
 
-import JestWorker from 'jest-worker';
+import { Worker as JestWorker } from 'jest-worker';
 
 import { getESLintOptions } from './options';
 import { jsonStringifyReplacerSortKeys } from './utils';

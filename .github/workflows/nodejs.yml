@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -55,8 +55,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [10.x, 12.x, 14.x]
-        webpack-version: [4, latest]
+        node-version: [12.x, 14.x, 16.x]
+        webpack-version: [latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
 

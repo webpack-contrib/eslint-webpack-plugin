@@ -1,2 +1,2 @@
 require('./lint')
-require('./lint.js?foo=bar')
+require('./lint?foo=bar')

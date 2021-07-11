@@ -1,10 +1,10 @@
 import { resolve } from 'path';
 import { statSync } from 'fs';
 
+import arrify from 'arrify';
+
 // @ts-ignore
 import normalizePath from 'normalize-path';
-// @ts-ignore
-import arrify from 'arrify';
 
 /**
  * @param {string|string[]} files
@@ -50,7 +50,6 @@ export function parseFoldersToGlobs(patterns, extensions = []) {
 }
 
 /**
- *
  * @param {string} _ key, but unused
  * @param {any} value
  */
