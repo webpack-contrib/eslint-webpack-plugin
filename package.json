@@ -43,7 +43,7 @@
   ],
   "peerDependencies": {
     "eslint": "^7.0.0",
-    "webpack": "^5.1.0"
+    "webpack": "^5.0.0"
   },
   "dependencies": {
     "@types/eslint": "^7.2.14",
