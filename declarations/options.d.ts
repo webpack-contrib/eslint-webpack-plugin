@@ -69,4 +69,4 @@ export type PluginOptions = {
   outputReport?: OutputReport | undefined;
   threads?: (number | boolean) | undefined;
 };
-export type Options = PluginOptions & import('eslint').ESLint.Options;
+export type Options = PluginOptions & ESLintOptions;
