@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v3.0.0...v3.0.1) (2021-07-20)
+
+
+### Bug Fixes
+
+* crash with `ERR_REQUIRE_ESM` error ([26b4db3](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/26b4db37f1b39d597c26fbab52374425e2c455ac))
+
 ## [3.0.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.5.4...v3.0.0) (2021-07-19)
 
 
