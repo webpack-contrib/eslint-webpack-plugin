@@ -1,11 +1,10 @@
 import { isAbsolute, join } from 'path';
 
-import arrify from 'arrify';
 import { isMatch } from 'micromatch';
 
 import { getOptions } from './options';
 import linter from './linter';
-import { parseFiles, parseFoldersToGlobs } from './utils';
+import { arrify, parseFiles, parseFoldersToGlobs } from './utils';
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
