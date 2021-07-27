@@ -1,7 +1,7 @@
-import { validate } from 'schema-utils';
+import { validate } from 'schema-utils'
 
 // @ts-ignore
-import schema from './options.json';
+import schema from './options.json'
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -46,22 +46,22 @@ import schema from './options.json';
  * @returns {PluginOptions}
  */
 export function getOptions(pluginOptions) {
-  const options = {
-    extensions: 'js',
-    emitError: true,
-    emitWarning: true,
-    failOnError: true,
-    ...pluginOptions,
-    ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
-  };
+	const options = {
+		extensions: 'js',
+		emitError: true,
+		emitWarning: true,
+		failOnError: true,
+		...pluginOptions,
+		...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {})
+	}
 
-  // @ts-ignore
-  validate(schema, options, {
-    name: 'ESLint Webpack Plugin',
-    baseDataPath: 'options',
-  });
+	// @ts-ignore
+	validate(schema, options, {
+		name: 'ESLint Webpack Plugin',
+		baseDataPath: 'options'
+	})
 
-  return options;
+	return options
 }
 
 /**
@@ -69,17 +69,17 @@ export function getOptions(pluginOptions) {
  * @returns {ESLintOptions}
  */
 export function getESLintOptions(loaderOptions) {
-  const eslintOptions = { ...loaderOptions };
+	const eslintOptions = { ...loaderOptions }
 
-  // Keep the fix option because it is common to both the loader and ESLint.
-  const { fix, extensions, ...eslintOnlyOptions } = schema.properties;
+	// Keep the fix option because it is common to both the loader and ESLint.
+	const { fix, extensions, ...eslintOnlyOptions } = schema.properties
 
-  // No need to guard the for-in because schema.properties has hardcoded keys.
-  // eslint-disable-next-line guard-for-in
-  for (const option in eslintOnlyOptions) {
-    // @ts-ignore
-    delete eslintOptions[option];
-  }
+	// No need to guard the for-in because schema.properties has hardcoded keys.
+	// eslint-disable-next-line guard-for-in
+	for (const option in eslintOnlyOptions) {
+		// @ts-ignore
+		delete eslintOptions[option]
+	}
 
-  return eslintOptions;
+	return eslintOptions
 }

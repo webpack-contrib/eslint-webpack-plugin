@@ -139,9 +139,9 @@ module. Thankfully, Github provides a means to do this. Add a dependency to the
 
 ```json
 {
-  "devDependencies": {
-    "eslint-webpack-plugin": "webpack-contrib/eslint-webpack-plugin#{id}/head"
-  }
+	"devDependencies": {
+		"eslint-webpack-plugin": "webpack-contrib/eslint-webpack-plugin#{id}/head"
+	}
 }
 ```
 

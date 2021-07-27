@@ -1,7 +1,7 @@
-import { dirname, isAbsolute, join } from 'path';
+import { dirname, isAbsolute, join } from 'path'
 
-import ESLintError from './ESLintError';
-import getESLint from './getESLint';
+import ESLintError from './ESLintError'
+import getESLint from './getESLint'
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
@@ -17,7 +17,7 @@ import getESLint from './getESLint';
 /** @typedef {{[files: string]: LintResult}} LintResultMap */
 
 /** @type {WeakMap<Compiler, LintResultMap>} */
-const resultStorage = new WeakMap();
+const resultStorage = new WeakMap()
 
 /**
  * @param {string|undefined} key
@@ -26,128 +26,128 @@ const resultStorage = new WeakMap();
  * @returns {{lint: Linter, report: Reporter, threads: number}}
  */
 export default function linter(key, options, compilation) {
-  /** @type {ESLint} */
-  let eslint;
+	/** @type {ESLint} */
+	let eslint
 
-  /** @type {(files: string|string[]) => Promise<LintResult[]>} */
-  let lintFiles;
+	/** @type {(files: string|string[]) => Promise<LintResult[]>} */
+	let lintFiles
 
-  /** @type {() => Promise<void>} */
-  let cleanup;
+	/** @type {() => Promise<void>} */
+	let cleanup
 
-  /** @type number */
-  let threads;
+	/** @type number */
+	let threads
 
-  /** @type {Promise<LintResult[]>[]} */
-  const rawResults = [];
+	/** @type {Promise<LintResult[]>[]} */
+	const rawResults = []
 
-  const crossRunResultStorage = getResultStorage(compilation);
+	const crossRunResultStorage = getResultStorage(compilation)
 
-  try {
-    ({ eslint, lintFiles, cleanup, threads } = getESLint(key, options));
-  } catch (e) {
-    throw new ESLintError(e.message);
-  }
+	try {
+		;({ eslint, lintFiles, cleanup, threads } = getESLint(key, options))
+	} catch (e) {
+		throw new ESLintError(e.message)
+	}
 
-  return {
-    lint,
-    report,
-    threads,
-  };
+	return {
+		lint,
+		report,
+		threads
+	}
 
-  /**
-   * @param {string | string[]} files
-   */
-  function lint(files) {
-    for (const file of asList(files)) {
-      delete crossRunResultStorage[file];
-    }
-    rawResults.push(
-      lintFiles(files).catch((e) => {
-        compilation.errors.push(e);
-        return [];
-      })
-    );
-  }
+	/**
+	 * @param {string | string[]} files
+	 */
+	function lint(files) {
+		for (const file of asList(files)) {
+			delete crossRunResultStorage[file]
+		}
+		rawResults.push(
+			lintFiles(files).catch(e => {
+				compilation.errors.push(e)
+				return []
+			})
+		)
+	}
 
-  async function report() {
-    // Filter out ignored files.
-    let results = await removeIgnoredWarnings(
-      eslint,
-      // Get the current results, resetting the rawResults to empty
-      await flatten(rawResults.splice(0, rawResults.length))
-    );
+	async function report() {
+		// Filter out ignored files.
+		let results = await removeIgnoredWarnings(
+			eslint,
+			// Get the current results, resetting the rawResults to empty
+			await flatten(rawResults.splice(0, rawResults.length))
+		)
 
-    await cleanup();
+		await cleanup()
 
-    for (const result of results) {
-      crossRunResultStorage[result.filePath] = result;
-    }
+		for (const result of results) {
+			crossRunResultStorage[result.filePath] = result
+		}
 
-    results = Object.values(crossRunResultStorage);
+		results = Object.values(crossRunResultStorage)
 
-    // do not analyze if there are no results or eslint config
-    if (!results || results.length < 1) {
-      return {};
-    }
+		// do not analyze if there are no results or eslint config
+		if (!results || results.length < 1) {
+			return {}
+		}
 
-    const formatter = await loadFormatter(eslint, options.formatter);
-    const { errors, warnings } = formatResults(
-      formatter,
-      parseResults(options, results)
-    );
+		const formatter = await loadFormatter(eslint, options.formatter)
+		const { errors, warnings } = formatResults(
+			formatter,
+			parseResults(options, results)
+		)
 
-    return {
-      errors,
-      warnings,
-      generateReportAsset,
-    };
+		return {
+			errors,
+			warnings,
+			generateReportAsset
+		}
 
-    /**
-     * @param {Compilation} compilation
-     * @returns {Promise<void>}
-     */
-    async function generateReportAsset({ compiler }) {
-      const { outputReport } = options;
-      /**
-       * @param {string} name
-       * @param {string | Buffer} content
-       */
-      const save = (name, content) =>
-        /** @type {Promise<void>} */ (
-          new Promise((finish, bail) => {
-            const { mkdir, writeFile } = compiler.outputFileSystem;
-            // ensure directory exists
-            // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
-            mkdir(dirname(name), { recursive: true }, (err) => {
-              /* istanbul ignore if */
-              if (err) bail(err);
-              else
-                writeFile(name, content, (err2) => {
-                  /* istanbul ignore if */
-                  if (err2) bail(err2);
-                  else finish();
-                });
-            });
-          })
-        );
+		/**
+		 * @param {Compilation} compilation
+		 * @returns {Promise<void>}
+		 */
+		async function generateReportAsset({ compiler }) {
+			const { outputReport } = options
+			/**
+			 * @param {string} name
+			 * @param {string | Buffer} content
+			 */
+			const save = (name, content) =>
+				/** @type {Promise<void>} */ (
+					new Promise((finish, bail) => {
+						const { mkdir, writeFile } = compiler.outputFileSystem
+						// ensure directory exists
+						// @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
+						mkdir(dirname(name), { recursive: true }, err => {
+							/* istanbul ignore if */
+							if (err) bail(err)
+							else
+								writeFile(name, content, err2 => {
+									/* istanbul ignore if */
+									if (err2) bail(err2)
+									else finish()
+								})
+						})
+					})
+				)
 
-      if (!outputReport || !outputReport.filePath) {
-        return;
-      }
+			if (!outputReport || !outputReport.filePath) {
+				return
+			}
 
-      const content = outputReport.formatter
-        ? (await loadFormatter(eslint, outputReport.formatter)).format(results)
-        : formatter.format(results);
+			const content = outputReport.formatter
+				? (await loadFormatter(eslint, outputReport.formatter)).format(results)
+				: formatter.format(results)
 
-      let { filePath } = outputReport;
-      if (!isAbsolute(filePath)) {
-        filePath = join(compiler.outputPath, filePath);
-      }
+			let { filePath } = outputReport
+			if (!isAbsolute(filePath)) {
+				filePath = join(compiler.outputPath, filePath)
+			}
 
-      await save(filePath, content);
-    }
-  }
+			await save(filePath, content)
+		}
+	}
 }
 
 /**
@@ -156,20 +156,20 @@ export default function linter(key, options, compilation) {
  * @returns {{errors?: ESLintError, warnings?: ESLintError}}
  */
 function formatResults(formatter, results) {
-  let errors;
-  let warnings;
-  if (results.warnings.length > 0) {
-    warnings = new ESLintError(formatter.format(results.warnings));
-  }
+	let errors
+	let warnings
+	if (results.warnings.length > 0) {
+		warnings = new ESLintError(formatter.format(results.warnings))
+	}
 
-  if (results.errors.length > 0) {
-    errors = new ESLintError(formatter.format(results.errors));
-  }
+	if (results.errors.length > 0) {
+		errors = new ESLintError(formatter.format(results.errors))
+	}
 
-  return {
-    errors,
-    warnings,
-  };
+	return {
+		errors,
+		warnings
+	}
 }
 
 /**
@@ -178,44 +178,44 @@ function formatResults(formatter, results) {
  * @returns {{errors: LintResult[], warnings: LintResult[]}}
  */
 function parseResults(options, results) {
-  /** @type {LintResult[]} */
-  const errors = [];
+	/** @type {LintResult[]} */
+	const errors = []
 
-  /** @type {LintResult[]} */
-  const warnings = [];
+	/** @type {LintResult[]} */
+	const warnings = []
 
-  results.forEach((file) => {
-    if (fileHasErrors(file)) {
-      const messages = file.messages.filter(
-        (message) => options.emitError && message.severity === 2
-      );
+	results.forEach(file => {
+		if (fileHasErrors(file)) {
+			const messages = file.messages.filter(
+				message => options.emitError && message.severity === 2
+			)
 
-      if (messages.length > 0) {
-        errors.push({
-          ...file,
-          messages,
-        });
-      }
-    }
+			if (messages.length > 0) {
+				errors.push({
+					...file,
+					messages
+				})
+			}
+		}
 
-    if (fileHasWarnings(file)) {
-      const messages = file.messages.filter(
-        (message) => options.emitWarning && message.severity === 1
-      );
+		if (fileHasWarnings(file)) {
+			const messages = file.messages.filter(
+				message => options.emitWarning && message.severity === 1
+			)
 
-      if (messages.length > 0) {
-        warnings.push({
-          ...file,
-          messages,
-        });
-      }
-    }
-  });
+			if (messages.length > 0) {
+				warnings.push({
+					...file,
+					messages
+				})
+			}
+		}
+	})
 
-  return {
-    errors,
-    warnings,
-  };
+	return {
+		errors,
+		warnings
+	}
 }
 
 /**
@@ -223,7 +223,7 @@ function parseResults(options, results) {
  * @returns {boolean}
  */
 function fileHasErrors(file) {
-  return file.errorCount > 0;
+	return file.errorCount > 0
 }
 
 /**
@@ -231,7 +231,7 @@ function fileHasErrors(file) {
  * @returns {boolean}
  */
 function fileHasWarnings(file) {
-  return file.warningCount > 0;
+	return file.warningCount > 0
 }
 
 /**
@@ -240,19 +240,19 @@ function fileHasWarnings(file) {
  * @returns {Promise<Formatter>}
  */
 async function loadFormatter(eslint, formatter) {
-  if (typeof formatter === 'function') {
-    return { format: formatter };
-  }
+	if (typeof formatter === 'function') {
+		return { format: formatter }
+	}
 
-  if (typeof formatter === 'string') {
-    try {
-      return eslint.loadFormatter(formatter);
-    } catch (_) {
-      // Load the default formatter.
-    }
-  }
+	if (typeof formatter === 'string') {
+		try {
+			return eslint.loadFormatter(formatter)
+		} catch (_) {
+			// Load the default formatter.
+		}
+	}
 
-  return eslint.loadFormatter();
+	return eslint.loadFormatter()
 }
 
 /**
@@ -261,25 +261,25 @@ async function loadFormatter(eslint, formatter) {
  * @returns {Promise<LintResult[]>}
  */
 async function removeIgnoredWarnings(eslint, results) {
-  const filterPromises = results.map(async (result) => {
-    // Short circuit the call to isPathIgnored.
-    //   fatal is false for ignored file warnings.
-    //   ruleId is unset for internal ESLint errors.
-    //   line is unset for warnings not involving file contents.
-    const ignored =
-      result.messages.length === 0 ||
-      (result.warningCount === 1 &&
-        result.errorCount === 0 &&
-        !result.messages[0].fatal &&
-        !result.messages[0].ruleId &&
-        !result.messages[0].line &&
-        (await eslint.isPathIgnored(result.filePath)));
+	const filterPromises = results.map(async result => {
+		// Short circuit the call to isPathIgnored.
+		//   fatal is false for ignored file warnings.
+		//   ruleId is unset for internal ESLint errors.
+		//   line is unset for warnings not involving file contents.
+		const ignored =
+			result.messages.length === 0 ||
+			(result.warningCount === 1 &&
+				result.errorCount === 0 &&
+				!result.messages[0].fatal &&
+				!result.messages[0].ruleId &&
+				!result.messages[0].line &&
+				(await eslint.isPathIgnored(result.filePath)))
 
-    return ignored ? false : result;
-  });
+		return ignored ? false : result
+	})
 
-  // @ts-ignore
-  return (await Promise.all(filterPromises)).filter((result) => !!result);
+	// @ts-ignore
+	return (await Promise.all(filterPromises)).filter(result => !!result)
 }
 
 /**
@@ -287,12 +287,12 @@ async function removeIgnoredWarnings(eslint, results) {
  * @returns {Promise<LintResult[]>}
  */
 async function flatten(results) {
-  /**
-   * @param {LintResult[]} acc
-   * @param {LintResult[]} list
-   */
-  const flat = (acc, list) => [...acc, ...list];
-  return (await Promise.all(results)).reduce(flat, []);
+	/**
+	 * @param {LintResult[]} acc
+	 * @param {LintResult[]} list
+	 */
+	const flat = (acc, list) => [...acc, ...list]
+	return (await Promise.all(results)).reduce(flat, [])
 }
 
 /**
@@ -300,17 +300,17 @@ async function flatten(results) {
  * @returns {LintResultMap}
  */
 function getResultStorage({ compiler }) {
-  let storage = resultStorage.get(compiler);
-  if (!storage) {
-    resultStorage.set(compiler, (storage = {}));
-  }
-  return storage;
+	let storage = resultStorage.get(compiler)
+	if (!storage) {
+		resultStorage.set(compiler, (storage = {}))
+	}
+	return storage
 }
 
 /**
  * @param {string | string[]} x
  */
 function asList(x) {
-  /* istanbul ignore next */
-  return Array.isArray(x) ? x : [x];
+	/* istanbul ignore next */
+	return Array.isArray(x) ? x : [x]
 }

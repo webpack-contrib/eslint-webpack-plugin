@@ -1,2 +1,2 @@
-export default ESLintError;
+export default ESLintError
 declare class ESLintError extends Error {}

@@ -1,12 +1,12 @@
-import { cpus } from 'os';
+import { cpus } from 'os'
 
-import { Worker as JestWorker } from 'jest-worker';
+import { Worker as JestWorker } from 'jest-worker'
 
-import { getESLintOptions } from './options';
-import { jsonStringifyReplacerSortKeys } from './utils';
+import { getESLintOptions } from './options'
+import { jsonStringifyReplacerSortKeys } from './utils'
 
 /** @type {{[key: string]: any}} */
-const cache = {};
+const cache = {}
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -21,28 +21,28 @@ const cache = {};
  * @returns {Linter}
  */
 export function loadESLint(options) {
-  const { eslintPath } = options;
+	const { eslintPath } = options
 
-  const { ESLint } = require(eslintPath || 'eslint');
+	const { ESLint } = require(eslintPath || 'eslint')
 
-  // Filter out loader options before passing the options to ESLint.
-  const eslint = new ESLint(getESLintOptions(options));
+	// Filter out loader options before passing the options to ESLint.
+	const eslint = new ESLint(getESLintOptions(options))
 
-  return {
-    threads: 1,
-    ESLint,
-    eslint,
-    lintFiles: async (files) => {
-      const results = await eslint.lintFiles(files);
-      // istanbul ignore else
-      if (options.fix) {
-        await ESLint.outputFixes(results);
-      }
-      return results;
-    },
-    // no-op for non-threaded
-    cleanup: async () => {},
-  };
+	return {
+		threads: 1,
+		ESLint,
+		eslint,
+		lintFiles: async files => {
+			const results = await eslint.lintFiles(files)
+			// istanbul ignore else
+			if (options.fix) {
+				await ESLint.outputFixes(results)
+			}
+			return results
+		},
+		// no-op for non-threaded
+		cleanup: async () => {}
+	}
 }
 
 /**
@@ -52,39 +52,39 @@ export function loadESLint(options) {
  * @returns {Linter}
  */
 export function loadESLintThreaded(key, poolSize, options) {
-  const cacheKey = getCacheKey(key, options);
-  const { eslintPath = 'eslint' } = options;
-  const source = require.resolve('./worker');
-  const workerOptions = {
-    enableWorkerThreads: true,
-    numWorkers: poolSize,
-    setupArgs: [{ eslintPath, eslintOptions: getESLintOptions(options) }],
-  };
+	const cacheKey = getCacheKey(key, options)
+	const { eslintPath = 'eslint' } = options
+	const source = require.resolve('./worker')
+	const workerOptions = {
+		enableWorkerThreads: true,
+		numWorkers: poolSize,
+		setupArgs: [{ eslintPath, eslintOptions: getESLintOptions(options) }]
+	}
 
-  const local = loadESLint(options);
+	const local = loadESLint(options)
 
-  /** @type {Worker?} */
-  // prettier-ignore
-  let worker = (/** @type {Worker} */ new JestWorker(source, workerOptions));
+	/** @type {Worker?} */
+	// prettier-ignore
+	let worker = (/** @type {Worker} */ new JestWorker(source, workerOptions));
 
-  /** @type {Linter} */
-  const context = {
-    ...local,
-    threads: poolSize,
-    lintFiles: async (files) =>
-      (worker && (await worker.lintFiles(files))) ||
-      /* istanbul ignore next */ [],
-    cleanup: async () => {
-      cache[cacheKey] = local;
-      context.lintFiles = (files) => local.lintFiles(files);
-      if (worker) {
-        worker.end();
-        worker = null;
-      }
-    },
-  };
+	/** @type {Linter} */
+	const context = {
+		...local,
+		threads: poolSize,
+		lintFiles: async files =>
+			(worker && (await worker.lintFiles(files))) ||
+			/* istanbul ignore next */ [],
+		cleanup: async () => {
+			cache[cacheKey] = local
+			context.lintFiles = files => local.lintFiles(files)
+			if (worker) {
+				worker.end()
+				worker = null
+			}
+		}
+	}
 
-  return context;
+	return context
 }
 
 /**
@@ -93,20 +93,20 @@ export function loadESLintThreaded(key, poolSize, options) {
  * @returns {Linter}
  */
 export default function getESLint(key, { threads, ...options }) {
-  const max =
-    typeof threads !== 'number'
-      ? threads
-        ? cpus().length - 1
-        : 1
-      : /* istanbul ignore next */
-        threads;
+	const max =
+		typeof threads !== 'number'
+			? threads
+				? cpus().length - 1
+				: 1
+			: /* istanbul ignore next */
+			  threads
 
-  const cacheKey = getCacheKey(key, { threads, ...options });
-  if (!cache[cacheKey]) {
-    cache[cacheKey] =
-      max > 1 ? loadESLintThreaded(key, max, options) : loadESLint(options);
-  }
-  return cache[cacheKey];
+	const cacheKey = getCacheKey(key, { threads, ...options })
+	if (!cache[cacheKey]) {
+		cache[cacheKey] =
+			max > 1 ? loadESLintThreaded(key, max, options) : loadESLint(options)
+	}
+	return cache[cacheKey]
 }
 
 /**
@@ -115,5 +115,5 @@ export default function getESLint(key, { threads, ...options }) {
  * @returns {string}
  */
 function getCacheKey(key, options) {
-  return JSON.stringify({ key, options }, jsonStringifyReplacerSortKeys);
+	return JSON.stringify({ key, options }, jsonStringifyReplacerSortKeys)
 }

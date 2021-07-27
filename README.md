@@ -32,13 +32,13 @@ npm install eslint --save-dev
 Then add the plugin to your webpack config. For example:
 
 ```js
-const ESLintPlugin = require('eslint-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin')
 
 module.exports = {
-  // ...
-  plugins: [new ESLintPlugin(options)],
-  // ...
-};
+	// ...
+	plugins: [new ESLintPlugin(options)]
+	// ...
+}
 ```
 
 ## Options

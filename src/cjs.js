@@ -1,3 +1,3 @@
-const plugin = require('./');
+const plugin = require('./')
 
-module.exports = plugin.default;
+module.exports = plugin.default
