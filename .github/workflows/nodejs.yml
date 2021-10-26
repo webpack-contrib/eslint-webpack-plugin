@@ -56,6 +56,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [12.x, 14.x, 16.x]
+        eslint-version: [7.x, 8.x]
         webpack-version: [latest]
 
     runs-on: ${{ matrix.os }}
@@ -86,6 +87,9 @@ jobs:
 
       - name: Install webpack ${{ matrix.webpack-version }}
         run: npm i webpack@${{ matrix.webpack-version }}
+
+      - name: Install eslint ${{ matrix.eslint-version }}
+        run: npm i eslint@${{ matrix.eslint-version }}
 
       - name: Run tests for webpack version ${{ matrix.webpack-version }}
         run: npm run test:coverage -- --ci
