@@ -10,8 +10,16 @@ declare class ESLintWebpackPlugin {
   options: import('./options').PluginOptions;
   /**
    * @param {Compiler} compiler
+   * @param {Options} options
+   * @param {string[]} wanted
+   * @param {string[]} exclude
    */
-  run(compiler: Compiler): Promise<void>;
+  run(
+    compiler: Compiler,
+    options: Options,
+    wanted: string[],
+    exclude: string[]
+  ): Promise<void>;
   /**
    * @param {Compiler} compiler
    * @returns {void}

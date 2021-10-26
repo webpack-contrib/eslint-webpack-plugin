@@ -31,36 +31,6 @@ class ESLintWebpackPlugin {
     // this differentiates one from the other when being cached.
     this.key = compiler.name || `${this.key}_${(counter += 1)}`;
 
-    // If `lintDirtyModulesOnly` is disabled,
-    // execute the linter on the build
-    if (!this.options.lintDirtyModulesOnly) {
-      compiler.hooks.run.tapPromise(this.key, this.run);
-    }
-
-    let isFirstRun = this.options.lintDirtyModulesOnly;
-    compiler.hooks.watchRun.tapPromise(this.key, (c) => {
-      if (isFirstRun) {
-        isFirstRun = false;
-
-        return Promise.resolve();
-      }
-
-      return this.run(c);
-    });
-  }
-
-  /**
-   * @param {Compiler} compiler
-   */
-  async run(compiler) {
-    // Do not re-hook
-    if (
-      // @ts-ignore
-      compiler.hooks.thisCompilation.taps.find(({ name }) => name === this.key)
-    ) {
-      return;
-    }
-
     const options = {
       ...this.options,
       exclude: parseFiles(
@@ -76,6 +46,41 @@ class ESLintWebpackPlugin {
       this.options.exclude ? options.exclude : '**/node_modules/**',
       []
     );
+
+    // If `lintDirtyModulesOnly` is disabled,
+    // execute the linter on the build
+    if (!this.options.lintDirtyModulesOnly) {
+      compiler.hooks.run.tapPromise(this.key, (c) =>
+        this.run(c, options, wanted, exclude)
+      );
+    }
+
+    let isFirstRun = this.options.lintDirtyModulesOnly;
+    compiler.hooks.watchRun.tapPromise(this.key, (c) => {
+      if (isFirstRun) {
+        isFirstRun = false;
+
+        return Promise.resolve();
+      }
+
+      return this.run(c, options, wanted, exclude);
+    });
+  }
+
+  /**
+   * @param {Compiler} compiler
+   * @param {Options} options
+   * @param {string[]} wanted
+   * @param {string[]} exclude
+   */
+  async run(compiler, options, wanted, exclude) {
+    // Do not re-hook
+    if (
+      // @ts-ignore
+      compiler.hooks.thisCompilation.taps.find(({ name }) => name === this.key)
+    ) {
+      return;
+    }
 
     compiler.hooks.thisCompilation.tap(this.key, (compilation) => {
       /** @type {import('./linter').Linter} */
