@@ -9,9 +9,9 @@ describe('formatter write', () => {
   it('should write results to relative file with a custom formatter', (done) => {
     const outputFilename = 'outputReport-relative.txt';
     const config = conf('error', {
-      formatter: 'html',
+      formatter: 'json',
       outputReport: {
-        formatter: 'html',
+        formatter: 'json',
         filePath: outputFilename,
       },
     });
