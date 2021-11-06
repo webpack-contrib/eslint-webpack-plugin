@@ -82,7 +82,7 @@ class ESLintWebpackPlugin {
       return;
     }
 
-    compiler.hooks.thisCompilation.tap(this.key, (compilation) => {
+    compiler.hooks.compilation.tap(this.key, (compilation) => {
       /** @type {import('./linter').Linter} */
       let lint;
       /** @type {import('./linter').Reporter} */
