@@ -1,5 +1,6 @@
-import conf from './utils/conf';
 import webpack from 'webpack';
+
+import conf from './utils/conf';
 
 const PLUGIN_NAME = "ChildPlugin";
 class ChildPlugin {
