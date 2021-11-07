@@ -77,7 +77,7 @@ class ESLintWebpackPlugin {
     // Do not re-hook
     if (
       // @ts-ignore
-      compiler.hooks.thisCompilation.taps.find(({ name }) => name === this.key)
+      compiler.hooks.compilation.taps.find(({ name }) => name === this.key)
     ) {
       return;
     }
