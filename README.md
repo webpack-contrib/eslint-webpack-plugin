@@ -43,11 +43,11 @@ module.exports = {
 
 ## Options
 
-You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-new-eslint-options).
+You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions).
 
 Note that the config option you provide will be passed to the `ESLint` class.
 This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
-See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-new-eslint-options) for more details.
+See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
 
 **Warning**: In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
@@ -63,7 +63,7 @@ A string indicating the root of your files.
 - Type: `String`
 - Default: `eslint`
 
-Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you dont have to install `eslint`.
+Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you don't have to install `eslint`.
 
 ### `extensions`
 
@@ -85,7 +85,7 @@ Specify the files and/or directories to exclude. Must be relative to `options.co
 - Default: `null`
 
 Specify directories, files, or globs. Must be relative to `options.context`.
-Directories are traveresed recursively looking for files matching `options.extensions`.
+Directories are traversed recursively looking for files matching `options.extensions`.
 File and glob patterns ignore `options.extensions`.
 
 ### `fix`
@@ -93,7 +93,7 @@ File and glob patterns ignore `options.extensions`.
 - Type: `Boolean`
 - Default: `false`
 
-Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-eslint-outputfixes-results).
+Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nodejs-api#-eslintoutputfixesresults).
 
 **Be careful: this option will change source files.**
 
