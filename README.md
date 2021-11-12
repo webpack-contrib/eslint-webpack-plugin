@@ -20,7 +20,7 @@ This plugin uses [`eslint`](https://eslint.org/) to find and fix problems in you
 To begin, you'll need to install `eslint-webpack-plugin`:
 
 ```bash
-npm install eslint-webpack-plugin --save-dev
+npm install eslint-webpack-plugin@2 --save-dev
 ```
 
 **Note**: You also need to install `eslint >= 7` from npm, if you haven't already:
@@ -177,16 +177,16 @@ if none is passed in the default/configured formatter will be used.
 
 [MIT](./LICENSE)
 
-[npm]: https://img.shields.io/npm/v/eslint-webpack-plugin.svg
-[npm-url]: https://npmjs.com/package/eslint-webpack-plugin
-[node]: https://img.shields.io/node/v/eslint-webpack-plugin.svg
+[npm]: https://img.shields.io/npm/v/eslint-webpack-plugin/2x.svg
+[npm-url]: https://npmjs.com/package/eslint-webpack-plugin/v/2x
+[node]: https://img.shields.io/node/v/eslint-webpack-plugin/2x.svg
 [node-url]: https://nodejs.org
 [deps]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin.svg
 [deps-url]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin
-[tests]: https://github.com/webpack-contrib/eslint-webpack-plugin/workflows/eslint-webpack-plugin/badge.svg
+[tests]: https://github.com/webpack-contrib/eslint-webpack-plugin/workflows/eslint-webpack-plugin/badge.svg?branch=2.x
 [tests-url]: https://github.com/webpack-contrib/eslint-webpack-plugin/actions
-[cover]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin/branch/master/graph/badge.svg
-[cover-url]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin
+[cover]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin/branch/2.x/graph/badge.svg
+[cover-url]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin/branch/2.x
 [chat]: https://badges.gitter.im/webpack/webpack.svg
 [chat-url]: https://gitter.im/webpack/webpack
 [size]: https://packagephobia.now.sh/badge?p=eslint-webpack-plugin
