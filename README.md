@@ -13,6 +13,8 @@
 
 # eslint-webpack-plugin
 
+> This is eslint-webpack-plugin 3.0 which works only with webpack 5. For the webpack 4, see the [2.x branch](https://github.com/webpack-contrib/eslint-webpack-plugin/tree/2.x).
+
 This plugin uses [`eslint`](https://eslint.org/) to find and fix problems in your JavaScript code
 
 ## Getting Started
