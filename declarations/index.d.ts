@@ -1,7 +1,6 @@
 export default ESLintWebpackPlugin;
 export type Compiler = import('webpack').Compiler;
-export type Options = import('./options').PluginOptions &
-  import('eslint').ESLint.Options;
+export type Options = import('./options').Options;
 declare class ESLintWebpackPlugin {
   /**
    * @param {Options} options
@@ -11,8 +10,16 @@ declare class ESLintWebpackPlugin {
   options: import('./options').PluginOptions;
   /**
    * @param {Compiler} compiler
+   * @param {Options} options
+   * @param {string[]} wanted
+   * @param {string[]} exclude
    */
-  run(compiler: Compiler): Promise<void>;
+  run(
+    compiler: Compiler,
+    options: Options,
+    wanted: string[],
+    exclude: string[]
+  ): Promise<void>;
   /**
    * @param {Compiler} compiler
    * @returns {void}

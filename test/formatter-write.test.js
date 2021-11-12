@@ -1,19 +1,17 @@
 import { join } from 'path';
 
 import { readFileSync, removeSync } from 'fs-extra';
-import { CLIEngine } from 'eslint';
 import webpack from 'webpack';
 
 import conf from './utils/conf';
 
 describe('formatter write', () => {
   it('should write results to relative file with a custom formatter', (done) => {
-    const formatter = CLIEngine.getFormatter('checkstyle');
     const outputFilename = 'outputReport-relative.txt';
     const config = conf('error', {
-      formatter,
+      formatter: 'json',
       outputReport: {
-        formatter,
+        formatter: 'json',
         filePath: outputFilename,
       },
     });

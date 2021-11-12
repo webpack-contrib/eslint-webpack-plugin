@@ -13,57 +13,11 @@
 
 # eslint-webpack-plugin
 
-> A ESLint plugin for webpack
+This plugin uses [`eslint`](https://eslint.org/) to find and fix problems in your JavaScript code
 
-## About plugin
+## Getting Started
 
-The plugin was born with the purpose of solving some problems of the [eslint-loader](https://github.com/webpack-contrib/eslint-loader).
-
-|                                  | eslint-webpack-plugin |      eslint-loader       |
-| -------------------------------- | :-------------------: | :----------------------: |
-| Easy configuration               |  :heavy_check_mark:   | :heavy_multiplication_x: |
-| Generate unique an output report |  :heavy_check_mark:   | :heavy_multiplication_x: |
-| Using cache directly from eslint |  :heavy_check_mark:   | :heavy_multiplication_x: |
-| Lint only changed files          |  :heavy_check_mark:   | :heavy_multiplication_x: |
-
-## Migrate from `eslint-loader`
-
-The loader `eslint-loader` will be deprecated soon, please use this plugin instead.
-
-Before:
-
-```js
-module.exports = {
-  // ...
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader',
-        options: {
-          // eslint options (if necessary)
-        },
-      },
-    ],
-  },
-  // ...
-};
-```
-
-After:
-
-```js
-const ESLintPlugin = require('eslint-webpack-plugin');
-
-module.exports = {
-  // ...
-  plugins: [new ESLintPlugin(options)],
-  // ...
-};
-```
-
-## Install
+To begin, you'll need to install `eslint-webpack-plugin`:
 
 ```bash
 npm install eslint-webpack-plugin --save-dev
@@ -75,9 +29,7 @@ npm install eslint-webpack-plugin --save-dev
 npm install eslint --save-dev
 ```
 
-## Usage
-
-In your webpack configuration:
+Then add the plugin to your webpack config. For example:
 
 ```js
 const ESLintPlugin = require('eslint-webpack-plugin');
@@ -91,11 +43,11 @@ module.exports = {
 
 ## Options
 
-You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-new-eslint-options).
+You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions).
 
 Note that the config option you provide will be passed to the `ESLint` class.
 This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
-See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-new-eslint-options) for more details.
+See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
 
 **Warning**: In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
@@ -111,7 +63,7 @@ A string indicating the root of your files.
 - Type: `String`
 - Default: `eslint`
 
-Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you dont have to install `eslint`.
+Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you don't have to install `eslint`.
 
 ### `extensions`
 
@@ -133,7 +85,7 @@ Specify the files and/or directories to exclude. Must be relative to `options.co
 - Default: `null`
 
 Specify directories, files, or globs. Must be relative to `options.context`.
-Directories are traveresed recursively looking for files matching `options.extensions`.
+Directories are traversed recursively looking for files matching `options.extensions`.
 File and glob patterns ignore `options.extensions`.
 
 ### `fix`
@@ -141,7 +93,7 @@ File and glob patterns ignore `options.extensions`.
 - Type: `Boolean`
 - Default: `false`
 
-Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nodejs-api#%E2%97%86-eslint-outputfixes-results).
+Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nodejs-api#-eslintoutputfixesresults).
 
 **Be careful: this option will change source files.**
 
