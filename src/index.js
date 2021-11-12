@@ -62,7 +62,7 @@ class ESLintWebpackPlugin {
     // Do not re-hook
     if (
       // @ts-ignore
-      compiler.hooks.thisCompilation.taps.find(({ name }) => name === this.key)
+      compiler.hooks.compilation.taps.find(({ name }) => name === this.key)
     ) {
       return;
     }
@@ -83,7 +83,7 @@ class ESLintWebpackPlugin {
       []
     );
 
-    compiler.hooks.thisCompilation.tap(this.key, (compilation) => {
+    compiler.hooks.compilation.tap(this.key, (compilation) => {
       /** @type {import('./linter').Linter} */
       let lint;
       /** @type {import('./linter').Reporter} */
