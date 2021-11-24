@@ -13,7 +13,6 @@ const cache = {};
 /** @typedef {import('./options').Options} Options */
 /** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
-/** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 /** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
 
 /**
@@ -63,7 +62,6 @@ export function loadESLintThreaded(key, poolSize, options) {
 
   const local = loadESLint(options);
 
-  /** @type {Worker?} */
   // prettier-ignore
   let worker = (/** @type {Worker} */ new JestWorker(source, workerOptions));
 
@@ -72,6 +70,7 @@ export function loadESLintThreaded(key, poolSize, options) {
     ...local,
     threads: poolSize,
     lintFiles: async (files) =>
+      // @ts-ignore
       (worker && (await worker.lintFiles(files))) ||
       /* istanbul ignore next */ [],
     cleanup: async () => {
@@ -79,6 +78,7 @@ export function loadESLintThreaded(key, poolSize, options) {
       context.lintFiles = (files) => local.lintFiles(files);
       if (worker) {
         worker.end();
+        // @ts-ignore
         worker = null;
       }
     },
