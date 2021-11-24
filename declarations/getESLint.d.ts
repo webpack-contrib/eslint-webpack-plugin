@@ -4,6 +4,7 @@
 /** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
+/** @typedef {import('jest-worker').Worker & {lintFiles: LintTask}} Worker */
 /**
  * @param {Options} options
  * @returns {Linter}
@@ -40,4 +41,7 @@ export type Linter = {
   eslint: ESLint;
   lintFiles: LintTask;
   cleanup: AsyncTask;
+};
+export type Worker = import('jest-worker').Worker & {
+  lintFiles: LintTask;
 };
