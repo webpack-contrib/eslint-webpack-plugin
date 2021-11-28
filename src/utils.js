@@ -76,12 +76,14 @@ export function parseFoldersToGlobs(patterns, extensions = []) {
       const stats = statSync(pattern);
       /* istanbul ignore else */
       if (stats.isDirectory()) {
-        return pattern.replace(
+        const glob = pattern.replace(
           /[/\\]*?$/u,
           `/**${
             extensionsGlob ? `/*.${prefix + extensionsGlob + postfix}` : ''
           }`
         );
+        
+        return normalizePath(glob);
       }
     } catch (_) {
       // Return the pattern as is on error.
