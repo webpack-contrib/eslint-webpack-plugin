@@ -4,7 +4,9 @@ import { isMatch } from 'micromatch';
 
 import { getOptions } from './options';
 import linter from './linter';
-import { arrify, parseFiles, parseFoldersToGlobs } from './utils';
+import { arrify, parseFiles, parseFoldersToGlobs, escapeGlobBrackets } from './utils';
+// @ts-ignore
+import normalizePath from 'normalize-path';
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
@@ -104,7 +106,7 @@ class ESLintWebpackPlugin {
       // Add the file to be linted
       compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
         if (resource) {
-          const [file] = resource.split('?');
+          const file = resource.split('?')[0];
 
           if (
             file &&
@@ -164,14 +166,14 @@ class ESLintWebpackPlugin {
    */
   getContext(compiler) {
     if (!this.options.context) {
-      return String(compiler.options.context);
+      return escapeGlobBrackets(String(compiler.options.context));
     }
 
     if (!isAbsolute(this.options.context)) {
-      return join(String(compiler.options.context), this.options.context);
+      return escapeGlobBrackets(join(String(compiler.options.context), this.options.context));
     }
 
-    return this.options.context;
+    return escapeGlobBrackets(this.options.context);
   }
 }
 

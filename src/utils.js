@@ -109,3 +109,13 @@ export const jsonStringifyReplacerSortKeys = (_, value) => {
     ? Object.keys(value).sort().reduce(insert, {})
     : value;
 };
+
+/**
+ * @param {string} string
+ * @returns {string}
+ */
+export function escapeGlobBrackets(string) {
+  return string
+    .replace(/(?<!\[)\[(?!\[|\])/g, '[[]')
+    .replace(/(?<!\]|\[)\](?!\])/g, '[]]');
+}

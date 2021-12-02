@@ -10,8 +10,8 @@ describe('symbols', () => {
   it('should return error', (done) => {
     const compiler = pack(
       'symbols',
-      {},
-      { context: join(__dirname, 'fixtures/[symbols]') }
+      { context: join(__dirname, 'fixtures/[symbols]') },
+      {}
     );
 
     compiler.run((err, stats) => {
