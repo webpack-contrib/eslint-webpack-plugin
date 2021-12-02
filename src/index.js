@@ -5,8 +5,6 @@ import { isMatch } from 'micromatch';
 import { getOptions } from './options';
 import linter from './linter';
 import { arrify, parseFiles, parseFoldersToGlobs, escapeGlobBrackets } from './utils';
-// @ts-ignore
-import normalizePath from 'normalize-path';
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
@@ -106,7 +104,7 @@ class ESLintWebpackPlugin {
       // Add the file to be linted
       compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
         if (resource) {
-          const file = resource.split('?')[0];
+          const [file] = resource.split('?');
 
           if (
             file &&
