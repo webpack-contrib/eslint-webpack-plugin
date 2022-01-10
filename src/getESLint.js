@@ -13,8 +13,8 @@ const cache = {};
 /** @typedef {import('./options').Options} Options */
 /** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
-/** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 /** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
+/** @typedef {import('jest-worker').Worker & {lintFiles: LintTask}} Worker */
 
 /**
  * @param {Options} options
@@ -63,9 +63,7 @@ export function loadESLintThreaded(key, poolSize, options) {
 
   const local = loadESLint(options);
 
-  /** @type {Worker?} */
-  // prettier-ignore
-  let worker = (/** @type {Worker} */ new JestWorker(source, workerOptions));
+  let worker = /** @type {Worker?} */ (new JestWorker(source, workerOptions));
 
   /** @type {Linter} */
   const context = {
