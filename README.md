@@ -21,14 +21,38 @@ This plugin uses [`eslint`](https://eslint.org/) to find and fix problems in you
 
 To begin, you'll need to install `eslint-webpack-plugin`:
 
-```bash
+```console
 npm install eslint-webpack-plugin --save-dev
+```
+
+or
+
+```console
+yarn add -D install eslint-webpack-plugin
+```
+
+or
+
+```console
+pnpm add -D eslint-webpack-plugin
 ```
 
 **Note**: You also need to install `eslint >= 7` from npm, if you haven't already:
 
-```bash
+```console
 npm install eslint --save-dev
+```
+
+or
+
+```console
+yarn add -D eslint
+```
+
+or
+
+```console
+pnpm add -D eslint
 ```
 
 Then add the plugin to your webpack config. For example:
@@ -55,35 +79,60 @@ See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-es
 
 ### `context`
 
-- Type: `String`
+- Type:
+
+```ts
+type context = string;
+```
+
 - Default: `compiler.context`
 
 A string indicating the root of your files.
 
 ### `eslintPath`
 
-- Type: `String`
+- Type:
+
+```ts
+type eslintPath = string;
+```
+
 - Default: `eslint`
 
 Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you don't have to install `eslint`.
 
 ### `extensions`
 
-- Type: `String|Array[String]`
+- Type:
+
+```ts
+type extensions = string | Array<string>;
+```
+
 - Default: `'js'`
 
 Specify extensions that should be checked.
 
 ### `exclude`
 
-- Type: `String|Array[String]`
+- Type:
+
+```ts
+type exclude = string | Array<string>;
+```
+
 - Default: `'node_modules'`
 
 Specify the files and/or directories to exclude. Must be relative to `options.context`.
 
 ### `files`
 
-- Type: `String|Array[String]`
+- Type:
+
+```ts
+type files = string | Array<string>;
+```
+
 - Default: `null`
 
 Specify directories, files, or globs. Must be relative to `options.context`.
@@ -92,7 +141,12 @@ File and glob patterns ignore `options.extensions`.
 
 ### `fix`
 
-- Type: `Boolean`
+- Type:
+
+```ts
+type fix = boolean;
+```
+
 - Default: `false`
 
 Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nodejs-api#-eslintoutputfixesresults).
@@ -101,21 +155,39 @@ Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nod
 
 ### `formatter`
 
-- Type: `String|Function`
+- Type:
+
+```ts
+type formatter = string| (
+  results:  Array<import('eslint').ESLint.LintResult>,
+  data?: import('eslint').ESLint.LintResultData | undefined
+) => string
+```
+
 - Default: `'stylish'`
 
 Accepts a function that will have one argument: an array of eslint messages (object). The function must return the output as a string. You can use official [eslint formatters](https://eslint.org/docs/user-guide/formatters/).
 
 ### `lintDirtyModulesOnly`
 
-- Type: `Boolean`
+- Type:
+
+```ts
+type lintDirtyModulesOnly = boolean;
+```
+
 - Default: `false`
 
 Lint only changed files, skip lint on start.
 
 ### `threads`
 
-- Type: `Boolean | Number`
+- Type:
+
+```ts
+type threads = boolean | number;
+```
+
 - Default: `false`
 
 Will run lint tasks across a thread pool. The pool size is automatic unless you specify a number.
@@ -127,42 +199,85 @@ You can still force this behavior by using `emitError` **or** `emitWarning` opti
 
 #### `emitError`
 
-- Type: `Boolean`
+- Type:
+
+```ts
+type emitError = boolean;
+```
+
 - Default: `true`
 
 The errors found will always be emitted, to disable set to `false`.
 
 #### `emitWarning`
 
-- Type: `Boolean`
+- Type:
+
+```ts
+type emitWarning = boolean;
+```
+
 - Default: `true`
 
 The warnings found will always be emitted, to disable set to `false`.
 
 #### `failOnError`
 
-- Type: `Boolean`
+- Type:
+
+```ts
+type failOnError = boolean;
+```
+
 - Default: `true`
 
 Will cause the module build to fail if there are any errors, to disable set to `false`.
 
 #### `failOnWarning`
 
-- Type: `Boolean`
+- Type:
+
+```ts
+type failOnWarning = boolean;
+```
+
 - Default: `false`
 
 Will cause the module build to fail if there are any warnings, if set to `true`.
 
 #### `quiet`
 
-- Type: `Boolean`
+- Type:
+
+```ts
+type quiet = boolean;
+```
+
 - Default: `false`
 
 Will process and report errors only and ignore warnings, if set to `true`.
 
 #### `outputReport`
 
-- Type: `Boolean|Object`
+- Type:
+
+```ts
+type outputReport =
+  | boolean
+  | {
+      filePath?: string | undefined;
+      formatter?:
+        | (
+            | string
+            | ((
+                results: Array<import('eslint').ESLint.LintResult>,
+                data?: import('eslint').ESLint.LintResultData | undefined
+              ) => string)
+          )
+        | undefined;
+    };
+```
+
 - Default: `false`
 
 Write the output of the errors to a file, for example a checkstyle xml file for use for reporting on Jenkins CI.
