@@ -28,7 +28,7 @@ npm install eslint-webpack-plugin --save-dev
 or
 
 ```console
-yarn add -D install eslint-webpack-plugin
+yarn add -D eslint-webpack-plugin
 ```
 
 or
