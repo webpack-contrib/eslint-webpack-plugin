@@ -1,10 +1,10 @@
-import { isAbsolute, join } from 'path';
+const { isAbsolute, join } = require('path');
 
-import { isMatch } from 'micromatch';
+const { isMatch } = require('micromatch');
 
-import { getOptions } from './options';
-import linter from './linter';
-import { arrify, parseFiles, parseFoldersToGlobs } from './utils';
+const { getOptions } = require('./options');
+const linter = require('./linter');
+const { arrify, parseFiles, parseFoldersToGlobs } = require('./utils');
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
@@ -175,4 +175,4 @@ class ESLintWebpackPlugin {
   }
 }
 
-export default ESLintWebpackPlugin;
+module.exports = ESLintWebpackPlugin;

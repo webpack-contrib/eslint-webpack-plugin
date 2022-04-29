@@ -1,3 +1,18 @@
+export type ESLint = import('eslint').ESLint;
+export type LintResult = import('eslint').ESLint.LintResult;
+export type Options = import('./options').Options;
+export type AsyncTask = () => Promise<void>;
+export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
+export type Linter = {
+  threads: number;
+  ESLint: ESLint;
+  eslint: ESLint;
+  lintFiles: LintTask;
+  cleanup: AsyncTask;
+};
+export type Worker = import('jest-worker').Worker & {
+  lintFiles: LintTask;
+};
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('./options').Options} Options */
@@ -26,22 +41,7 @@ export function loadESLintThreaded(
  * @param {Options} options
  * @returns {Linter}
  */
-export default function getESLint(
+export function getESLint(
   key: string | undefined,
   { threads, ...options }: Options
 ): Linter;
-export type ESLint = import('eslint').ESLint;
-export type LintResult = import('eslint').ESLint.LintResult;
-export type Options = import('./options').Options;
-export type AsyncTask = () => Promise<void>;
-export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
-export type Linter = {
-  threads: number;
-  ESLint: ESLint;
-  eslint: ESLint;
-  lintFiles: LintTask;
-  cleanup: AsyncTask;
-};
-export type Worker = import('jest-worker').Worker & {
-  lintFiles: LintTask;
-};

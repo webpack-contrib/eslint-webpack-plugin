@@ -1,6 +1,4 @@
-export default ESLintWebpackPlugin;
-export type Compiler = import('webpack').Compiler;
-export type Options = import('./options').Options;
+export = ESLintWebpackPlugin;
 declare class ESLintWebpackPlugin {
   /**
    * @param {Options} options
@@ -32,3 +30,8 @@ declare class ESLintWebpackPlugin {
    */
   getContext(compiler: Compiler): string;
 }
+declare namespace ESLintWebpackPlugin {
+  export { Compiler, Options };
+}
+type Compiler = import('webpack').Compiler;
+type Options = import('./options').Options;
