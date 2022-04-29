@@ -10,7 +10,7 @@ export type Linter = {
   lintFiles: LintTask;
   cleanup: AsyncTask;
 };
-export type Worker = import('jest-worker').Worker & {
+export type Worker = JestWorker & {
   lintFiles: LintTask;
 };
 /** @typedef {import('eslint').ESLint} ESLint */
@@ -19,7 +19,7 @@ export type Worker = import('jest-worker').Worker & {
 /** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
-/** @typedef {import('jest-worker').Worker & {lintFiles: LintTask}} Worker */
+/** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 /**
  * @param {Options} options
  * @returns {Linter}
@@ -45,3 +45,4 @@ export function getESLint(
   key: string | undefined,
   { threads, ...options }: Options
 ): Linter;
+import { Worker as JestWorker } from 'jest-worker';
