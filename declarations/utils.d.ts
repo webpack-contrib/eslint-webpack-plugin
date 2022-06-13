@@ -39,4 +39,9 @@ export function parseFoldersToGlobs(
   patterns: string | string[],
   extensions?: string | string[]
 ): string[];
+/**
+ * @param {string} string
+ * @returns {string}
+ */
+export function escapeGlobBrackets(string: string): string;
 export function jsonStringifyReplacerSortKeys(_: string, value: any): any;

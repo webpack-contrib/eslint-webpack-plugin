@@ -4,7 +4,7 @@ import { isMatch } from 'micromatch';
 
 import { getOptions } from './options';
 import linter from './linter';
-import { arrify, parseFiles, parseFoldersToGlobs } from './utils';
+import { arrify, parseFiles, parseFoldersToGlobs, escapeGlobBrackets } from './utils';
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
@@ -164,14 +164,14 @@ class ESLintWebpackPlugin {
    */
   getContext(compiler) {
     if (!this.options.context) {
-      return String(compiler.options.context);
+      return escapeGlobBrackets(String(compiler.options.context));
     }
 
     if (!isAbsolute(this.options.context)) {
-      return join(String(compiler.options.context), this.options.context);
+      return escapeGlobBrackets(join(String(compiler.options.context), this.options.context));
     }
 
-    return this.options.context;
+    return escapeGlobBrackets(this.options.context);
   }
 }
 
