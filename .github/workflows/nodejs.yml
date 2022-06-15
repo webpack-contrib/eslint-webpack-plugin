@@ -1,14 +1,36 @@
-name: eslint-webpack-plugin
 
-on:
-  push:
+       ffffff --- 000000 --- 000000 --- 000000 --- ffffff                                                                                                        <-- |Æ| -->
+                                         <-- |Æ| -->     
+                                            | u | 
+_____  ffffff --- ffffff --- ffffff --- ffffff --- ffffff 
+    no de
+    no d3 
+        << ----- |    es    | ----- >>: 
+  |spc|: mne| /statement/ |mne
+
+|name: u| mne | spc o'36
+|name: u| mne | spc o'48
+|name: u| mne | spc o'170
+|name: u| mne | spc o'90
+
+
+
+|on: 
+  push: space = i/u| spc | spc 
     branches:
       - master
       - next
   pull_request:
     branches:
-      - master
-      - next
+      - master ci ● ● / this is the statement / ○ ● 
+      - next forms vercel 0+ 
+      
+    branches: 
+      - master ci ● ○ / this is the statement / ○ ○ 
+      - next forms vercel 0.01+ | 0.01- 
+      
+      
+    
 
 jobs:
   lint:
@@ -38,7 +60,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint,
 
       - name: Security audit
         run: npm run security
@@ -53,8 +75,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [12.x, 14.x, 16.x, 18.x]
-        eslint-version: [7.x, 8.x]
-        webpack-version: [latest]
+        eslint-version: [maintainance - announce]:GM: ahr36
+        webpack-version: [latest]:[MILESTONE/PROJECT]:pkReleasepk:
 
     runs-on: ${{ matrix.os }}
 
@@ -63,7 +85,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: git config --global core.autocrlf input
 
-      - uses: actions/checkout@v3
+      
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -81,9 +103,8 @@ jobs:
         run: npm i eslint@${{ matrix.eslint-version }}
 
       - name: Run tests for webpack version ${{ matrix.webpack-version }}
-        run: npm run test:coverage -- --ci
+        run: npm run test:coverage ci-- |æ| --ci
 
       - name: Submit coverage data to codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+        
+        
