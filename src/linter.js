@@ -1,7 +1,7 @@
-import { dirname, isAbsolute, join } from 'path';
+const { dirname, isAbsolute, join } = require('path');
 
-import ESLintError from './ESLintError';
-import getESLint from './getESLint';
+const ESLintError = require('./ESLintError');
+const { getESLint } = require('./getESLint');
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
@@ -25,7 +25,7 @@ const resultStorage = new WeakMap();
  * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter, threads: number}}
  */
-export default function linter(key, options, compilation) {
+function linter(key, options, compilation) {
   /** @type {ESLint} */
   let eslint;
 
@@ -93,7 +93,7 @@ export default function linter(key, options, compilation) {
     }
 
     const formatter = await loadFormatter(eslint, options.formatter);
-    const { errors, warnings } = formatResults(
+    const { errors, warnings } = await formatResults(
       formatter,
       parseResults(options, results)
     );
@@ -137,9 +137,9 @@ export default function linter(key, options, compilation) {
         return;
       }
 
-      const content = outputReport.formatter
+      const content = await (outputReport.formatter
         ? (await loadFormatter(eslint, outputReport.formatter)).format(results)
-        : formatter.format(results);
+        : formatter.format(results));
 
       let { filePath } = outputReport;
       if (!isAbsolute(filePath)) {
@@ -154,17 +154,17 @@ export default function linter(key, options, compilation) {
 /**
  * @param {Formatter} formatter
  * @param {{ errors: LintResult[]; warnings: LintResult[]; }} results
- * @returns {{errors?: ESLintError, warnings?: ESLintError}}
+ * @returns {Promise<{errors?: ESLintError, warnings?: ESLintError}>}
  */
-function formatResults(formatter, results) {
+async function formatResults(formatter, results) {
   let errors;
   let warnings;
   if (results.warnings.length > 0) {
-    warnings = new ESLintError(formatter.format(results.warnings));
+    warnings = new ESLintError(await formatter.format(results.warnings));
   }
 
   if (results.errors.length > 0) {
-    errors = new ESLintError(formatter.format(results.errors));
+    errors = new ESLintError(await formatter.format(results.errors));
   }
 
   return {
@@ -315,3 +315,5 @@ function asList(x) {
   /* istanbul ignore next */
   return Array.isArray(x) ? x : [x];
 }
+
+module.exports = linter;

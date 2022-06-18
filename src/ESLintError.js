@@ -9,4 +9,4 @@ class ESLintError extends Error {
   }
 }
 
-export default ESLintError;
+module.exports = ESLintError;
