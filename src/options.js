@@ -1,7 +1,6 @@
-import { validate } from 'schema-utils';
+const { validate } = require('schema-utils');
 
-// @ts-ignore
-import schema from './options.json';
+const schema = require('./options.json');
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -45,7 +44,7 @@ import schema from './options.json';
  * @param {Options} pluginOptions
  * @returns {PluginOptions}
  */
-export function getOptions(pluginOptions) {
+function getOptions(pluginOptions) {
   const options = {
     extensions: 'js',
     emitError: true,
@@ -68,7 +67,7 @@ export function getOptions(pluginOptions) {
  * @param {Options} loaderOptions
  * @returns {ESLintOptions}
  */
-export function getESLintOptions(loaderOptions) {
+function getESLintOptions(loaderOptions) {
   const eslintOptions = { ...loaderOptions };
 
   // Keep the fix option because it is common to both the loader and ESLint.
@@ -83,3 +82,8 @@ export function getESLintOptions(loaderOptions) {
 
   return eslintOptions;
 }
+
+module.exports = {
+  getOptions,
+  getESLintOptions,
+};

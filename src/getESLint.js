@@ -1,9 +1,9 @@
-import { cpus } from 'os';
+const { cpus } = require('os');
 
-import { Worker as JestWorker } from 'jest-worker';
+const { Worker: JestWorker } = require('jest-worker');
 
-import { getESLintOptions } from './options';
-import { jsonStringifyReplacerSortKeys } from './utils';
+const { getESLintOptions } = require('./options');
+const { jsonStringifyReplacerSortKeys } = require('./utils');
 
 /** @type {{[key: string]: any}} */
 const cache = {};
@@ -14,13 +14,13 @@ const cache = {};
 /** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
-/** @typedef {import('jest-worker').Worker & {lintFiles: LintTask}} Worker */
+/** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 
 /**
  * @param {Options} options
  * @returns {Linter}
  */
-export function loadESLint(options) {
+function loadESLint(options) {
   const { eslintPath } = options;
 
   const { ESLint } = require(eslintPath || 'eslint');
@@ -51,7 +51,7 @@ export function loadESLint(options) {
  * @param {Options} options
  * @returns {Linter}
  */
-export function loadESLintThreaded(key, poolSize, options) {
+function loadESLintThreaded(key, poolSize, options) {
   const cacheKey = getCacheKey(key, options);
   const { eslintPath = 'eslint' } = options;
   const source = require.resolve('./worker');
@@ -90,7 +90,7 @@ export function loadESLintThreaded(key, poolSize, options) {
  * @param {Options} options
  * @returns {Linter}
  */
-export default function getESLint(key, { threads, ...options }) {
+function getESLint(key, { threads, ...options }) {
   const max =
     typeof threads !== 'number'
       ? threads
@@ -115,3 +115,9 @@ export default function getESLint(key, { threads, ...options }) {
 function getCacheKey(key, options) {
   return JSON.stringify({ key, options }, jsonStringifyReplacerSortKeys);
 }
+
+module.exports = {
+  loadESLint,
+  loadESLintThreaded,
+  getESLint,
+};
