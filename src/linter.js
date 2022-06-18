@@ -1,7 +1,7 @@
-import { dirname, isAbsolute, join } from 'path';
+const { dirname, isAbsolute, join } = require('path');
 
-import ESLintError from './ESLintError';
-import getESLint from './getESLint';
+const ESLintError = require('./ESLintError');
+const { getESLint } = require('./getESLint');
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
@@ -25,7 +25,7 @@ const resultStorage = new WeakMap();
  * @param {Compilation} compilation
  * @returns {{lint: Linter, report: Reporter, threads: number}}
  */
-export default function linter(key, options, compilation) {
+function linter(key, options, compilation) {
   /** @type {ESLint} */
   let eslint;
 
@@ -314,3 +314,5 @@ function asList(x) {
   /* istanbul ignore next */
   return Array.isArray(x) ? x : [x];
 }
+
+module.exports = linter;
