@@ -5,7 +5,6 @@
 
 [![npm][npm]][npm-url]
 [![node][node]][node-url]
-[![deps][deps]][deps-url]
 [![tests][tests]][tests-url]
 [![coverage][cover]][cover-url]
 [![chat][chat]][chat-url]
@@ -298,8 +297,6 @@ if none is passed in the default/configured formatter will be used.
 [npm-url]: https://npmjs.com/package/eslint-webpack-plugin
 [node]: https://img.shields.io/node/v/eslint-webpack-plugin.svg
 [node-url]: https://nodejs.org
-[deps]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin.svg
-[deps-url]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin
 [tests]: https://github.com/webpack-contrib/eslint-webpack-plugin/workflows/eslint-webpack-plugin/badge.svg
 [tests-url]: https://github.com/webpack-contrib/eslint-webpack-plugin/actions
 [cover]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin/branch/master/graph/badge.svg
