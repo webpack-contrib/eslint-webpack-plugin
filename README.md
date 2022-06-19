@@ -36,7 +36,9 @@ or
 pnpm add -D eslint-webpack-plugin
 ```
 
-**Note**: You also need to install `eslint >= 7` from npm, if you haven't already:
+> **Note**
+>
+> You also need to install `eslint >= 7` from npm, if you haven't already:
 
 ```console
 npm install eslint --save-dev
@@ -70,11 +72,15 @@ module.exports = {
 
 You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions).
 
-Note that the config option you provide will be passed to the `ESLint` class.
+>  **Note**
+>
+>  The config option you provide will be passed to the `ESLint` class.
 This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
 See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
 
-**Warning**: In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
+> **Warning**: 
+>
+> In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
 ### `context`
 
