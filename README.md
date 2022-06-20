@@ -37,7 +37,9 @@ or
 pnpm add -D eslint-webpack-plugin
 ```
 
-**Note**: You also need to install `eslint >= 7` from npm, if you haven't already:
+> **Note**: 
+>
+> You also need to install `eslint >= 8` from npm, if you haven't already:
 
 ```console
 npm install eslint --save-dev

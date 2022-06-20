@@ -14,7 +14,7 @@
   "main": "dist/cjs.js",
   "types": "declarations/index.d.ts",
   "engines": {
-    "node": ">= 14.17.0"
+    "node": ">= 14.15.0"
   },
   "scripts": {
     "start": "npm run build -- -w",
@@ -42,11 +42,11 @@
     "declarations"
   ],
   "peerDependencies": {
-    "eslint": "^7.0.0 || ^8.0.0",
+    "eslint": "^8.0.0",
     "webpack": "^5.0.0"
   },
   "dependencies": {
-    "@types/eslint": "^7.28.2 || ^8.2.0",
+    "@types/eslint": "^8.2.0",
     "jest-worker": "^28.1.0",
     "micromatch": "^4.0.5",
     "normalize-path": "^3.0.0",
