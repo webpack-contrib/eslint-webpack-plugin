@@ -25,6 +25,7 @@ export type PluginOptions = {
   quiet?: boolean | undefined;
   outputReport?: OutputReport | undefined;
   threads?: (number | boolean) | undefined;
+  resourceQueryExclude?: (RegExp | RegExp[]) | undefined;
 };
 export type Options = PluginOptions & ESLintOptions;
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
