@@ -54,7 +54,7 @@ class ESLintWebpackPlugin {
     // execute the linter on the build
     if (!this.options.lintDirtyModulesOnly) {
       compiler.hooks.run.tapPromise(this.key, (c) =>
-        this.run(c, options, wanted, exclude, options.resourceQueryExclude)
+        this.run(c, options, wanted, exclude)
       );
     }
 
@@ -66,24 +66,17 @@ class ESLintWebpackPlugin {
         return Promise.resolve();
       }
 
-      return this.run(
-        c,
-        options,
-        wanted,
-        exclude,
-        options.resourceQueryExclude
-      );
+      return this.run(c, options, wanted, exclude);
     });
   }
 
   /**
    * @param {Compiler} compiler
-   * @param {Options} options
+   * @param {Omit<Options, 'resourceQueryExclude'> & {resourceQueryExclude: RegExp[]}} options
    * @param {string[]} wanted
    * @param {string[]} exclude
-   * @param {RegExp[]} queryExclude
    */
-  async run(compiler, options, wanted, exclude, queryExclude) {
+  async run(compiler, options, wanted, exclude) {
     // Do not re-hook
     if (
       // @ts-ignore
@@ -121,7 +114,7 @@ class ESLintWebpackPlugin {
             !files.includes(file) &&
             isMatch(file, wanted, { dot: true }) &&
             !isMatch(file, exclude, { dot: true }) &&
-            queryExclude.every((reg) => !reg.test(query))
+            options.resourceQueryExclude.every((reg) => !reg.test(query))
           ) {
             files.push(file);
 
