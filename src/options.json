@@ -22,6 +22,10 @@
       "description": "Specify the files and/or directories to exclude. Must be relative to `options.context`.",
       "anyOf": [{ "type": "string" }, { "type": "array" }]
     },
+    "resourceQueryExclude": {
+      "description": "Specify the resource query to exclude.",
+      "anyOf": [{ "instanceof": "RegExp" }, { "type": "array" }]
+    },
     "failOnError": {
       "description": "Will cause the module build to fail if there are any errors, to disable set to `false`.",
       "type": "boolean"

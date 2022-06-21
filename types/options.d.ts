@@ -58,6 +58,7 @@ export type Options = PluginOptions & ESLintOptions;
  * @property {boolean=} quiet
  * @property {OutputReport=} outputReport
  * @property {number|boolean=} threads
+ * @property {RegExp|RegExp[]=} resourceQueryExclude
  */
 /** @typedef {PluginOptions & ESLintOptions} Options */
 /**
