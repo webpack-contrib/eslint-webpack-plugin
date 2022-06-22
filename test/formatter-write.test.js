@@ -26,7 +26,7 @@ describe('formatter write', () => {
       expect(err).toBeNull();
       expect(stats.hasWarnings()).toBe(false);
       expect(stats.hasErrors()).toBe(true);
-      expect(stats.compilation.errors[0].message).toBe(contents);
+      expect(stats.compilation.errors[0].message).toBe(`[eslint] ${contents}`);
       done();
     });
   });
@@ -49,7 +49,7 @@ describe('formatter write', () => {
       expect(err).toBeNull();
       expect(stats.hasWarnings()).toBe(false);
       expect(stats.hasErrors()).toBe(true);
-      expect(stats.compilation.errors[0].message).toBe(contents);
+      expect(stats.compilation.errors[0].message).toBe(`[eslint] ${contents}`);
       done();
     });
   });
