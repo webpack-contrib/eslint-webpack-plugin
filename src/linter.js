@@ -64,7 +64,8 @@ function linter(key, options, compilation) {
     }
     rawResults.push(
       lintFiles(files).catch((e) => {
-        compilation.errors.push(e);
+        // @ts-ignore
+        compilation.errors.push(new ESLintError(e.message));
         return [];
       })
     );
