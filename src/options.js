@@ -36,6 +36,7 @@ const schema = require('./options.json');
  * @property {boolean=} quiet
  * @property {OutputReport=} outputReport
  * @property {number|boolean=} threads
+ * @property {RegExp|RegExp[]=} resourceQueryExclude
  */
 
 /** @typedef {PluginOptions & ESLintOptions} Options */
@@ -50,6 +51,7 @@ function getOptions(pluginOptions) {
     emitError: true,
     emitWarning: true,
     failOnError: true,
+    resourceQueryExclude: [],
     ...pluginOptions,
     ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
   };

@@ -38,6 +38,9 @@ class ESLintWebpackPlugin {
         this.getContext(compiler)
       ),
       extensions: arrify(this.options.extensions),
+      resourceQueryExclude: arrify(this.options.resourceQueryExclude || []).map(
+        (item) => (item instanceof RegExp ? item : new RegExp(item))
+      ),
       files: parseFiles(this.options.files || '', this.getContext(compiler)),
     };
 
@@ -69,7 +72,7 @@ class ESLintWebpackPlugin {
 
   /**
    * @param {Compiler} compiler
-   * @param {Options} options
+   * @param {Omit<Options, 'resourceQueryExclude'> & {resourceQueryExclude: RegExp[]}} options
    * @param {string[]} wanted
    * @param {string[]} exclude
    */
@@ -104,13 +107,14 @@ class ESLintWebpackPlugin {
       // Add the file to be linted
       compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
         if (resource) {
-          const [file] = resource.split('?');
+          const [file, query] = resource.split('?');
 
           if (
             file &&
             !files.includes(file) &&
             isMatch(file, wanted, { dot: true }) &&
-            !isMatch(file, exclude, { dot: true })
+            !isMatch(file, exclude, { dot: true }) &&
+            options.resourceQueryExclude.every((reg) => !reg.test(query))
           ) {
             files.push(file);
 

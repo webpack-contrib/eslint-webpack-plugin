@@ -130,6 +130,18 @@ type exclude = string | Array<string>;
 
 Specify the files and/or directories to exclude. Must be relative to `options.context`.
 
+### `resourceQueryExclude`
+
+- Type:
+
+```ts
+type resourceQueryExclude = RegExp | Array<RegExp>;
+```
+
+- Default: `[]`
+
+Specify the resource query to exclude.
+
 ### `files`
 
 - Type:
