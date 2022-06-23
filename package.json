@@ -1,6 +1,6 @@
 {
   "name": "eslint-webpack-plugin",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "A ESLint plugin for webpack",
   "license": "MIT",
   "repository": "webpack-contrib/eslint-webpack-plugin",
