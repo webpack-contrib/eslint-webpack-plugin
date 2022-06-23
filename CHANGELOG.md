@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [2.7.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.6.0...v2.7.0) (2022-06-23)
 
+
+### Features
+
+* removed cjs wrapper ([8abd6e4](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/8abd6e4d2cd0ec95346529506763a9a1fe73fad5))
+
 ## [2.6.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v2.5.4...v2.6.0) (2021-11-12)
 
 
