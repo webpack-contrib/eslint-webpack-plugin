@@ -72,13 +72,13 @@ module.exports = {
 
 You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions).
 
->  **Note**
+> **Note**
 >
->  The config option you provide will be passed to the `ESLint` class.
-This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
-See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
+> The config option you provide will be passed to the `ESLint` class.
+> This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
+> See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
 
-> **Warning**: 
+> **Warning**:
 >
 > In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
