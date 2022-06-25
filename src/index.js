@@ -1,10 +1,10 @@
-import { isAbsolute, join } from 'path';
+const { isAbsolute, join } = require('path');
 
-import { isMatch } from 'micromatch';
+const { isMatch } = require('micromatch');
 
-import { getOptions } from './options';
-import linter from './linter';
-import { arrify, parseFiles, parseFoldersToGlobs } from './utils';
+const { getOptions } = require('./options');
+const linter = require('./linter');
+const { arrify, parseFiles, parseFoldersToGlobs } = require('./utils');
 
 /** @typedef {import('webpack').Compiler} Compiler */
 /** @typedef {import('./options').Options} Options */
@@ -38,6 +38,9 @@ class ESLintWebpackPlugin {
         this.getContext(compiler)
       ),
       extensions: arrify(this.options.extensions),
+      resourceQueryExclude: arrify(this.options.resourceQueryExclude || []).map(
+        (item) => (item instanceof RegExp ? item : new RegExp(item))
+      ),
       files: parseFiles(this.options.files || '', this.getContext(compiler)),
     };
 
@@ -69,7 +72,7 @@ class ESLintWebpackPlugin {
 
   /**
    * @param {Compiler} compiler
-   * @param {Options} options
+   * @param {Omit<Options, 'resourceQueryExclude'> & {resourceQueryExclude: RegExp[]}} options
    * @param {string[]} wanted
    * @param {string[]} exclude
    */
@@ -104,13 +107,14 @@ class ESLintWebpackPlugin {
       // Add the file to be linted
       compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
         if (resource) {
-          const [file] = resource.split('?');
+          const [file, query] = resource.split('?');
 
           if (
             file &&
             !files.includes(file) &&
             isMatch(file, wanted, { dot: true }) &&
-            !isMatch(file, exclude, { dot: true })
+            !isMatch(file, exclude, { dot: true }) &&
+            options.resourceQueryExclude.every((reg) => !reg.test(query))
           ) {
             files.push(file);
 
@@ -175,4 +179,4 @@ class ESLintWebpackPlugin {
   }
 }
 
-export default ESLintWebpackPlugin;
+module.exports = ESLintWebpackPlugin;

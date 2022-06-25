@@ -3,10 +3,10 @@ class ESLintError extends Error {
    * @param {string=} messages
    */
   constructor(messages) {
-    super(messages);
+    super(`[eslint] ${messages}`);
     this.name = 'ESLintError';
     this.stack = '';
   }
 }
 
-export default ESLintError;
+module.exports = ESLintError;

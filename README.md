@@ -5,7 +5,6 @@
 
 [![npm][npm]][npm-url]
 [![node][node]][node-url]
-[![deps][deps]][deps-url]
 [![tests][tests]][tests-url]
 [![coverage][cover]][cover-url]
 [![chat][chat]][chat-url]
@@ -73,11 +72,15 @@ module.exports = {
 
 You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions).
 
-Note that the config option you provide will be passed to the `ESLint` class.
-This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
-See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
+> **Note**
+>
+> The config option you provide will be passed to the `ESLint` class.
+> This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
+> See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
 
-**Warning**: In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
+> **Warning**:
+>
+> In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
 ### `context`
 
@@ -126,6 +129,18 @@ type exclude = string | Array<string>;
 - Default: `'node_modules'`
 
 Specify the files and/or directories to exclude. Must be relative to `options.context`.
+
+### `resourceQueryExclude`
+
+- Type:
+
+```ts
+type resourceQueryExclude = RegExp | Array<RegExp>;
+```
+
+- Default: `[]`
+
+Specify the resource query to exclude.
 
 ### `files`
 
@@ -300,8 +315,6 @@ if none is passed in the default/configured formatter will be used.
 [npm-url]: https://npmjs.com/package/eslint-webpack-plugin
 [node]: https://img.shields.io/node/v/eslint-webpack-plugin.svg
 [node-url]: https://nodejs.org
-[deps]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin.svg
-[deps-url]: https://david-dm.org/webpack-contrib/eslint-webpack-plugin
 [tests]: https://github.com/webpack-contrib/eslint-webpack-plugin/workflows/eslint-webpack-plugin/badge.svg
 [tests-url]: https://github.com/webpack-contrib/eslint-webpack-plugin/actions
 [cover]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin/branch/master/graph/badge.svg

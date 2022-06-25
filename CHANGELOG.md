@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v3.1.1...v3.2.0) (2022-06-23)
+
+
+### Features
+
+* add eslint prefix to CLI output for better debugging ([#155](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/155)) ([67efb34](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/67efb34fc2ad11dcd6593fce21059aea271dcfc7))
+* removed cjs wrapper ([#152](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/152)) ([125becf](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/125becfaad348042b732d074b346bb3243dd7fa4))
+* support resourceQueryExclude option ([#165](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/165)) ([464120f](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/464120fa74f0f0ccca98322ef43a4c057528a964))
+
 ### [3.1.1](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v3.1.0...v3.1.1) (2021-11-11)
 
 

@@ -1,6 +1,4 @@
-export default ESLintWebpackPlugin;
-export type Compiler = import('webpack').Compiler;
-export type Options = import('./options').Options;
+export = ESLintWebpackPlugin;
 declare class ESLintWebpackPlugin {
   /**
    * @param {Options} options
@@ -10,13 +8,15 @@ declare class ESLintWebpackPlugin {
   options: import('./options').PluginOptions;
   /**
    * @param {Compiler} compiler
-   * @param {Options} options
+   * @param {Omit<Options, 'resourceQueryExclude'> & {resourceQueryExclude: RegExp[]}} options
    * @param {string[]} wanted
    * @param {string[]} exclude
    */
   run(
     compiler: Compiler,
-    options: Options,
+    options: Omit<Options, 'resourceQueryExclude'> & {
+      resourceQueryExclude: RegExp[];
+    },
     wanted: string[],
     exclude: string[]
   ): Promise<void>;
@@ -32,3 +32,8 @@ declare class ESLintWebpackPlugin {
    */
   getContext(compiler: Compiler): string;
 }
+declare namespace ESLintWebpackPlugin {
+  export { Compiler, Options };
+}
+type Compiler = import('webpack').Compiler;
+type Options = import('./options').Options;
