@@ -32,12 +32,12 @@ test('parseFoldersToGlobs should return globs for folders', () => {
   const withSlash = `${withoutSlash}/`;
 
   expect(parseFoldersToGlobs(withoutSlash, 'js')).toMatchInlineSnapshot(`
-    Array [
+    [
       "/path/to/code/**/*.js",
     ]
   `);
   expect(parseFoldersToGlobs(withSlash, 'js')).toMatchInlineSnapshot(`
-    Array [
+    [
       "/path/to/code/**/*.js",
     ]
   `);
@@ -48,7 +48,7 @@ test('parseFoldersToGlobs should return globs for folders', () => {
       ['js', 'cjs', 'mjs']
     )
   ).toMatchInlineSnapshot(`
-    Array [
+    [
       "/path/to/code/**/*.{js,cjs,mjs}",
       "/path/to/code/**/*.{js,cjs,mjs}",
       "/some/file.js",
@@ -56,13 +56,13 @@ test('parseFoldersToGlobs should return globs for folders', () => {
   `);
 
   expect(parseFoldersToGlobs(withoutSlash)).toMatchInlineSnapshot(`
-    Array [
+    [
       "/path/to/code/**",
     ]
   `);
 
   expect(parseFoldersToGlobs(withSlash)).toMatchInlineSnapshot(`
-    Array [
+    [
       "/path/to/code/**",
     ]
   `);
@@ -70,7 +70,7 @@ test('parseFoldersToGlobs should return globs for folders', () => {
 
 test('parseFoldersToGlobs should return unmodified globs for globs (ignoring extensions)', () => {
   expect(parseFoldersToGlobs('**.notjs', 'js')).toMatchInlineSnapshot(`
-    Array [
+    [
       "**.notjs",
     ]
   `);
