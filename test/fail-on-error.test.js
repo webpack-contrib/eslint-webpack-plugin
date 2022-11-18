@@ -22,7 +22,7 @@ describe('fail on error', () => {
     });
   });
 
-  it('should correctly indentifies a success', (done) => {
+  it('should correctly identifies a success', (done) => {
     const compiler = pack('good', { failOnError: true });
 
     compiler.run((err) => {

@@ -1,0 +1,26 @@
+{
+  "version": "0.2",
+  "language": "en,en-gb",
+  "words": [
+    "arrify",
+    "notjs",
+    "nonfixable",
+    "dasdas",
+    "badeslintrc",
+    "autofix",
+    "autofixing",
+    "checkstyle",
+    "commitlint",
+    "indentifiers"
+  ],
+
+  "ignorePaths": [
+    "CHANGELOG.md",
+    "package.json",
+    "coverage",
+    "/test/output",
+    "dist/**",
+    "**/__snapshots__/**",
+    "package-lock.json"
+  ]
+}

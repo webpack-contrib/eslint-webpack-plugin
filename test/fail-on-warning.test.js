@@ -11,7 +11,7 @@ describe('fail on warning', () => {
     });
   });
 
-  it('should correctly indentifies a success', (done) => {
+  it('should correctly identifies a success', (done) => {
     const compiler = pack('good', { failOnWarning: true });
 
     compiler.run((err) => {
