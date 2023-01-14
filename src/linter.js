@@ -2,6 +2,7 @@ const { dirname, isAbsolute, join } = require('path');
 
 const ESLintError = require('./ESLintError');
 const { getESLint } = require('./getESLint');
+const { arrify, hasElementsOn } = require('./utils');
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
@@ -59,7 +60,7 @@ function linter(key, options, compilation) {
    * @param {string | string[]} files
    */
   function lint(files) {
-    for (const file of asList(files)) {
+    for (const file of arrify(files)) {
       delete crossRunResultStorage[file];
     }
     rawResults.push(
@@ -159,11 +160,11 @@ function linter(key, options, compilation) {
 async function formatResults(formatter, results) {
   let errors;
   let warnings;
-  if (results.warnings.length > 0) {
+  if (hasElementsOn(results.warnings)) {
     warnings = new ESLintError(await formatter.format(results.warnings));
   }
 
-  if (results.errors.length > 0) {
+  if (hasElementsOn(results.errors)) {
     errors = new ESLintError(await formatter.format(results.errors));
   }
 
@@ -191,11 +192,8 @@ function parseResults(options, results) {
         (message) => options.emitError && message.severity === 2
       );
 
-      if (messages.length > 0) {
-        errors.push({
-          ...file,
-          messages,
-        });
+      if (hasElementsOn(messages)) {
+        errors.push({ ...file, messages });
       }
     }
 
@@ -204,11 +202,8 @@ function parseResults(options, results) {
         (message) => options.emitWarning && message.severity === 1
       );
 
-      if (messages.length > 0) {
-        warnings.push({
-          ...file,
-          messages,
-        });
+      if (hasElementsOn(messages)) {
+        warnings.push({ ...file, messages });
       }
     }
   });
@@ -267,20 +262,21 @@ async function removeIgnoredWarnings(eslint, results) {
     //   fatal is false for ignored file warnings.
     //   ruleId is unset for internal ESLint errors.
     //   line is unset for warnings not involving file contents.
+    const { messages, warningCount, errorCount, filePath } = result;
+    const [firstMessage] = messages;
+    const hasWarning = warningCount === 1 && errorCount === 0;
     const ignored =
-      result.messages.length === 0 ||
-      (result.warningCount === 1 &&
-        result.errorCount === 0 &&
-        !result.messages[0].fatal &&
-        !result.messages[0].ruleId &&
-        !result.messages[0].line &&
-        (await eslint.isPathIgnored(result.filePath)));
-
+      messages.length === 0 ||
+      (hasWarning &&
+        !firstMessage.fatal &&
+        !firstMessage.ruleId &&
+        !firstMessage.line &&
+        (await eslint.isPathIgnored(filePath)));
     return ignored ? false : result;
   });
 
   // @ts-ignore
-  return (await Promise.all(filterPromises)).filter((result) => !!result);
+  return (await Promise.all(filterPromises)).filter(Boolean);
 }
 
 /**
@@ -306,14 +302,6 @@ function getResultStorage({ compiler }) {
     resultStorage.set(compiler, (storage = {}));
   }
   return storage;
-}
-
-/**
- * @param {string | string[]} x
- */
-function asList(x) {
-  /* istanbul ignore next */
-  return Array.isArray(x) ? x : [x];
 }
 
 module.exports = linter;

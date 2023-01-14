@@ -1,4 +1,4 @@
-import { parseFoldersToGlobs, parseFiles } from '../src/utils';
+import { parseFoldersToGlobs, parseFiles, hasElementsOn } from '../src/utils';
 
 jest.mock('fs', () => {
   return {
@@ -74,4 +74,11 @@ test('parseFoldersToGlobs should return unmodified globs for globs (ignoring ext
       "**.notjs",
     ]
   `);
+});
+
+test('hasElementsOn should check if the array has at least one element', () => {
+  expect(hasElementsOn()).toBeFalsy();
+  expect(hasElementsOn([])).toBeFalsy();
+  expect(hasElementsOn(['1'])).toBeTruthy();
+  expect(hasElementsOn([1, 2, 4])).toBeTruthy();
 });
