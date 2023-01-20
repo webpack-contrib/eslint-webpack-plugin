@@ -90,14 +90,6 @@ function parseFoldersToGlobs(patterns, extensions = []) {
 }
 
 /**
- * @param {any[]} list
- * @returns {boolean}
- */
-function hasElementsOn(list = []) {
-  return list.length > 0;
-}
-
-/**
  * @param {string} _ key, but unused
  * @param {any} value
  */
@@ -122,5 +114,4 @@ module.exports = {
   parseFiles,
   parseFoldersToGlobs,
   jsonStringifyReplacerSortKeys,
-  hasElementsOn,
 };

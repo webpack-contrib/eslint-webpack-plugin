@@ -2,7 +2,7 @@ const { dirname, isAbsolute, join } = require('path');
 
 const ESLintError = require('./ESLintError');
 const { getESLint } = require('./getESLint');
-const { arrify, hasElementsOn } = require('./utils');
+const { arrify } = require('./utils');
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
@@ -160,11 +160,11 @@ function linter(key, options, compilation) {
 async function formatResults(formatter, results) {
   let errors;
   let warnings;
-  if (hasElementsOn(results.warnings)) {
+  if (results.warnings.length > 0) {
     warnings = new ESLintError(await formatter.format(results.warnings));
   }
 
-  if (hasElementsOn(results.errors)) {
+  if (results.errors.length > 0) {
     errors = new ESLintError(await formatter.format(results.errors));
   }
 
@@ -192,7 +192,7 @@ function parseResults(options, results) {
         (message) => options.emitError && message.severity === 2
       );
 
-      if (hasElementsOn(messages)) {
+      if (messages.length > 0) {
         errors.push({ ...file, messages });
       }
     }
@@ -202,7 +202,7 @@ function parseResults(options, results) {
         (message) => options.emitWarning && message.severity === 1
       );
 
-      if (hasElementsOn(messages)) {
+      if (messages.length > 0) {
         warnings.push({ ...file, messages });
       }
     }
