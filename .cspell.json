@@ -21,6 +21,9 @@
     "/test/output",
     "dist/**",
     "**/__snapshots__/**",
-    "package-lock.json"
+    "package-lock.json",
+    "node_modules",
+    "coverage",
+    "*.log"
   ]
 }
