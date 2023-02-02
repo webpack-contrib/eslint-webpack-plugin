@@ -10,7 +10,9 @@ const { arrify, parseFiles, parseFoldersToGlobs } = require('./utils');
 /** @typedef {import('./options').Options} Options */
 
 const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
-let counter = 0;
+const DEFAULT_FOLDER_TO_EXCLUDE = '**/node_modules/**';
+
+let compilerId = 0;
 
 class ESLintWebpackPlugin {
   /**
@@ -29,26 +31,30 @@ class ESLintWebpackPlugin {
   apply(compiler) {
     // Generate key for each compilation,
     // this differentiates one from the other when being cached.
-    this.key = compiler.name || `${this.key}_${(counter += 1)}`;
+    this.key = compiler.name || `${this.key}_${(compilerId += 1)}`;
+
+    const excludedFiles = parseFiles(
+      this.options.exclude || [],
+      this.getContext(compiler)
+    );
+    const resourceQueries = arrify(this.options.resourceQueryExclude || []);
+    const excludedResourceQueries = resourceQueries.map((item) =>
+      item instanceof RegExp ? item : new RegExp(item)
+    );
 
     const options = {
       ...this.options,
-      exclude: parseFiles(
-        this.options.exclude || [],
-        this.getContext(compiler)
-      ),
+      exclude: excludedFiles,
+      resourceQueryExclude: excludedResourceQueries,
       extensions: arrify(this.options.extensions),
-      resourceQueryExclude: arrify(this.options.resourceQueryExclude || []).map(
-        (item) => (item instanceof RegExp ? item : new RegExp(item))
-      ),
       files: parseFiles(this.options.files || '', this.getContext(compiler)),
     };
 
+    const foldersToExclude = this.options.exclude
+      ? options.exclude
+      : DEFAULT_FOLDER_TO_EXCLUDE;
+    const exclude = parseFoldersToGlobs(foldersToExclude);
     const wanted = parseFoldersToGlobs(options.files, options.extensions);
-    const exclude = parseFoldersToGlobs(
-      this.options.exclude ? options.exclude : '**/node_modules/**',
-      []
-    );
 
     // If `lintDirtyModulesOnly` is disabled,
     // execute the linter on the build
@@ -58,15 +64,15 @@ class ESLintWebpackPlugin {
       );
     }
 
-    let isFirstRun = this.options.lintDirtyModulesOnly;
+    let hasCompilerRunByDirtyModule = this.options.lintDirtyModulesOnly;
+
     compiler.hooks.watchRun.tapPromise(this.key, (c) => {
-      if (isFirstRun) {
-        isFirstRun = false;
+      if (!hasCompilerRunByDirtyModule)
+        return this.run(c, options, wanted, exclude);
 
-        return Promise.resolve();
-      }
+      hasCompilerRunByDirtyModule = false;
 
-      return this.run(c, options, wanted, exclude);
+      return Promise.resolve();
     });
   }
 
@@ -77,13 +83,12 @@ class ESLintWebpackPlugin {
    * @param {string[]} exclude
    */
   async run(compiler, options, wanted, exclude) {
-    // Do not re-hook
-    if (
-      // @ts-ignore
-      compiler.hooks.compilation.taps.find(({ name }) => name === this.key)
-    ) {
-      return;
-    }
+    // @ts-ignore
+    const isCompilerHooked = compiler.hooks.compilation.taps.find(
+      ({ name }) => name === this.key
+    );
+
+    if (isCompilerHooked) return;
 
     compiler.hooks.compilation.tap(this.key, (compilation) => {
       /** @type {import('./linter').Linter} */
@@ -106,30 +111,27 @@ class ESLintWebpackPlugin {
       // @ts-ignore
       // Add the file to be linted
       compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
-        if (resource) {
-          const [file, query] = resource.split('?');
+        if (!resource) return;
 
-          if (
-            file &&
-            !files.includes(file) &&
-            isMatch(file, wanted, { dot: true }) &&
-            !isMatch(file, exclude, { dot: true }) &&
-            options.resourceQueryExclude.every((reg) => !reg.test(query))
-          ) {
-            files.push(file);
+        const [file, query] = resource.split('?');
+        const isFileNotListed = file && !files.includes(file);
+        const isFileWanted =
+          isMatch(file, wanted, { dot: true }) &&
+          !isMatch(file, exclude, { dot: true });
+        const isQueryNotExclude = options.resourceQueryExclude.every(
+          (reg) => !reg.test(query)
+        );
 
-            if (threads > 1) {
-              lint(file);
-            }
-          }
+        if (isFileNotListed && isFileWanted && isQueryNotExclude) {
+          files.push(file);
+
+          if (threads > 1) lint(file);
         }
       });
 
       // Lint all files added
       compilation.hooks.finishModules.tap(this.key, () => {
-        if (files.length > 0 && threads <= 1) {
-          lint(files);
-        }
+        if (files.length > 0 && threads <= 1) lint(files);
       });
 
       // await and interpret results
@@ -141,22 +143,20 @@ class ESLintWebpackPlugin {
         if (warnings && !options.failOnWarning) {
           // @ts-ignore
           compilation.warnings.push(warnings);
-        } else if (warnings && options.failOnWarning) {
+        } else if (warnings) {
           // @ts-ignore
           compilation.errors.push(warnings);
         }
 
-        if (errors && options.failOnError) {
-          // @ts-ignore
-          compilation.errors.push(errors);
-        } else if (errors && !options.failOnError) {
+        if (errors && !options.failOnError) {
           // @ts-ignore
           compilation.warnings.push(errors);
+        } else if (errors) {
+          // @ts-ignore
+          compilation.errors.push(errors);
         }
 
-        if (generateReportAsset) {
-          await generateReportAsset(compilation);
-        }
+        if (generateReportAsset) await generateReportAsset(compilation);
       }
     });
   }
@@ -167,15 +167,14 @@ class ESLintWebpackPlugin {
    * @returns {string}
    */
   getContext(compiler) {
-    if (!this.options.context) {
-      return String(compiler.options.context);
-    }
+    const compilerContext = String(compiler.options.context);
+    const optionContext = this.options.context;
 
-    if (!isAbsolute(this.options.context)) {
-      return join(String(compiler.options.context), this.options.context);
-    }
+    if (!optionContext) return compilerContext;
 
-    return this.options.context;
+    if (isAbsolute(optionContext)) return optionContext;
+
+    return join(compilerContext, optionContext);
   }
 }
 
