@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v3.2.0...v4.0.0) (2023-02-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop node v12 and eslint v7 (#159)
+
+### Bug Fixes
+
+* lint modules that are cached with webpack's filesystem cache ([#197](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/197)) ([92f25ec](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/92f25ecf5f92d72bab4c80dac363a1c632e3500f)), closes [#130](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/130)
+
+
+* drop node v12 and eslint v7 ([#159](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/159)) ([1edd3c1](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/1edd3c1ab63ba864768d812401ce500318548e2d))
+
 ## [3.2.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v3.1.1...v3.2.0) (2022-06-23)
 
 
