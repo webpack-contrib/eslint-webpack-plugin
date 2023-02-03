@@ -7,6 +7,8 @@ const linter = require('./linter');
 const { arrify, parseFiles, parseFoldersToGlobs } = require('./utils');
 
 /** @typedef {import('webpack').Compiler} Compiler */
+/** @typedef {import('webpack').Module} Module */
+/** @typedef {import('webpack').NormalModule} NormalModule */
 /** @typedef {import('./options').Options} Options */
 
 const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
@@ -108,9 +110,16 @@ class ESLintWebpackPlugin {
       /** @type {string[]} */
       const files = [];
 
-      // @ts-ignore
       // Add the file to be linted
-      compilation.hooks.succeedModule.tap(this.key, ({ resource }) => {
+      compilation.hooks.succeedModule.tap(this.key, addFile);
+      compilation.hooks.stillValidModule.tap(this.key, addFile);
+
+      /**
+       * @param {Module} module
+       */
+      function addFile(module) {
+        const { resource } = /** @type {NormalModule} */ (module);
+
         if (!resource) return;
 
         const [file, query] = resource.split('?');
@@ -127,7 +136,7 @@ class ESLintWebpackPlugin {
 
           if (threads > 1) lint(file);
         }
-      });
+      }
 
       // Lint all files added
       compilation.hooks.finishModules.tap(this.key, () => {
