@@ -47,6 +47,8 @@ const schema = require('./options.json');
  */
 function getOptions(pluginOptions) {
   const options = {
+    cache: true,
+    cacheLocation: 'node_modules/.cache/.eslintcache',
     extensions: 'js',
     emitError: true,
     emitWarning: true,

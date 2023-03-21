@@ -82,6 +82,30 @@ You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api
 >
 > In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
+### `cache`
+
+- Type:
+
+```ts
+type cache = boolean;
+```
+
+- Default: `true`
+
+The cache is enabled by default to decrease execution time.
+
+### `cacheLocation`
+
+- Type:
+
+```ts
+type cacheLocation = string;
+```
+
+- Default: `node_modules/.cache/.eslintcache`
+
+Specify the path to the cache location. Can be a file or a directory.
+
 ### `context`
 
 - Type:
