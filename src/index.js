@@ -86,7 +86,9 @@ class ESLintWebpackPlugin {
    */
   async run(compiler, options, wanted, exclude) {
     // @ts-ignore
-    const isCompilerHooked = compiler.hooks.compilation.taps.find(({ name }) => name === this.key);
+    const isCompilerHooked = compiler.hooks.compilation.taps.find(
+      ({ name }) => name === this.key
+    );
 
     if (isCompilerHooked) return;
 
