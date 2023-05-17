@@ -7,7 +7,7 @@
 [![node][node]][node-url]
 [![tests][tests]][tests-url]
 [![coverage][cover]][cover-url]
-[![chat][chat]][chat-url]
+[![discussion][discussion]][discussion-url]
 [![size][size]][size-url]
 
 # eslint-webpack-plugin
@@ -343,7 +343,7 @@ if none is passed in the default/configured formatter will be used.
 [tests-url]: https://github.com/webpack-contrib/eslint-webpack-plugin/actions
 [cover]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin/branch/master/graph/badge.svg
 [cover-url]: https://codecov.io/gh/webpack-contrib/eslint-webpack-plugin
-[chat]: https://badges.gitter.im/webpack/webpack.svg
-[chat-url]: https://gitter.im/webpack/webpack
+[discussion]: https://img.shields.io/github/discussions/webpack/webpack
+[discussion-url]: https://github.com/webpack/webpack/discussions
 [size]: https://packagephobia.now.sh/badge?p=eslint-webpack-plugin
 [size-url]: https://packagephobia.now.sh/result?p=eslint-webpack-plugin
