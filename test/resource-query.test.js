@@ -10,7 +10,7 @@ describe('resource-query', () => {
       },
       {
         module: { rules: [{ resourceQuery: /media/, type: 'asset/source' }] },
-      }
+      },
     );
 
     compiler.run((err, stats) => {

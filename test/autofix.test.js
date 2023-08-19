@@ -41,6 +41,6 @@ describe('autofix stop', () => {
       `);
         done();
       });
-    }
+    },
   );
 });

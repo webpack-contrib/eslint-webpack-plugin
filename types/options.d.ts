@@ -3,7 +3,7 @@ export type LintResult = import('eslint').ESLint.LintResult;
 export type LintResultData = import('eslint').ESLint.LintResultData;
 export type FormatterFunction = (
   results: LintResult[],
-  data?: LintResultData | undefined
+  data?: LintResultData | undefined,
 ) => string;
 export type OutputReport = {
   filePath?: string | undefined;

@@ -12,7 +12,7 @@ describe('multiple instances', () => {
           new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
           new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
         ],
-      }
+      },
     );
 
     compiler.run((err, stats) => {
@@ -32,7 +32,7 @@ describe('multiple instances', () => {
           new ESLintPlugin({ ignore: false, exclude: 'good.js' }),
           new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
         ],
-      }
+      },
     );
 
     compiler.run((err, stats) => {
@@ -52,7 +52,7 @@ describe('multiple instances', () => {
           new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
           new ESLintPlugin({ ignore: false, exclude: 'good.js' }),
         ],
-      }
+      },
     );
 
     compiler.run((err, stats) => {

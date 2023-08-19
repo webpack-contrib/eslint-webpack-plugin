@@ -68,7 +68,7 @@ function linter(key, options, compilation) {
         // @ts-ignore
         compilation.errors.push(new ESLintError(e.message));
         return [];
-      })
+      }),
     );
   }
 
@@ -77,7 +77,7 @@ function linter(key, options, compilation) {
     let results = await removeIgnoredWarnings(
       eslint,
       // Get the current results, resetting the rawResults to empty
-      await flatten(rawResults.splice(0, rawResults.length))
+      await flatten(rawResults.splice(0, rawResults.length)),
     );
 
     await cleanup();
@@ -96,7 +96,7 @@ function linter(key, options, compilation) {
     const formatter = await loadFormatter(eslint, options.formatter);
     const { errors, warnings } = await formatResults(
       formatter,
-      parseResults(options, results)
+      parseResults(options, results),
     );
 
     return {
@@ -189,7 +189,7 @@ function parseResults(options, results) {
   results.forEach((file) => {
     if (fileHasErrors(file)) {
       const messages = file.messages.filter(
-        (message) => options.emitError && message.severity === 2
+        (message) => options.emitError && message.severity === 2,
       );
 
       if (messages.length > 0) {
@@ -199,7 +199,7 @@ function parseResults(options, results) {
 
     if (fileHasWarnings(file)) {
       const messages = file.messages.filter(
-        (message) => options.emitWarning && message.severity === 1
+        (message) => options.emitWarning && message.severity === 1,
       );
 
       if (messages.length > 0) {

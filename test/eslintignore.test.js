@@ -10,7 +10,7 @@ describe('eslintignore', () => {
       expect(err).toBeNull();
       expect(stats.hasWarnings()).toBe(false);
       expect(
-        stats.compilation.errors.filter((x) => x instanceof ESLintError)
+        stats.compilation.errors.filter((x) => x instanceof ESLintError),
       ).toEqual([]);
 
       done();

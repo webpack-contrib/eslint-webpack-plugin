@@ -13,7 +13,7 @@ describe('fail on config', () => {
       expect(stats.hasErrors()).toBe(true);
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toMatch(
-        /ESLint configuration in --config is invalid/i
+        /ESLint configuration in --config is invalid/i,
       );
       done();
     });
