@@ -9,7 +9,9 @@ describe('resource-query', () => {
         extensions: ['.js', '.ts'],
       },
       {
-        module: { rules: [{ resourceQuery: /media/, type: 'asset/source' }] },
+        module: {
+          rules: [{ resourceQuery: new RegExp(/media/), type: 'asset/source' }],
+        },
       }
     );
 

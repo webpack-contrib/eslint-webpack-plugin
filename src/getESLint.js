@@ -11,8 +11,9 @@ const cache = {};
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('./options').Options} Options */
+/** @typedef {import('./linter').File} File */
 /** @typedef {() => Promise<void>} AsyncTask */
-/** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
+/** @typedef {(files: File[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
 /** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 
@@ -26,6 +27,7 @@ function loadESLint(options) {
   const { ESLint } = require(eslintPath || 'eslint');
 
   // Filter out loader options before passing the options to ESLint.
+  /** @type {ESLint} */
   const eslint = new ESLint(getESLintOptions(options));
 
   return {
@@ -33,11 +35,26 @@ function loadESLint(options) {
     ESLint,
     eslint,
     lintFiles: async (files) => {
-      const results = await eslint.lintFiles(files);
+      /** @type {LintResult[]} */
+      const results = [];
+
+      await Promise.all(
+        files.map(async (file) => {
+          const result = await eslint.lintText(file.content, {
+            filePath: file.path,
+          });
+          // istanbul ignore else
+          if (result) {
+            results.push(...result);
+          }
+        })
+      );
+
       // istanbul ignore else
       if (options.fix) {
         await ESLint.outputFixes(results);
       }
+
       return results;
     },
     // no-op for non-threaded

@@ -10,6 +10,7 @@ const { arrify, parseFiles, parseFoldersToGlobs } = require('./utils');
 /** @typedef {import('webpack').Module} Module */
 /** @typedef {import('webpack').NormalModule} NormalModule */
 /** @typedef {import('./options').Options} Options */
+/** @typedef {import('./linter').File} File */
 
 const ESLINT_PLUGIN = 'ESLintWebpackPlugin';
 const DEFAULT_FOLDER_TO_EXCLUDE = '**/node_modules/**';
@@ -39,7 +40,7 @@ class ESLintWebpackPlugin {
       this.options.exclude || [],
       this.getContext(compiler)
     );
-    const resourceQueries = arrify(this.options.resourceQueryExclude || []);
+    const resourceQueries = arrify(this.options.resourceQueryExclude);
     const excludedResourceQueries = resourceQueries.map((item) =>
       item instanceof RegExp ? item : new RegExp(item)
     );
@@ -107,7 +108,7 @@ class ESLintWebpackPlugin {
         return;
       }
 
-      /** @type {string[]} */
+      /** @type {File[]} */
       const files = [];
 
       // Add the file to be linted
@@ -122,19 +123,31 @@ class ESLintWebpackPlugin {
 
         if (!resource) return;
 
-        const [file, query] = resource.split('?');
-        const isFileNotListed = file && !files.includes(file);
+        const [filePath, query] = resource.split('?');
+        const isFileNotListed =
+          filePath && !files.map((file) => file.path).includes(filePath);
         const isFileWanted =
-          isMatch(file, wanted, { dot: true }) &&
-          !isMatch(file, exclude, { dot: true });
+          isMatch(filePath, wanted, { dot: true }) &&
+          !isMatch(filePath, exclude, { dot: true });
         const isQueryNotExclude = options.resourceQueryExclude.every(
           (reg) => !reg.test(query)
         );
 
         if (isFileNotListed && isFileWanted && isQueryNotExclude) {
+          // istanbul ignore next
+          const content = String(
+            (module.originalSource
+              ? module.originalSource()
+              : // eslint-disable-next-line line-comment-position
+                // @ts-ignore
+                // eslint-disable-next-line no-underscore-dangle
+                module._source
+            ).source()
+          );
+          const file = { path: filePath, content };
           files.push(file);
 
-          if (threads > 1) lint(file);
+          if (threads > 1) lint([file]);
         }
       }
 

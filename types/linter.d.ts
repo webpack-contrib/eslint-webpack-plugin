@@ -26,13 +26,14 @@ declare namespace linter {
     GenerateReport,
     Report,
     Reporter,
+    File,
     Linter,
     LintResultMap,
   };
 }
 type Options = import('./options').Options;
 type Compilation = import('webpack').Compilation;
-type Linter = (files: string | string[]) => void;
+type Linter = (files: File[]) => void;
 type Reporter = () => Promise<Report>;
 type ESLint = import('eslint').ESLint;
 type Formatter = import('eslint').ESLint.Formatter;
@@ -45,7 +46,11 @@ type Report = {
   warnings?: ESLintError;
   generateReportAsset?: GenerateReport;
 };
+type File = {
+  path: string;
+  content: string;
+};
 type LintResultMap = {
-  [files: string]: import('eslint').ESLint.LintResult;
+  [paths: string]: import('eslint').ESLint.LintResult;
 };
 import ESLintError = require('./ESLintError');

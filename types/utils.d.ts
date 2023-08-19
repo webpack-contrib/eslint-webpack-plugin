@@ -2,7 +2,7 @@
  * @template T
  * @param {T} value
  * @return {
-   T extends (null | undefined)
+   T extends (null|undefined)
      ? []
      : T extends string
        ? [string]

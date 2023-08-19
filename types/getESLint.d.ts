@@ -1,8 +1,9 @@
 export type ESLint = import('eslint').ESLint;
 export type LintResult = import('eslint').ESLint.LintResult;
 export type Options = import('./options').Options;
+export type File = import('./linter').File;
 export type AsyncTask = () => Promise<void>;
-export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
+export type LintTask = (files: File[]) => Promise<LintResult[]>;
 export type Linter = {
   threads: number;
   ESLint: ESLint;
@@ -16,8 +17,9 @@ export type Worker = JestWorker & {
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('./options').Options} Options */
+/** @typedef {import('./linter').File} File */
 /** @typedef {() => Promise<void>} AsyncTask */
-/** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
+/** @typedef {(files: File[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
 /** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 /**

@@ -7,7 +7,7 @@ const normalizePath = require('normalize-path');
  * @template T
  * @param {T} value
  * @return {
-   T extends (null | undefined)
+   T extends (null|undefined)
      ? []
      : T extends string
        ? [string]
@@ -96,7 +96,7 @@ function parseFoldersToGlobs(patterns, extensions = []) {
 const jsonStringifyReplacerSortKeys = (_, value) => {
   /**
    * @param {{ [x: string]: any; }} sorted
-   * @param {string | number} key
+   * @param {string|number} key
    */
   const insert = (sorted, key) => {
     // eslint-disable-next-line no-param-reassign

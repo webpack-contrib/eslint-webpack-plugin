@@ -33,9 +33,10 @@ declare class ESLintWebpackPlugin {
   getContext(compiler: Compiler): string;
 }
 declare namespace ESLintWebpackPlugin {
-  export { Compiler, Module, NormalModule, Options };
+  export { Compiler, Module, NormalModule, Options, File };
 }
 type Compiler = import('webpack').Compiler;
 type Options = import('./options').Options;
 type Module = import('webpack').Module;
 type NormalModule = import('webpack').NormalModule;
+type File = import('./linter').File;
