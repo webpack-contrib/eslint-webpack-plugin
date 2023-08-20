@@ -18,7 +18,7 @@ declare class ESLintWebpackPlugin {
       resourceQueryExclude: RegExp[];
     },
     wanted: string[],
-    exclude: string[]
+    exclude: string[],
   ): Promise<void>;
   /**
    * @param {Compiler} compiler

@@ -11,7 +11,7 @@ describe('query', () => {
             'alias-ignore': false,
           },
         },
-      }
+      },
     );
 
     compiler.run((err, stats) => {

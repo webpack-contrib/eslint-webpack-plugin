@@ -34,7 +34,7 @@ export function loadESLint(options: Options): Linter;
 export function loadESLintThreaded(
   key: string | undefined,
   poolSize: number,
-  options: Options
+  options: Options,
 ): Linter;
 /**
  * @param {string|undefined} key
@@ -43,6 +43,6 @@ export function loadESLintThreaded(
  */
 export function getESLint(
   key: string | undefined,
-  { threads, ...options }: Options
+  { threads, ...options }: Options,
 ): Linter;
 import { Worker as JestWorker } from 'jest-worker';
