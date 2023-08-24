@@ -312,7 +312,7 @@ type outputReport =
             | string
             | ((
                 results: Array<import('eslint').ESLint.LintResult>,
-                data?: import('eslint').ESLint.LintResultData | undefined
+                data?: import('eslint').ESLint.LintResultData | undefined,
               ) => string)
           )
         | undefined;

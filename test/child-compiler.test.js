@@ -14,7 +14,7 @@ class ChildPlugin {
       webpack.EntryOptionPlugin.applyEntryOption(
         childCompiler,
         compilation.compiler.context,
-        this.options.entry
+        this.options.entry,
       );
       childCompiler.runAsChild(() => {
         callback();
@@ -31,7 +31,7 @@ describe('child compiler', () => {
         entry: {
           child: './child-entry',
         },
-      })
+      }),
     );
     webpack(config).run((err, stats) => {
       expect(err).toBeNull();

@@ -61,7 +61,7 @@ describe('Threading', () => {
             },
             {
               outputFixes: jest.fn(),
-            }
+            },
           ),
         };
       });

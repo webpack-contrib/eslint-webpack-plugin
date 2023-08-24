@@ -38,11 +38,11 @@ class ESLintWebpackPlugin {
 
     const excludedFiles = parseFiles(
       this.options.exclude || [],
-      this.getContext(compiler)
+      this.getContext(compiler),
     );
     const resourceQueries = arrify(this.options.resourceQueryExclude);
     const excludedResourceQueries = resourceQueries.map((item) =>
-      item instanceof RegExp ? item : new RegExp(item)
+      item instanceof RegExp ? item : new RegExp(item),
     );
 
     const options = {
@@ -63,7 +63,7 @@ class ESLintWebpackPlugin {
     // execute the linter on the build
     if (!this.options.lintDirtyModulesOnly) {
       compiler.hooks.run.tapPromise(this.key, (c) =>
-        this.run(c, options, wanted, exclude)
+        this.run(c, options, wanted, exclude),
       );
     }
 
@@ -88,7 +88,7 @@ class ESLintWebpackPlugin {
   async run(compiler, options, wanted, exclude) {
     // @ts-ignore
     const isCompilerHooked = compiler.hooks.compilation.taps.find(
-      ({ name }) => name === this.key
+      ({ name }) => name === this.key,
     );
 
     if (isCompilerHooked) return;
@@ -130,7 +130,7 @@ class ESLintWebpackPlugin {
           isMatch(filePath, wanted, { dot: true }) &&
           !isMatch(filePath, exclude, { dot: true });
         const isQueryNotExclude = options.resourceQueryExclude.every(
-          (reg) => !reg.test(query)
+          (reg) => !reg.test(query),
         );
 
         if (isFileNotListed && isFileWanted && isQueryNotExclude) {

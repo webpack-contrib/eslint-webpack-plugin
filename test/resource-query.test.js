@@ -12,7 +12,7 @@ describe('resource-query', () => {
         module: {
           rules: [{ resourceQuery: new RegExp(/media/), type: 'asset/source' }],
         },
-      }
+      },
     );
 
     compiler.run((err, stats) => {
