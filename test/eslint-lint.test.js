@@ -17,33 +17,24 @@ describe('eslint lint', () => {
     mockLintFiles.mockClear();
   });
 
-  it('should lint one file', (done) => {
+  it('should lint one file', async () => {
     const compiler = pack('lint-one', { threads: false });
 
-    compiler.run((err) => {
-      expect(mockLintFiles).toHaveBeenCalledTimes(1);
-      expect(err).toBeNull();
-      done();
-    });
+    await compiler.runAsync();
+    expect(mockLintFiles).toHaveBeenCalledTimes(1);
   });
 
-  it('should lint two files', (done) => {
+  it('should lint two files', async () => {
     const compiler = pack('lint-two', { threads: false });
 
-    compiler.run((err) => {
-      expect(mockLintFiles).toHaveBeenCalledTimes(2);
-      expect(err).toBeNull();
-      done();
-    });
+    await compiler.runAsync();
+    expect(mockLintFiles).toHaveBeenCalledTimes(2);
   });
 
-  it('should lint more files', (done) => {
+  it('should lint more files', async () => {
     const compiler = pack('lint-more', { threads: false });
 
-    compiler.run((err) => {
-      expect(mockLintFiles).toHaveBeenCalledTimes(3);
-      expect(err).toBeNull();
-      done();
-    });
+    await compiler.runAsync();
+    expect(mockLintFiles).toHaveBeenCalledTimes(3);
   });
 });

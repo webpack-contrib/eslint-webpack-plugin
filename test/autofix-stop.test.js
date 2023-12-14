@@ -25,12 +25,10 @@ describe('autofix stop', () => {
     removeSync(entry);
   });
 
-  it('should not change file if there are no fixable errors/warnings', (done) => {
+  it('should not change file if there are no fixable errors/warnings', async () => {
     const compiler = pack('nonfixable-clone', { fix: true });
 
-    compiler.run(() => {
-      expect(changed).toBe(false);
-      done();
-    });
+    await compiler.runAsync();
+    expect(changed).toBe(false);
   });
 });
