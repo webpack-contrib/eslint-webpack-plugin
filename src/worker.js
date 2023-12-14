@@ -46,7 +46,7 @@ async function lintFiles(files) {
       if (result) {
         results.push(...result);
       }
-    })
+    }),
   );
 
   // istanbul ignore else

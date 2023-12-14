@@ -142,7 +142,7 @@ class ESLintWebpackPlugin {
                 // @ts-ignore
                 // eslint-disable-next-line no-underscore-dangle
                 module._source
-            ).source()
+            ).source(),
           );
           const file = { path: filePath, content };
           files.push(file);
