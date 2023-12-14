@@ -2,6 +2,8 @@ const { cpus } = require('os');
 
 const { Worker: JestWorker } = require('jest-worker');
 
+// @ts-ignore
+const { setup, lintFiles } = require('./worker');
 const { getESLintOptions } = require('./options');
 const { jsonStringifyReplacerSortKeys } = require('./utils');
 
@@ -14,7 +16,7 @@ const cache = {};
 /** @typedef {import('./linter').File} File */
 /** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: File[]) => Promise<LintResult[]>} LintTask */
-/** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
+/** @typedef {{threads: number, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
 /** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 
 /**
@@ -23,40 +25,15 @@ const cache = {};
  */
 function loadESLint(options) {
   const { eslintPath } = options;
-
-  const { ESLint } = require(eslintPath || 'eslint');
-
-  // Filter out loader options before passing the options to ESLint.
-  /** @type {ESLint} */
-  const eslint = new ESLint(getESLintOptions(options));
+  const eslint = setup({
+    eslintPath,
+    eslintOptions: getESLintOptions(options),
+  });
 
   return {
     threads: 1,
-    ESLint,
+    lintFiles,
     eslint,
-    lintFiles: async (files) => {
-      /** @type {LintResult[]} */
-      const results = [];
-
-      await Promise.all(
-        files.map(async (file) => {
-          const result = await eslint.lintText(file.content, {
-            filePath: file.path,
-          });
-          // istanbul ignore else
-          if (result) {
-            results.push(...result);
-          }
-        })
-      );
-
-      // istanbul ignore else
-      if (options.fix) {
-        await ESLint.outputFixes(results);
-      }
-
-      return results;
-    },
     // no-op for non-threaded
     cleanup: async () => {},
   };

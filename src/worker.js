@@ -20,14 +20,16 @@ let fix;
 /**
  * @typedef {object} setupOptions
  * @property {string=} eslintPath - import path of eslint
- * @property {ESLintOptions=} eslintOptions - linter options
+ * @property {ESLintOptions} eslintOptions - linter options
  *
  * @param {setupOptions} arg0 - setup worker
  */
-function setup({ eslintPath, eslintOptions = {} }) {
+function setup({ eslintPath, eslintOptions }) {
   fix = !!(eslintOptions && eslintOptions.fix);
   ({ ESLint } = require(eslintPath || 'eslint'));
   eslint = new ESLint(eslintOptions);
+
+  return eslint;
 }
 
 /**
