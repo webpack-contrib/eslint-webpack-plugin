@@ -27,6 +27,7 @@ function loadESLint(options) {
   const { eslintPath } = options;
   const eslint = setup({
     eslintPath,
+    configType: options.configType,
     eslintOptions: getESLintOptions(options),
   });
 
@@ -52,7 +53,13 @@ function loadESLintThreaded(key, poolSize, options) {
   const workerOptions = {
     enableWorkerThreads: true,
     numWorkers: poolSize,
-    setupArgs: [{ eslintPath, eslintOptions: getESLintOptions(options) }],
+    setupArgs: [
+      {
+        eslintPath,
+        configType: options.configType,
+        eslintOptions: getESLintOptions(options),
+      },
+    ],
   };
 
   const local = loadESLint(options);
