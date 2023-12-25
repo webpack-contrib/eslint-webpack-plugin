@@ -2,6 +2,10 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
+    "configType": {
+      "description": "Enable flat config by setting this value to `flat`.",
+      "type": "string"
+    },
     "context": {
       "description": "A string indicating the root of your files.",
       "type": "string"
@@ -57,10 +61,6 @@
     "quiet": {
       "description": "Will process and report errors only and ignore warnings, if set to `true`.",
       "type": "boolean"
-    },
-    "configType": {
-      "description": "Enable flat config by setting this value to `flat`.",
-      "type": "string"
     },
     "outputReport": {
       "description": "Write the output of the errors to a file, for example a checkstyle xml file for use for reporting on Jenkins CI",
