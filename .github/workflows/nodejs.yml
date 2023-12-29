@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: ["18.18.0", 18.x, 20.x]
+        node-version: [20.x]
         eslint-version: [8.x]
         webpack-version: [latest]
 
