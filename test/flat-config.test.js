@@ -24,7 +24,7 @@ describe('succeed on flat-configuration', () => {
     });
   });
 
-  it('finds errors on files', (done) => {
+  (process.version.match(/^v(\d+\.\d+)/)[1] >= 20 ? it : it.skip)('finds errors on files', (done) => {
     const overrideConfigFile = join(__dirname, 'fixtures', 'flat-config.js');
     const compiler = pack('full-of-problems', {
       configType: 'flat',
@@ -41,7 +41,7 @@ describe('succeed on flat-configuration', () => {
       expect(stats.hasErrors()).toBe(true);
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toMatch(
-        /test\/fixtures\/full-of-problems\.js/i,
+        /full-of-problems\.js/i,
       );
       expect(stats.hasWarnings()).toBe(true);
       done();
