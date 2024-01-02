@@ -37,6 +37,7 @@ const schema = require('./options.json');
  * @property {OutputReport=} outputReport
  * @property {number|boolean=} threads
  * @property {RegExp|RegExp[]=} resourceQueryExclude
+ * @property {string=} configType
  */
 
 /** @typedef {PluginOptions & ESLintOptions} Options */
@@ -82,6 +83,11 @@ function getESLintOptions(loaderOptions) {
   for (const option in eslintOnlyOptions) {
     // @ts-ignore
     delete eslintOptions[option];
+  }
+
+  // Some options aren't available in flat mode
+  if (loaderOptions.configType === 'flat') {
+    delete eslintOptions.extensions;
   }
 
   return eslintOptions;
