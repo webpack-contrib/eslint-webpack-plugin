@@ -20,14 +20,37 @@ let fix;
 /**
  * @typedef {object} setupOptions
  * @property {string=} eslintPath - import path of eslint
- * @property {ESLintOptions=} eslintOptions - linter options
+ * @property {string=} configType
+ * @property {ESLintOptions} eslintOptions - linter options
  *
  * @param {setupOptions} arg0 - setup worker
  */
-function setup({ eslintPath, eslintOptions = {} }) {
+function setup({ eslintPath, configType, eslintOptions }) {
   fix = !!(eslintOptions && eslintOptions.fix);
-  ({ ESLint } = require(eslintPath || 'eslint'));
-  eslint = new ESLint(eslintOptions);
+  const eslintModule = require(eslintPath || 'eslint');
+
+  let FlatESLint;
+
+  if (eslintModule.LegacyESLint) {
+    ESLint = eslintModule.LegacyESLint;
+    ({ FlatESLint } = eslintModule);
+  } else {
+    ({ ESLint } = eslintModule);
+
+    if (configType === 'flat') {
+      throw new Error(
+        "Couldn't find FlatESLint, you might need to set eslintPath to 'eslint/use-at-your-own-risk'",
+      );
+    }
+  }
+
+  if (configType === 'flat') {
+    eslint = new FlatESLint(eslintOptions);
+  } else {
+    eslint = new ESLint(eslintOptions);
+  }
+
+  return eslint;
 }
 
 /**

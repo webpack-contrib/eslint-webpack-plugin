@@ -2,6 +2,10 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
+    "configType": {
+      "description": "Enable flat config by setting this value to `flat`.",
+      "type": "string"
+    },
     "context": {
       "description": "A string indicating the root of your files.",
       "type": "string"
