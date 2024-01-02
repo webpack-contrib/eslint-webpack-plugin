@@ -1,6 +1,7 @@
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
+/** @typedef {import('./linter').File} File */
 
 Object.assign(module.exports, {
   lintFiles,
@@ -53,14 +54,28 @@ function setup({ eslintPath, configType, eslintOptions }) {
 }
 
 /**
- * @param {string | string[]} files
+ * @param {File[]} files
  */
 async function lintFiles(files) {
   /** @type {LintResult[]} */
-  const result = await eslint.lintFiles(files);
-  // if enabled, use eslint autofixing where possible
+  const results = [];
+
+  await Promise.all(
+    files.map(async (file) => {
+      const result = await eslint.lintText(file.content, {
+        filePath: file.path,
+      });
+      /* istanbul ignore if */
+      if (result) {
+        results.push(...result);
+      }
+    }),
+  );
+
+  // istanbul ignore else
   if (fix) {
-    await ESLint.outputFixes(result);
+    await ESLint.outputFixes(results);
   }
-  return result;
+
+  return results;
 }

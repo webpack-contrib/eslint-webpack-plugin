@@ -1,6 +1,8 @@
 /* eslint-env jest */
 import { join } from 'path';
 
+import { readFileSync } from 'fs-extra';
+
 import { loadESLint, loadESLintThreaded } from '../src/getESLint';
 
 describe('Threading', () => {
@@ -23,9 +25,16 @@ describe('Threading', () => {
   test('Threaded should lint files', async () => {
     const threaded = loadESLintThreaded('bar', 1, { ignore: false });
     try {
+      const goodFile = join(__dirname, 'fixtures/good.js');
+      const badFile = join(__dirname, 'fixtures/error.js');
+
       const [good, bad] = await Promise.all([
-        threaded.lintFiles(join(__dirname, 'fixtures/good.js')),
-        threaded.lintFiles(join(__dirname, 'fixtures/error.js')),
+        threaded.lintFiles([
+          { path: goodFile, content: readFileSync(goodFile).toString('utf8') },
+        ]),
+        threaded.lintFiles([
+          { path: badFile, content: readFileSync(badFile).toString('utf8') },
+        ]),
       ]);
       expect(good[0].errorCount).toBe(0);
       expect(good[0].warningCount).toBe(0);
@@ -48,7 +57,7 @@ describe('Threading', () => {
         return {
           ESLint: Object.assign(
             function ESLint() {
-              this.lintFiles = mockLintFiles;
+              this.lintText = mockLintFiles;
             },
             {
               outputFixes: jest.fn(),
@@ -60,10 +69,10 @@ describe('Threading', () => {
       const { setup, lintFiles } = require('../src/worker');
 
       await setup({});
-      await lintFiles('foo');
-      expect(mockLintFiles).toHaveBeenCalledWith('foo');
+      await lintFiles([{ path: 'foo', content: '' }]);
+      expect(mockLintFiles).toHaveBeenCalledWith('', { filePath: 'foo' });
       await setup({ eslintOptions: { fix: true } });
-      await lintFiles('foo');
+      await lintFiles([{ path: 'foo', content: '' }]);
     });
   });
 });

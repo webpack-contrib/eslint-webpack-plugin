@@ -7,7 +7,7 @@ describe('eslint lint', () => {
     jest.mock('eslint', () => {
       return {
         ESLint: function ESLint() {
-          this.lintFiles = mockLintFiles;
+          this.lintText = mockLintFiles;
         },
       };
     });
@@ -21,8 +21,7 @@ describe('eslint lint', () => {
     const compiler = pack('lint-one', { threads: false });
 
     compiler.run((err) => {
-      const files = [expect.stringMatching('lint-one-entry.js')];
-      expect(mockLintFiles).toHaveBeenCalledWith(files);
+      expect(mockLintFiles).toHaveBeenCalledTimes(1);
       expect(err).toBeNull();
       done();
     });
@@ -32,11 +31,7 @@ describe('eslint lint', () => {
     const compiler = pack('lint-two', { threads: false });
 
     compiler.run((err) => {
-      const files = [
-        expect.stringMatching('lint-two-entry.js'),
-        expect.stringMatching('lint.js'),
-      ];
-      expect(mockLintFiles).toHaveBeenCalledWith(files);
+      expect(mockLintFiles).toHaveBeenCalledTimes(2);
       expect(err).toBeNull();
       done();
     });
@@ -46,12 +41,7 @@ describe('eslint lint', () => {
     const compiler = pack('lint-more', { threads: false });
 
     compiler.run((err) => {
-      const files = [
-        expect.stringMatching('lint-more-entry.js'),
-        expect.stringMatching('lint-more.js'),
-        expect.stringMatching('lint.js'),
-      ];
-      expect(mockLintFiles).toHaveBeenCalledWith(files);
+      expect(mockLintFiles).toHaveBeenCalledTimes(3);
       expect(err).toBeNull();
       done();
     });

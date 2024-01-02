@@ -1,7 +1,6 @@
 class ESLintMock {
-  // Disabled because these are simplified mock methods.
   // eslint-disable-next-line class-methods-use-this
-  async lintFiles() {
+  async lintText() {
     return [
       {
         filePath: '',

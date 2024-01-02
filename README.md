@@ -111,12 +111,13 @@ Specify the path to the cache location. Can be a file or a directory.
 - Type:
 
 ```ts
-type configType = "flat" | "eslintrc";
+type configType = 'flat' | 'eslintrc';
 ```
 
 - Default: `eslintrc`
 
 Specify the type of configuration to use with ESLint.
+
 - `eslintrc` is the classic configuration format available in most ESLint versions.
 - `flat` is the new format introduced in ESLint 8.21.0.
 

@@ -13,8 +13,9 @@ const cache = {};
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
 /** @typedef {import('./options').Options} Options */
+/** @typedef {import('./linter').File} File */
 /** @typedef {() => Promise<void>} AsyncTask */
-/** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
+/** @typedef {(files: File[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{threads: number, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
 /** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 

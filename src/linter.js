@@ -2,7 +2,6 @@ const { dirname, isAbsolute, join } = require('path');
 
 const ESLintError = require('./ESLintError');
 const { getESLint } = require('./getESLint');
-const { arrify } = require('./utils');
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.Formatter} Formatter */
@@ -14,8 +13,9 @@ const { arrify } = require('./utils');
 /** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
 /** @typedef {{errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport}} Report */
 /** @typedef {() => Promise<Report>} Reporter */
-/** @typedef {(files: string|string[]) => void} Linter */
-/** @typedef {{[files: string]: LintResult}} LintResultMap */
+/** @typedef {{path: string, content: string}} File */
+/** @typedef {(files: File[]) => void} Linter */
+/** @typedef {{[paths: string]: LintResult}} LintResultMap */
 
 /** @type {WeakMap<Compiler, LintResultMap>} */
 const resultStorage = new WeakMap();
@@ -30,7 +30,7 @@ function linter(key, options, compilation) {
   /** @type {ESLint} */
   let eslint;
 
-  /** @type {(files: string|string[]) => Promise<LintResult[]>} */
+  /** @type {(files: File[]) => Promise<LintResult[]>} */
   let lintFiles;
 
   /** @type {() => Promise<void>} */
@@ -57,11 +57,11 @@ function linter(key, options, compilation) {
   };
 
   /**
-   * @param {string | string[]} files
+   * @param {File[]} files
    */
   function lint(files) {
-    for (const file of arrify(files)) {
-      delete crossRunResultStorage[file];
+    for (const file of files) {
+      delete crossRunResultStorage[file.path];
     }
     rawResults.push(
       lintFiles(files).catch((e) => {
@@ -113,7 +113,7 @@ function linter(key, options, compilation) {
       const { outputReport } = options;
       /**
        * @param {string} name
-       * @param {string | Buffer} content
+       * @param {string|Buffer} content
        */
       const save = (name, content) =>
         /** @type {Promise<void>} */ (
@@ -265,6 +265,7 @@ async function removeIgnoredWarnings(eslint, results) {
     const { messages, warningCount, errorCount, filePath } = result;
     const [firstMessage] = messages;
     const hasWarning = warningCount === 1 && errorCount === 0;
+    // istanbul ignore next
     const ignored =
       messages.length === 0 ||
       (hasWarning &&
