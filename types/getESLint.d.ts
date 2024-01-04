@@ -5,7 +5,6 @@ export type AsyncTask = () => Promise<void>;
 export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
 export type Linter = {
   threads: number;
-  ESLint: ESLint;
   eslint: ESLint;
   lintFiles: LintTask;
   cleanup: AsyncTask;
@@ -18,7 +17,7 @@ export type Worker = JestWorker & {
 /** @typedef {import('./options').Options} Options */
 /** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: string|string[]) => Promise<LintResult[]>} LintTask */
-/** @typedef {{threads: number, ESLint: ESLint, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
+/** @typedef {{threads: number, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask}} Linter */
 /** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 /**
  * @param {Options} options
