@@ -1,14 +1,11 @@
 import pack from './utils/pack';
 
 describe('warning', () => {
-  it('should emit warnings', (done) => {
+  it('should emit warnings', async () => {
     const compiler = pack('warn');
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(true);
-      expect(stats.hasErrors()).toBe(false);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(true);
+    expect(stats.hasErrors()).toBe(false);
   });
 });
