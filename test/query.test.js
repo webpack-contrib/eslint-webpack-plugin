@@ -1,7 +1,7 @@
 import pack from './utils/pack';
 
 describe('query', () => {
-  it('should correctly resolve file despite query path', (done) => {
+  it('should correctly resolve file despite query path', async () => {
     const compiler = pack(
       'query',
       {},
@@ -14,12 +14,8 @@ describe('query', () => {
       },
     );
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
-
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(false);
   });
 });

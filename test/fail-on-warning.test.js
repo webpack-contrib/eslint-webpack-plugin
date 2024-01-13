@@ -1,22 +1,17 @@
 import pack from './utils/pack';
 
 describe('fail on warning', () => {
-  it('should emits errors', (done) => {
+  it('should emits errors', async () => {
     const compiler = pack('warn', { failOnWarning: true });
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasErrors()).toBe(true);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasErrors()).toBe(true);
   });
 
-  it('should correctly identifies a success', (done) => {
+  it('should correctly identifies a success', async () => {
     const compiler = pack('good', { failOnWarning: true });
 
-    compiler.run((err) => {
-      expect(err).toBeNull();
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasErrors()).toBe(false);
   });
 });

@@ -1,58 +1,43 @@
 import pack from './utils/pack';
 
 describe('emit warning', () => {
-  it('should not emit warnings if emitWarning is false', (done) => {
+  it('should not emit warnings if emitWarning is false', async () => {
     const compiler = pack('warn', { emitWarning: false });
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
   });
 
-  it('should emit warnings if emitWarning is undefined', (done) => {
+  it('should emit warnings if emitWarning is undefined', async () => {
     const compiler = pack('warn', {});
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(true);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(true);
   });
 
-  it('should emit warnings if emitWarning is true', (done) => {
+  it('should emit warnings if emitWarning is true', async () => {
     const compiler = pack('warn', { emitWarning: true });
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(true);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(true);
   });
 
-  it('should emit warnings, but not warnings if emitWarning is true and emitError is false', (done) => {
+  it('should emit warnings, but not warnings if emitWarning is true and emitError is false', async () => {
     const compiler = pack('full-of-problems', {
       emitWarning: true,
       emitError: false,
     });
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(true);
-      expect(stats.hasErrors()).toBe(false);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(true);
+    expect(stats.hasErrors()).toBe(false);
   });
 
-  it('should emit warnings and errors if emitWarning is true and emitError is undefined', (done) => {
+  it('should emit warnings and errors if emitWarning is true and emitError is undefined', async () => {
     const compiler = pack('full-of-problems', { emitWarning: true });
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(true);
-      expect(stats.hasErrors()).toBe(true);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(true);
+    expect(stats.hasErrors()).toBe(true);
   });
 });

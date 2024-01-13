@@ -1,15 +1,12 @@
 import pack from './utils/pack';
 
 describe('formatter official', () => {
-  it('should use official formatter', (done) => {
+  it('should use official formatter', async () => {
     const compiler = pack('error', { formatter: 'json' });
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
-      expect(stats.compilation.errors[0].message).toBeTruthy();
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(true);
+    expect(stats.compilation.errors[0].message).toBeTruthy();
   });
 });

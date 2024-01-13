@@ -17,7 +17,7 @@ describe('autofix stop', () => {
 
   test.each([[{}], [{ threads: false }]])(
     'should not throw error if file ok after auto-fixing',
-    (cfg, done) => {
+    async (cfg) => {
       const compiler = pack('fixable-clone', {
         ...cfg,
         fix: true,
@@ -27,11 +27,10 @@ describe('autofix stop', () => {
         },
       });
 
-      compiler.run((err, stats) => {
-        expect(err).toBeNull();
-        expect(stats.hasWarnings()).toBe(false);
-        expect(stats.hasErrors()).toBe(false);
-        expect(readFileSync(entry).toString('utf8')).toMatchInlineSnapshot(`
+      const stats = await compiler.runAsync();
+      expect(stats.hasWarnings()).toBe(false);
+      expect(stats.hasErrors()).toBe(false);
+      expect(readFileSync(entry).toString('utf8')).toMatchInlineSnapshot(`
         "function foo() {
           return true;
         }
@@ -39,8 +38,6 @@ describe('autofix stop', () => {
         foo();
         "
       `);
-        done();
-      });
     },
   );
 });

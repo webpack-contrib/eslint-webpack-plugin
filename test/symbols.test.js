@@ -7,18 +7,15 @@ describe('symbols', () => {
     jest.restoreAllMocks();
   });
 
-  it('should return error', (done) => {
+  it('should return error', async () => {
     const compiler = pack(
       'symbols',
       {},
       { context: join(__dirname, 'fixtures/[symbols]') },
     );
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(true);
   });
 });

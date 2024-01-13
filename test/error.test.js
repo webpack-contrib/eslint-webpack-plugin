@@ -5,18 +5,15 @@ describe('error', () => {
     jest.restoreAllMocks();
   });
 
-  it('should return error if file is bad', (done) => {
+  it('should return error if file is bad', async () => {
     const compiler = pack('error');
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(true);
   });
 
-  it('should propagate eslint exceptions as errors', (done) => {
+  it('should propagate eslint exceptions as errors', async () => {
     jest.mock('eslint', () => {
       return {
         ESLint: function ESLint() {
@@ -27,11 +24,8 @@ describe('error', () => {
 
     const compiler = pack('good', { threads: false });
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(true);
   });
 });

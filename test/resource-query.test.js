@@ -1,7 +1,7 @@
 import pack from './utils/pack';
 
 describe('resource-query', () => {
-  it('should exclude the match resource query', (done) => {
+  it('should exclude the match resource query', async () => {
     const compiler = pack(
       'resource-query',
       {
@@ -13,11 +13,8 @@ describe('resource-query', () => {
       },
     );
 
-    compiler.run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
-      done();
-    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(false);
   });
 });
