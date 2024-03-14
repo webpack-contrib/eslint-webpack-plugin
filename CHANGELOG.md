@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v4.0.0...v4.1.0) (2024-03-14)
+
+
+### Features
+
+* support flat config ([#238](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/238)) ([19cadbe](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/19cadbe3117fa7899eba2424d7bb07bc403160c5))
+
 ### [4.0.1](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v4.0.0...v4.0.1) (2023-04-10)
 
 
