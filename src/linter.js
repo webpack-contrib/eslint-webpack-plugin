@@ -126,7 +126,7 @@ function linter(key, options, compilation) {
               /* istanbul ignore if */
               if (err) bail(err);
               else
-                writeFile(name, content, (err2) => {
+                writeFile(name, content, (/** @type {any} */ err2) => {
                   /* istanbul ignore if */
                   if (err2) bail(err2);
                   else finish();
