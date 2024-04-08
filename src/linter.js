@@ -118,6 +118,7 @@ function linter(key, options, compilation) {
       const save = (name, content) =>
         /** @type {Promise<void>} */ (
           new Promise((finish, bail) => {
+            // @ts-ignore
             const { mkdir, writeFile } = compiler.outputFileSystem;
             // ensure directory exists
             // @ts-ignore - the types for `outputFileSystem` are missing the 3 arg overload
@@ -125,7 +126,7 @@ function linter(key, options, compilation) {
               /* istanbul ignore if */
               if (err) bail(err);
               else
-                writeFile(name, content, (err2) => {
+                writeFile(name, content, (/** @type {any} */ err2) => {
                   /* istanbul ignore if */
                   if (err2) bail(err2);
                   else finish();

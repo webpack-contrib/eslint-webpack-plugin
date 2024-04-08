@@ -46,6 +46,6 @@ type Report = {
   generateReportAsset?: GenerateReport;
 };
 type LintResultMap = {
-  [files: string]: import('eslint').ESLint.LintResult;
+  [files: string]: LintResult;
 };
 import ESLintError = require('./ESLintError');
