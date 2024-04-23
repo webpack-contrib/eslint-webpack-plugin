@@ -61,8 +61,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [14.x, 16.x, 18.x, 20.x]
-        eslint-version: [8.x]
+        eslint-version: [8.x, 9.x]
         webpack-version: [latest]
+        exclude:
+          - node-version: 14.x
+            eslint-version: 9.x
+          - node-version: 16.x
+            eslint-version: 9.x
 
     runs-on: ${{ matrix.os }}
 
