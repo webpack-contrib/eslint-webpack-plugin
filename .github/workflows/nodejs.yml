@@ -65,6 +65,8 @@ jobs:
         webpack-version: [latest]
         exclude:
           - node-version: 14.x
+            os: macos-latest
+          - node-version: 14.x
             eslint-version: 9.x
           - node-version: 16.x
             eslint-version: 9.x
