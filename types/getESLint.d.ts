@@ -21,27 +21,27 @@ export type Worker = JestWorker & {
 /** @typedef {JestWorker & {lintFiles: LintTask}} Worker */
 /**
  * @param {Options} options
- * @returns {Linter}
+ * @returns {Promise<Linter>}
  */
-export function loadESLint(options: Options): Linter;
+export function loadESLint(options: Options): Promise<Linter>;
 /**
  * @param {string|undefined} key
  * @param {number} poolSize
  * @param {Options} options
- * @returns {Linter}
+ * @returns {Promise<Linter>}
  */
 export function loadESLintThreaded(
   key: string | undefined,
   poolSize: number,
   options: Options,
-): Linter;
+): Promise<Linter>;
 /**
  * @param {string|undefined} key
  * @param {Options} options
- * @returns {Linter}
+ * @returns {Promise<Linter>}
  */
 export function getESLint(
   key: string | undefined,
   { threads, ...options }: Options,
-): Linter;
+): Promise<Linter>;
 import { Worker as JestWorker } from 'jest-worker';

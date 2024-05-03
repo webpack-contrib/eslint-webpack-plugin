@@ -46,11 +46,11 @@
     "types"
   ],
   "peerDependencies": {
-    "eslint": "^8.0.0",
+    "eslint": "^8.0.0 || ^9.0.0",
     "webpack": "^5.0.0"
   },
   "dependencies": {
-    "@types/eslint": "^8.56.7",
+    "@types/eslint": "^8.56.10",
     "jest-worker": "^29.7.0",
     "micromatch": "^4.0.5",
     "normalize-path": "^3.0.0",
@@ -60,11 +60,11 @@
     "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
+    "@commitlint/cli": "^18.6.1",
+    "@commitlint/config-conventional": "^18.6.3",
     "@types/fs-extra": "^11.0.4",
-    "@types/micromatch": "^4.0.6",
-    "@types/node": "^20.12.5",
+    "@types/micromatch": "^4.0.7",
+    "@types/node": "^20.12.7",
     "@types/normalize-path": "^3.0.2",
     "@types/webpack": "^5.28.5",
     "@webpack-contrib/eslint-config-webpack": "^3.0.0",
@@ -72,7 +72,7 @@
     "babel-jest": "^29.7.0",
     "chokidar": "^3.6.0",
     "cross-env": "^7.0.3",
-    "cspell": "^8.6.1",
+    "cspell": "^8.7.0",
     "del": "^7.1.0",
     "del-cli": "^5.1.0",
     "eslint": "^8.57.0",
@@ -85,7 +85,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
     "standard-version": "^9.5.0",
-    "typescript": "^5.4.4",
+    "typescript": "^5.4.5",
     "webpack": "^5.91.0"
   },
   "keywords": [

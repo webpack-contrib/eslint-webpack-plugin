@@ -3,17 +3,17 @@ export = linter;
  * @param {string|undefined} key
  * @param {Options} options
  * @param {Compilation} compilation
- * @returns {{lint: Linter, report: Reporter, threads: number}}
+ * @returns {Promise<{lint: Linter, report: Reporter, threads: number}>}
  */
 declare function linter(
   key: string | undefined,
   options: Options,
   compilation: Compilation,
-): {
+): Promise<{
   lint: Linter;
   report: Reporter;
   threads: number;
-};
+}>;
 declare namespace linter {
   export {
     ESLint,
