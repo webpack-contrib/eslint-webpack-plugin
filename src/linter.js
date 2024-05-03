@@ -24,9 +24,9 @@ const resultStorage = new WeakMap();
  * @param {string|undefined} key
  * @param {Options} options
  * @param {Compilation} compilation
- * @returns {{lint: Linter, report: Reporter, threads: number}}
+ * @returns {Promise<{lint: Linter, report: Reporter, threads: number}>}
  */
-function linter(key, options, compilation) {
+async function linter(key, options, compilation) {
   /** @type {ESLint} */
   let eslint;
 
@@ -45,7 +45,7 @@ function linter(key, options, compilation) {
   const crossRunResultStorage = getResultStorage(compilation);
 
   try {
-    ({ eslint, lintFiles, cleanup, threads } = getESLint(key, options));
+    ({ eslint, lintFiles, cleanup, threads } = await getESLint(key, options));
   } catch (e) {
     throw new ESLintError(e.message);
   }

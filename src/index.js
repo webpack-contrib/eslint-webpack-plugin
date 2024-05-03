@@ -92,7 +92,7 @@ class ESLintWebpackPlugin {
 
     if (isCompilerHooked) return;
 
-    compiler.hooks.compilation.tap(this.key, (compilation) => {
+    compiler.hooks.compilation.tap(this.key, async (compilation) => {
       /** @type {import('./linter').Linter} */
       let lint;
       /** @type {import('./linter').Reporter} */
@@ -101,7 +101,11 @@ class ESLintWebpackPlugin {
       let threads;
 
       try {
-        ({ lint, report, threads } = linter(this.key, options, compilation));
+        ({ lint, report, threads } = await linter(
+          this.key,
+          options,
+          compilation,
+        ));
       } catch (e) {
         compilation.errors.push(e);
         return;

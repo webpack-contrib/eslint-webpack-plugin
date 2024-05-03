@@ -20,11 +20,11 @@ const cache = {};
 
 /**
  * @param {Options} options
- * @returns {Linter}
+ * @returns {Promise<Linter>}
  */
-function loadESLint(options) {
+async function loadESLint(options) {
   const { eslintPath } = options;
-  const eslint = setup({
+  const eslint = await setup({
     eslintPath,
     configType: options.configType,
     eslintOptions: getESLintOptions(options),
@@ -43,9 +43,9 @@ function loadESLint(options) {
  * @param {string|undefined} key
  * @param {number} poolSize
  * @param {Options} options
- * @returns {Linter}
+ * @returns {Promise<Linter>}
  */
-function loadESLintThreaded(key, poolSize, options) {
+async function loadESLintThreaded(key, poolSize, options) {
   const cacheKey = getCacheKey(key, options);
   const { eslintPath = 'eslint' } = options;
   const source = require.resolve('./worker');
@@ -61,7 +61,7 @@ function loadESLintThreaded(key, poolSize, options) {
     ],
   };
 
-  const local = loadESLint(options);
+  const local = await loadESLint(options);
 
   let worker = /** @type {Worker?} */ (new JestWorker(source, workerOptions));
 
@@ -88,9 +88,9 @@ function loadESLintThreaded(key, poolSize, options) {
 /**
  * @param {string|undefined} key
  * @param {Options} options
- * @returns {Linter}
+ * @returns {Promise<Linter>}
  */
-function getESLint(key, { threads, ...options }) {
+async function getESLint(key, { threads, ...options }) {
   const max =
     typeof threads !== 'number'
       ? threads
@@ -102,7 +102,9 @@ function getESLint(key, { threads, ...options }) {
   const cacheKey = getCacheKey(key, { threads, ...options });
   if (!cache[cacheKey]) {
     cache[cacheKey] =
-      max > 1 ? loadESLintThreaded(key, max, options) : loadESLint(options);
+      max > 1
+        ? await loadESLintThreaded(key, max, options)
+        : await loadESLint(options);
   }
   return cache[cacheKey];
 }
