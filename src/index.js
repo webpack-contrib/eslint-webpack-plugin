@@ -116,7 +116,10 @@ class ESLintWebpackPlugin {
 
       // Add the file to be linted
       compilation.hooks.succeedModule.tap(this.key, addFile);
-      compilation.hooks.stillValidModule.tap(this.key, addFile);
+
+      if (!this.options.lintDirtyModulesOnly) {
+        compilation.hooks.stillValidModule.tap(this.key, addFile);
+      }
 
       /**
        * @param {Module} module
