@@ -30,14 +30,12 @@ declare namespace linter {
     LintResultMap,
   };
 }
-type Options = import('./options').Options;
-type Compilation = import('webpack').Compilation;
-type Linter = (files: string | string[]) => void;
-type Reporter = () => Promise<Report>;
 type ESLint = import('eslint').ESLint;
 type Formatter = import('eslint').ESLint.Formatter;
 type LintResult = import('eslint').ESLint.LintResult;
 type Compiler = import('webpack').Compiler;
+type Compilation = import('webpack').Compilation;
+type Options = import('./options').Options;
 type FormatterFunction = import('./options').FormatterFunction;
 type GenerateReport = (compilation: Compilation) => Promise<void>;
 type Report = {
@@ -45,6 +43,8 @@ type Report = {
   warnings?: ESLintError;
   generateReportAsset?: GenerateReport;
 };
+type Reporter = () => Promise<Report>;
+type Linter = (files: string | string[]) => void;
 type LintResultMap = {
   [files: string]: LintResult;
 };
