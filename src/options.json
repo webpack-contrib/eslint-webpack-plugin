@@ -3,7 +3,7 @@
   "additionalProperties": true,
   "properties": {
     "configType": {
-      "description": "Enable flat config by setting this value to `flat`.",
+      "description": "Specify the type of configuration to use with ESLint, `flat` or `eslintrc`.",
       "type": "string"
     },
     "context": {

@@ -9,8 +9,16 @@ describe('multiple instances', () => {
       {},
       {
         plugins: [
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
+          new ESLintPlugin({
+            configType: 'eslintrc',
+            ignore: false,
+            exclude: 'error.js',
+          }),
+          new ESLintPlugin({
+            configType: 'eslintrc',
+            ignore: false,
+            exclude: 'error.js',
+          }),
         ],
       },
     );
@@ -26,8 +34,16 @@ describe('multiple instances', () => {
       {},
       {
         plugins: [
-          new ESLintPlugin({ ignore: false, exclude: 'good.js' }),
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
+          new ESLintPlugin({
+            configType: 'eslintrc',
+            ignore: false,
+            exclude: 'good.js',
+          }),
+          new ESLintPlugin({
+            configType: 'eslintrc',
+            ignore: false,
+            exclude: 'error.js',
+          }),
         ],
       },
     );
@@ -43,8 +59,16 @@ describe('multiple instances', () => {
       {},
       {
         plugins: [
-          new ESLintPlugin({ ignore: false, exclude: 'error.js' }),
-          new ESLintPlugin({ ignore: false, exclude: 'good.js' }),
+          new ESLintPlugin({
+            configType: 'eslintrc',
+            ignore: false,
+            exclude: 'error.js',
+          }),
+          new ESLintPlugin({
+            configType: 'eslintrc',
+            ignore: false,
+            exclude: 'good.js',
+          }),
         ],
       },
     );
