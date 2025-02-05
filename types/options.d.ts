@@ -1,10 +1,6 @@
 export type ESLintOptions = import('eslint').ESLint.Options;
 export type LintResult = import('eslint').ESLint.LintResult;
-export type LintResultData = import('eslint').ESLint.LintResultData;
-export type FormatterFunction = (
-  results: LintResult[],
-  data?: LintResultData | undefined,
-) => string;
+export type FormatterFunction = (results: LintResult[]) => string;
 export type OutputReport = {
   filePath?: string | undefined;
   formatter?: (string | FormatterFunction) | undefined;
@@ -31,11 +27,9 @@ export type PluginOptions = {
 export type Options = PluginOptions & ESLintOptions;
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
-/** @typedef {import('eslint').ESLint.LintResultData} LintResultData */
 /**
  * @callback FormatterFunction
  * @param {LintResult[]} results
- * @param {LintResultData=} data
  * @returns {string}
  */
 /**
