@@ -4,12 +4,10 @@ const schema = require('./options.json');
 
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
-/** @typedef {import('eslint').ESLint.LintResultData} LintResultData */
 
 /**
  * @callback FormatterFunction
  * @param {LintResult[]} results
- * @param {LintResultData=} data
  * @returns {string}
  */
 
@@ -50,6 +48,7 @@ function getOptions(pluginOptions) {
   const options = {
     cache: true,
     cacheLocation: 'node_modules/.cache/eslint-webpack-plugin/.eslintcache',
+    configType: 'flat',
     extensions: 'js',
     emitError: true,
     emitWarning: true,

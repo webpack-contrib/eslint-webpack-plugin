@@ -114,7 +114,7 @@ Specify the path to the cache location. Can be a file or a directory.
 type configType = 'flat' | 'eslintrc';
 ```
 
-- Default: `eslintrc`
+- Default: `flat`
 
 Specify the type of configuration to use with ESLint.
 
@@ -122,9 +122,6 @@ Specify the type of configuration to use with ESLint.
 - `flat` is the new format introduced in ESLint 8.21.0.
 
 The new configuration format is explained in its [own documentation](https://eslint.org/docs/latest/use/configure/configuration-files-new).
-
-> This configuration format being considered as experimental, it is not exported in the main ESLint module in ESLint 8.
-> You need to set your `eslintPath` to `eslint/use-at-your-own-risk` for this config format to work.
 
 ### `context`
 
