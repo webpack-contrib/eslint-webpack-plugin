@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [5.0.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v4.2.0...v5.0.0) (2025-02-26)
 
+
+### ⚠ BREAKING CHANGES
+
+* Use flat config by default
+* Minimum supported Node.js version is 18.12.0
+
 ## [4.2.0](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v4.1.0...v4.2.0) (2024-05-24)
 
 
