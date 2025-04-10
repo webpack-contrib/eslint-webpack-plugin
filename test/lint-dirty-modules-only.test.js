@@ -41,8 +41,7 @@ describe('lint dirty modules only', () => {
       expect(stats.hasErrors()).toBe(true);
       const { errors } = stats.compilation;
       expect(errors.length).toBe(1);
-      const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching('no-unused-vars'));
+      expect(stats.compilation.errors[0].message).toEqual(expect.stringMatching('no-unused-vars'));
       done();
     }
   });
