@@ -150,29 +150,34 @@ class ESLintWebpackPlugin {
       });
 
       // await and interpret results
-      compilation.hooks.additionalAssets.tapPromise(this.key, processResults);
+      compilation.hooks.additionalAssets.tapAsync(
+        this.key,
+        async function (callback) {
+          const { errors, warnings, generateReportAsset } = await report();
 
-      async function processResults() {
-        const { errors, warnings, generateReportAsset } = await report();
+          if (warnings) {
+            // @ts-ignore
+            compilation.warnings.push(warnings);
+          }
 
-        if (warnings && !options.failOnWarning) {
-          // @ts-ignore
-          compilation.warnings.push(warnings);
-        } else if (warnings) {
-          // @ts-ignore
-          compilation.errors.push(warnings);
-        }
+          if (errors) {
+            // @ts-ignore
+            compilation.errors.push(errors);
+          }
 
-        if (errors && !options.failOnError) {
-          // @ts-ignore
-          compilation.warnings.push(errors);
-        } else if (errors) {
-          // @ts-ignore
-          compilation.errors.push(errors);
-        }
+          if (generateReportAsset) {
+            await generateReportAsset(compilation);
+          }
 
-        if (generateReportAsset) await generateReportAsset(compilation);
-      }
+         if (warnings && options.failOnWarning) {
+           callback(warnings);
+         } else if (errors && options.failOnError) {
+           callback(errors);
+         } else {
+           callback();
+         }
+        },
+      );
     });
   }
 

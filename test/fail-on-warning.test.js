@@ -4,8 +4,7 @@ describe('fail on warning', () => {
   it('should emits errors', async () => {
     const compiler = pack('warn', { failOnWarning: true });
 
-    const stats = await compiler.runAsync();
-    expect(stats.hasErrors()).toBe(true);
+    await expect(compiler.runAsync()).rejects.toThrow('warning');
   });
 
   it('should correctly identifies a success', async () => {
