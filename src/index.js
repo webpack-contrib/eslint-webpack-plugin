@@ -169,13 +169,13 @@ class ESLintWebpackPlugin {
             await generateReportAsset(compilation);
           }
 
-         if (warnings && options.failOnWarning) {
-           callback(warnings);
-         } else if (errors && options.failOnError) {
-           callback(errors);
-         } else {
-           callback();
-         }
+          if (warnings && options.failOnWarning) {
+            callback(warnings);
+          } else if (errors && options.failOnError) {
+            callback(errors);
+          } else {
+            callback();
+          }
         },
       );
     });
