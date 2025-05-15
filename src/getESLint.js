@@ -5,10 +5,20 @@ const { Worker: JestWorker } = require('jest-worker');
 // @ts-ignore
 const { setup, lintFiles } = require('./worker');
 const { getESLintOptions } = require('./options');
-const { jsonStringifyReplacerSortKeys } = require('./utils');
 
-/** @type {{[key: string]: any}} */
-const cache = {};
+/** @type {Map<CacheKey, any>} */
+const cache = new Map();
+
+class CacheKey {
+  /**
+   * @param {string|undefined} key
+   * @param {Options} options
+   */
+  constructor(key, options) {
+    this.key = key;
+    this.options = options;
+  }
+}
 
 /** @typedef {import('eslint').ESLint} ESLint */
 /** @typedef {import('eslint').ESLint.LintResult} LintResult */
@@ -46,7 +56,7 @@ async function loadESLint(options) {
  * @returns {Promise<Linter>}
  */
 async function loadESLintThreaded(key, poolSize, options) {
-  const cacheKey = getCacheKey(key, options);
+  const cacheKey = new CacheKey(key, options);
   const { eslintPath = 'eslint' } = options;
   const source = require.resolve('./worker');
   const workerOptions = {
@@ -73,7 +83,7 @@ async function loadESLintThreaded(key, poolSize, options) {
       (worker && (await worker.lintFiles(files))) ||
       /* istanbul ignore next */ [],
     cleanup: async () => {
-      cache[cacheKey] = local;
+      cache.set(cacheKey, local);
       context.lintFiles = (files) => local.lintFiles(files);
       if (worker) {
         worker.end();
@@ -99,23 +109,16 @@ async function getESLint(key, { threads, ...options }) {
       : /* istanbul ignore next */
         threads;
 
-  const cacheKey = getCacheKey(key, { threads, ...options });
-  if (!cache[cacheKey]) {
-    cache[cacheKey] =
+  const cacheKey = new CacheKey(key, { threads, ...options });
+  if (!cache.has(cacheKey)) {
+    cache.set(
+      cacheKey,
       max > 1
         ? await loadESLintThreaded(key, max, options)
-        : await loadESLint(options);
+        : await loadESLint(options),
+    );
   }
-  return cache[cacheKey];
-}
-
-/**
- * @param {string|undefined} key
- * @param {Options} options
- * @returns {string}
- */
-function getCacheKey(key, options) {
-  return JSON.stringify({ key, options }, jsonStringifyReplacerSortKeys);
+  return cache.get(cacheKey);
 }
 
 module.exports = {

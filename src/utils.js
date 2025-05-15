@@ -89,29 +89,8 @@ function parseFoldersToGlobs(patterns, extensions = []) {
   });
 }
 
-/**
- * @param {string} _ key, but unused
- * @param {any} value
- */
-const jsonStringifyReplacerSortKeys = (_, value) => {
-  /**
-   * @param {{ [x: string]: any; }} sorted
-   * @param {string | number} key
-   */
-  const insert = (sorted, key) => {
-    // eslint-disable-next-line no-param-reassign
-    sorted[key] = value[key];
-    return sorted;
-  };
-
-  return value instanceof Object && !(value instanceof Array)
-    ? Object.keys(value).sort().reduce(insert, {})
-    : value;
-};
-
 module.exports = {
   arrify,
   parseFiles,
   parseFoldersToGlobs,
-  jsonStringifyReplacerSortKeys,
 };
