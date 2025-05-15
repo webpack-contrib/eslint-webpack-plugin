@@ -6,6 +6,7 @@ const { Worker: JestWorker } = require('jest-worker');
 const { setup, lintFiles } = require('./worker');
 const { getESLintOptions } = require('./options');
 const { jsonStringifyReplacerSortKeys } = require('./utils');
+const { stringify } = require('flatted');
 
 /** @type {{[key: string]: any}} */
 const cache = {};
@@ -115,7 +116,7 @@ async function getESLint(key, { threads, ...options }) {
  * @returns {string}
  */
 function getCacheKey(key, options) {
-  return JSON.stringify({ key, options }, jsonStringifyReplacerSortKeys);
+  return stringify({ key, options }, jsonStringifyReplacerSortKeys);
 }
 
 module.exports = {
