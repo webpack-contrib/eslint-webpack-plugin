@@ -104,9 +104,13 @@ const jsonStringifyReplacerSortKeys = (_, value) => {
     return sorted;
   };
 
-  return value instanceof Object && !(value instanceof Array)
-    ? Object.keys(value).sort().reduce(insert, {})
-    : value;
+  if (value instanceof Object && !(value instanceof Array)) {
+    let sorted = Object.keys(value).sort().reduce(insert, {});
+    Object.keys(value).forEach((key) => delete value[key]);
+    Object.assign(value, sorted);
+  }
+
+  return value;
 };
 
 module.exports = {
