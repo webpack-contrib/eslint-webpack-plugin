@@ -61,7 +61,7 @@ format that includes a **type**, a **scope** and a **subject**:
 
 The **header** is mandatory and the **scope** of the header is optional.
 
-No line in the commit message should exceed 100 characters! This makes the message easier to read on GitHub as well as in various git tools.
+No line in the commit message should exceed 100 characters! This makes the message easier to read on GitHub as well as in various Git tools.
 
 The footer should contain a [closing reference to an issue](https://help.github.com/articles/closing-issues-via-commit-messages/) if any.
 
@@ -149,7 +149,7 @@ When submitting your contribution, a CLA (Contributor License Agreement) bot wil
 If it is your first time, it will link you to the right place to sign it.
 However, if the email used in your commits doesn’t match the email associated with your GitHub account, the CLA bot won’t accept your contribution.
 
-Run `git config user.email` to see your Git email, and verify it with [your GitHub email](https://github.com/settings/emails).
+Run `Git config user.email` to see your Git email, and verify it with [your GitHub email](https://github.com/settings/emails).
 
 ## Thanks
 
