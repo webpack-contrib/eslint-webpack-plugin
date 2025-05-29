@@ -12,9 +12,9 @@
 
 # eslint-webpack-plugin
 
-> This version of eslint-webpack-plugin only works with webpack 5. For the webpack 4, see the [2.x branch](https://github.com/webpack-contrib/eslint-webpack-plugin/tree/2.x).
+> This version of eslint-webpack-plugin only supports webpack 5. For the webpack 4, see the [2.x branch](https://github.com/webpack-contrib/eslint-webpack-plugin/tree/2.x).
 
-This plugin uses [`eslint`](https://eslint.org/) to find and fix problems in your JavaScript code
+This plugin uses [`ESlint`](https://eslint.org/) to find and fix problems in your JavaScript code during the Webpack build process.
 
 ## Getting Started
 
@@ -56,7 +56,7 @@ or
 pnpm add -D eslint
 ```
 
-Then add the plugin to your webpack config. For example:
+Then add the plugin to your webpack configuration. For example:
 
 ```js
 const ESLintPlugin = require('eslint-webpack-plugin');
@@ -70,17 +70,17 @@ module.exports = {
 
 ## Options
 
-You can pass [eslint options](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions).
+You can pass [ESLint Node.js API options](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions).
 
 > [!NOTE]
 >
 > The config option you provide will be passed to the `ESLint` class.
 > This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
-> See the [eslint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
+> See the [ESlint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
 
 > [!WARNING]
 >
-> In eslint-webpack-plugin version 1 the options were passed to the now deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
+> In eslint-webpack-plugin version 1 the options were passed to the now-deprecated [CLIEngine](https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
 
 ### `cache`
 
@@ -133,7 +133,7 @@ type context = string;
 
 - Default: `compiler.context`
 
-A string indicating the root of your files.
+Base directory for linting.
 
 ### `eslintPath`
 
@@ -145,7 +145,8 @@ type eslintPath = string;
 
 - Default: `eslint`
 
-Path to `eslint` instance that will be used for linting. If the `eslintPath` is a folder like a official eslint, or specify a `formatter` option. now you don't have to install `eslint`.
+Path to `eslint` instance that will be used for linting.
+If the `eslintPath` is a folder like a official ESlint, or specify a `formatter` option, now you don't have to install `eslint`.
 
 ### `extensions`
 
@@ -157,7 +158,7 @@ type extensions = string | Array<string>;
 
 - Default: `'js'`
 
-Specify extensions that should be checked.
+Specify file extensions that should be checked.
 
 ### `exclude`
 
@@ -169,7 +170,7 @@ type exclude = string | Array<string>;
 
 - Default: `'node_modules'`
 
-Specify the files and/or directories to exclude. Must be relative to `options.context`.
+Specify the files/directories to exclude. Must be relative to `options.context`.
 
 ### `resourceQueryExclude`
 
@@ -209,7 +210,7 @@ type fix = boolean;
 
 Will enable [ESLint autofix feature](https://eslint.org/docs/developer-guide/nodejs-api#-eslintoutputfixesresults).
 
-**Be careful: this option will change source files.**
+**Be careful: this option will modify source files.**
 
 ### `formatter`
 
@@ -224,7 +225,8 @@ type formatter = string| (
 
 - Default: `'stylish'`
 
-Accepts a function that will have one argument: an array of eslint messages (object). The function must return the output as a string. You can use official [eslint formatters](https://eslint.org/docs/user-guide/formatters/).
+Accepts a function that receives an array of ESLint messages (object) as its argument and must return a string as output.
+You can use official [ESlint formatters](https://eslint.org/docs/user-guide/formatters/).
 
 ### `lintDirtyModulesOnly`
 
@@ -236,7 +238,7 @@ type lintDirtyModulesOnly = boolean;
 
 - Default: `false`
 
-Lint only changed files, skip lint on start.
+Lint only changed files, skipping initial lint on build start.
 
 ### `threads`
 
@@ -289,7 +291,7 @@ type failOnError = boolean;
 
 - Default: `true`
 
-Will cause the module build to fail if there are any errors, to disable set to `false`.
+Will cause the module build to fail if any errors are found, to disable set to `false`.
 
 #### `failOnWarning`
 
@@ -301,7 +303,7 @@ type failOnWarning = boolean;
 
 - Default: `false`
 
-Will cause the module build to fail if there are any warnings, if set to `true`.
+Will cause the module build to fail if any warnings are found, if set to `true`.
 
 #### `quiet`
 
@@ -338,15 +340,22 @@ type outputReport =
 
 - Default: `false`
 
-Write the output of the errors to a file, for example a checkstyle xml file for use for reporting on Jenkins CI.
+Write ESLint results to a file, for example a checkstyle xml file for use for reporting on Jenkins CI.
 
-The `filePath` is an absolute path or relative to the webpack config: `output.path`.
-You can pass in a different `formatter` for the output file,
-if none is passed in the default/configured formatter will be used.
+- filePath: Path to output report file (relative to output.path or absolute).
+- formatter: You can pass in a different `formatter` for the output file.
+  if none is passed in the default/configured formatter will be used.
 
 ## Changelog
 
 [Changelog](CHANGELOG.md)
+
+## Contributing
+
+We welcome all contributions!
+If you're new here, please take a moment to review our contributing guidelines.
+
+[CONTRIBUTING](./.github/CONTRIBUTING.md)
 
 ## License
 
