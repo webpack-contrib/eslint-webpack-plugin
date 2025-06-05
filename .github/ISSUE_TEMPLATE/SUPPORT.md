@@ -1,6 +1,6 @@
 ---
 name: 🆘 Support, Help, and Advice
-about: 👉🏽 Need support, help, or advice? Don't open an issue! Head to https://github.com/webpack/webpack/discussions or Stack Overflow
+about: 👉🏽 Need support, help, or advice? Don't open an issue! Head to "GitHub Discussions" or "Stack Overflow"
 ---
 
 Hey there! 👋
