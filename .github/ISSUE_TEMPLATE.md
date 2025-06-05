@@ -2,7 +2,7 @@
   👉🏽 Need support, advice, or help? Don't open an issue!
   Head to GitHub Discussions(https://github.com/webpack/webpack/discussions) or Stack Overflow(https://stackoverflow.com/questions/tagged/webpack)
 
-  Hey there!
+  Hey there! 👋
 
   You arrived at this template because you felt none of the other options matched the kind of issue you'd like to report.
 
