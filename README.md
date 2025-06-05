@@ -146,6 +146,7 @@ type eslintPath = string;
 - Default: `eslint`
 
 Path to `eslint` instance that will be used for linting.
+
 If the `eslintPath` is a folder like a official ESlint, or specify a `formatter` option, now you don't have to install `eslint`.
 
 ### `extensions`
@@ -226,6 +227,7 @@ type formatter = string| (
 - Default: `'stylish'`
 
 Accepts a function that receives an array of ESLint messages (object) as its argument and must return a string as output.
+
 You can use official [ESlint formatters](https://eslint.org/docs/user-guide/formatters/).
 
 ### `lintDirtyModulesOnly`
@@ -255,6 +257,7 @@ Will run lint tasks across a thread pool. The pool size is automatic unless you 
 ### Errors and Warning
 
 **By default the plugin will auto adjust error reporting depending on eslint errors/warnings counts.**
+
 You can still force this behavior by using `emitError` **or** `emitWarning` options:
 
 #### `emitError`
@@ -353,6 +356,7 @@ Write ESLint results to a file, for example a checkstyle xml file for use for re
 ## Contributing
 
 We welcome all contributions!
+
 If you're new here, please take a moment to review our contributing guidelines.
 
 [CONTRIBUTING](./.github/CONTRIBUTING.md)
