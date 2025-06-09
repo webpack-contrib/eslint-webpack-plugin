@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.0.2](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v5.0.1...v5.0.2) (2025-06-09)
+
+
+### Bug Fixes
+
+* don't error on circular eslint plugins ([#277](https://github.com/webpack-contrib/eslint-webpack-plugin/issues/277)) ([32f05c6](https://github.com/webpack-contrib/eslint-webpack-plugin/commit/32f05c6fdd70ec5532682ce5ed134998a269cdf3))
+
 ### [5.0.1](https://github.com/webpack-contrib/eslint-webpack-plugin/compare/v5.0.0...v5.0.1) (2025-04-15)
 
 
