@@ -75,7 +75,7 @@ You can pass [ESLint Node.js API options](https://eslint.org/docs/developer-guid
 > [!NOTE]
 >
 > The config option you provide will be passed to the `ESLint` class.
-> This is a different set of options than what you'd specify in `package.json` or `.eslintrc`.
+> This is a different set of options than what you'd specify in `package.json` or `eslint.config.js` (since ESLint v9.0.0, formerly `.eslintrc`).
 > See the [ESlint docs](https://eslint.org/docs/developer-guide/nodejs-api#-new-eslintoptions) for more details.
 
 > [!WARNING]
