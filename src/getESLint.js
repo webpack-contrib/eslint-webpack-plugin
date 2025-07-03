@@ -3,7 +3,7 @@ const { cpus } = require('os');
 const { Worker: JestWorker } = require('jest-worker');
 
 // @ts-ignore
-const { setup, lintFiles } = require('./worker');
+const { setup } = require('./worker');
 const { getESLintOptions } = require('./options');
 const { jsonStringifyReplacerSortKeys } = require('./utils');
 const { stringify } = require('flatted');
@@ -25,7 +25,7 @@ const cache = {};
  */
 async function loadESLint(options) {
   const { eslintPath } = options;
-  const eslint = await setup({
+  const eslintPack = await setup({
     eslintPath,
     configType: options.configType,
     eslintOptions: getESLintOptions(options),
@@ -33,8 +33,8 @@ async function loadESLint(options) {
 
   return {
     threads: 1,
-    lintFiles,
-    eslint,
+    lintFiles : eslintPack.lintFiles,
+    eslint : eslintPack.eslint,
     // no-op for non-threaded
     cleanup: async () => {},
   };
