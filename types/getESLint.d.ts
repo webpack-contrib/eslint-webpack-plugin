@@ -1,47 +1,25 @@
 export type ESLint = import("eslint").ESLint;
 export type LintResult = import("eslint").ESLint.LintResult;
 export type Options = import("./options").Options;
-export type AsyncTask = () => Promise<void>;
 export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
 export type Linter = {
-  threads: number;
   eslint: ESLint;
   lintFiles: LintTask;
-  cleanup: AsyncTask;
 };
-export type Worker = JestWorker & {
-  lintFiles: LintTask;
+export type ESLintOptions = import("eslint").ESLint.Options;
+export type ESLintClass = {
+  new (arg0: ESLintOptions): ESLint;
+  outputFixes: (arg0: LintResult[]) => Promise<void>;
 };
-/**
- * @param {string | undefined} key a cache key
- * @param {Options} options options
- * @returns {Promise<Linter>} linter
- */
-export function getESLint(
-  key: string | undefined,
-  { threads, ...options }: Options,
-): Promise<Linter>;
 /** @typedef {import("eslint").ESLint} ESLint */
 /** @typedef {import("eslint").ESLint.LintResult} LintResult */
 /** @typedef {import("./options").Options} Options */
-/** @typedef {() => Promise<void>} AsyncTask */
 /** @typedef {(files: string | string[]) => Promise<LintResult[]>} LintTask */
-/** @typedef {{ threads: number, eslint: ESLint, lintFiles: LintTask, cleanup: AsyncTask }} Linter */
-/** @typedef {JestWorker & { lintFiles: LintTask }} Worker */
+/** @typedef {{ eslint: ESLint, lintFiles: LintTask }} Linter */
+/** @typedef {import("eslint").ESLint.Options} ESLintOptions */
+/** @typedef {{ new (arg0: ESLintOptions): ESLint, outputFixes: (arg0: LintResult[]) => Promise<void> }} ESLintClass */
 /**
  * @param {Options} options options
  * @returns {Promise<Linter>} linter
  */
-export function loadESLint(options: Options): Promise<Linter>;
-/**
- * @param {string | undefined} key a cache key
- * @param {number} poolSize number of workers
- * @param {Options} options options
- * @returns {Promise<Linter>} linter
- */
-export function loadESLintThreaded(
-  key: string | undefined,
-  poolSize: number,
-  options: Options,
-): Promise<Linter>;
-import { Worker as JestWorker } from "jest-worker";
+export function getESLint(options: Options): Promise<Linter>;

@@ -51,8 +51,6 @@
   },
   "dependencies": {
     "@types/eslint": "^9.6.1",
-    "flatted": "^3.3.3",
-    "jest-worker": "^30.2.0",
     "micromatch": "^4.0.8",
     "normalize-path": "^3.0.0",
     "schema-utils": "^4.3.3"

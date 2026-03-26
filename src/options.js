@@ -33,7 +33,6 @@ const schema = require("./options.json");
  * @property {boolean=} quiet will process and report errors only and ignore warnings
  * @property {string=} eslintPath path to `eslint` instance that will be used for linting
  * @property {OutputReport=} outputReport writes the output of the errors to a file - for example, a `json` file for use for reporting
- * @property {number | boolean=} threads number of worker threads
  * @property {RegExp | RegExp[]=} resourceQueryExclude Specify the resource query to exclude
  * @property {string=} configType config type
  */

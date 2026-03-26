@@ -159,29 +159,22 @@ function parseResults(options, results) {
 }
 
 /**
- * @param {string | undefined} key a cache key
  * @param {Options} options options
  * @param {Compilation} compilation compilation
- * @returns {Promise<{ lint: Linter, report: Reporter, threads: number }>} linter with additional functions
+ * @returns {Promise<{ lint: Linter, report: Reporter }>} linter with additional functions
  */
-async function linter(key, options, compilation) {
+async function linter(options, compilation) {
   /** @type {ESLint} */
   let eslint;
 
   /** @type {(files: string | string[]) => Promise<LintResult[]>} */
   let lintFiles;
 
-  /** @type {() => Promise<void>} */
-  let cleanup;
-
-  /** @type number */
-  let threads;
-
   /** @type {Promise<LintResult[]>[]} */
   const rawResults = [];
 
   try {
-    ({ eslint, lintFiles, cleanup, threads } = await getESLint(key, options));
+    ({ eslint, lintFiles } = await getESLint(options));
   } catch (err) {
     throw new ESLintError(err.message);
   }
@@ -208,8 +201,6 @@ async function linter(key, options, compilation) {
       // Get the current results, resetting the rawResults to empty
       await flatten(rawResults.splice(0)),
     );
-
-    await cleanup();
 
     // do not analyze if there are no results or eslint config
     if (!results || results.length < 1) {
@@ -282,7 +273,6 @@ async function linter(key, options, compilation) {
   return {
     lint,
     report,
-    threads,
   };
 }
 

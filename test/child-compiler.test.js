@@ -25,7 +25,7 @@ class ChildPlugin {
 
 describe("child compiler", () => {
   it("should have linting process", (done) => {
-    const config = conf("good", { threads: false });
+    const config = conf("good");
     config.plugins.push(
       new ChildPlugin({
         entry: {

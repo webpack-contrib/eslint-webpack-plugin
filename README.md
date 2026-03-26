@@ -239,18 +239,6 @@ type lintDirtyModulesOnly = boolean;
 
 Lint only changed files, skipping initial lint on build start.
 
-### `threads`
-
-- Type:
-
-```ts
-type threads = boolean | number;
-```
-
-- Default: `false`
-
-Will run lint tasks across a thread pool. The pool size is automatic unless you specify a number.
-
 ### Errors and Warning
 
 **By default the plugin will auto adjust error reporting depending on eslint errors/warnings counts.**
