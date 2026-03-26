@@ -1,18 +1,15 @@
 export = linter;
 /**
- * @param {string | undefined} key a cache key
  * @param {Options} options options
  * @param {Compilation} compilation compilation
- * @returns {Promise<{ lint: Linter, report: Reporter, threads: number }>} linter with additional functions
+ * @returns {Promise<{ lint: Linter, report: Reporter }>} linter with additional functions
  */
 declare function linter(
-  key: string | undefined,
   options: Options,
   compilation: Compilation,
 ): Promise<{
   lint: Linter;
   report: Reporter;
-  threads: number;
 }>;
 declare namespace linter {
   export {

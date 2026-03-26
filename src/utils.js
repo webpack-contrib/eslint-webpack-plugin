@@ -90,34 +90,8 @@ function parseFoldersToGlobs(patterns, extensions = []) {
   });
 }
 
-/**
- * @param {string} _ key, but unused
- * @param {EXPECTED_ANY} value value
- * @returns {{ [x: string]: EXPECTED_ANY }} result
- */
-const jsonStringifyReplacerSortKeys = (_, value) => {
-  /**
-   * @param {{ [x: string]: EXPECTED_ANY }} sorted sorted
-   * @param {string | number} key key
-   * @returns {{ [x: string]: EXPECTED_ANY }} result
-   */
-  const insert = (sorted, key) => {
-    sorted[key] = value[key];
-    return sorted;
-  };
-
-  if (value instanceof Object && !Array.isArray(value)) {
-    const sorted = Object.keys(value).toSorted().reduce(insert, {});
-    for (const key of Object.keys(value)) delete value[key];
-    Object.assign(value, sorted);
-  }
-
-  return value;
-};
-
 module.exports = {
   arrify,
-  jsonStringifyReplacerSortKeys,
   parseFiles,
   parseFoldersToGlobs,
 };

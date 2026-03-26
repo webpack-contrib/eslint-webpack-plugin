@@ -99,15 +99,9 @@ class ESLintWebpackPlugin {
       let lint;
       /** @type {import("./linter").Reporter} */
       let report;
-      /** @type number */
-      let threads;
 
       try {
-        ({ lint, report, threads } = await linter(
-          this.key,
-          options,
-          compilation,
-        ));
+        ({ lint, report } = await linter(options, compilation));
       } catch (err) {
         compilation.errors.push(err);
         return;
@@ -135,8 +129,6 @@ class ESLintWebpackPlugin {
 
         if (isFileNotListed && isFileWanted && isQueryNotExclude) {
           files.push(file);
-
-          if (threads > 1) lint(file);
         }
       }
 
@@ -149,7 +141,7 @@ class ESLintWebpackPlugin {
 
       // Lint all files added
       compilation.hooks.finishModules.tap(this.key, () => {
-        if (files.length > 0 && threads <= 1) lint(files);
+        if (files.length > 0) lint(files);
       });
 
       // await and interpret results

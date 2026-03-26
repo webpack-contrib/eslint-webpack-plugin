@@ -22,7 +22,7 @@ describe("error", () => {
       },
     }));
 
-    const compiler = pack("good", { threads: false });
+    const compiler = pack("good");
 
     const stats = await compiler.runAsync();
     expect(stats.hasWarnings()).toBe(false);

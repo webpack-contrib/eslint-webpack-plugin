@@ -27,17 +27,6 @@ export type EXPECTED_ANY = any;
  */
 export function arrify<T>(value: T): ArrifyResult<T>;
 /**
- * @param {string} _ key, but unused
- * @param {EXPECTED_ANY} value value
- * @returns {{ [x: string]: EXPECTED_ANY }} result
- */
-export function jsonStringifyReplacerSortKeys(
-  _: string,
-  value: EXPECTED_ANY,
-): {
-  [x: string]: EXPECTED_ANY;
-};
-/**
  * @param {string | string[]} files files
  * @param {string} context context
  * @returns {string[]} normalized paths

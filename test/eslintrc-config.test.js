@@ -16,7 +16,6 @@ import pack from "./utils/pack";
       const compiler = pack("full-of-problems", {
         configType: "eslintrc",
         overrideConfigFile,
-        threads: 1,
       });
 
       const stats = await compiler.runAsync();

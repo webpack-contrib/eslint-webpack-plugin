@@ -22,8 +22,6 @@ export default (entry, pluginConf = {}, webpackConf = {}) => {
         // this disables the use of .eslintignore, since it contains the fixtures
         // folder to skip it on the global linting, but here we want the opposite
         ignore: false,
-        // TODO: update tests to run both states: test.each([[{threads: false}], [{threads: true}]])('it should...', async ({threads}) => {...})
-        threads: true,
         ...pluginConf,
       }),
     ],
