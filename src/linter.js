@@ -2,7 +2,6 @@ const { dirname, isAbsolute, join } = require("node:path");
 
 const ESLintError = require("./ESLintError");
 const { getESLint } = require("./getESLint");
-const { arrify } = require("./utils");
 
 /** @typedef {import("eslint").ESLint} ESLint */
 /** @typedef {import("eslint").ESLint.Formatter} Formatter */
@@ -16,21 +15,6 @@ const { arrify } = require("./utils");
 /** @typedef {() => Promise<Report>} Reporter */
 /** @typedef {(files: string | string[]) => void} Linter */
 /** @typedef {{ [files: string]: LintResult }} LintResultMap */
-
-/** @type {WeakMap<Compiler, LintResultMap>} */
-const resultStorage = new WeakMap();
-
-/**
- * @param {Compilation} compilation compilation
- * @returns {LintResultMap} lint result map
- */
-function getResultStorage({ compiler }) {
-  let storage = resultStorage.get(compiler);
-  if (!storage) {
-    resultStorage.set(compiler, (storage = {}));
-  }
-  return storage;
-}
 
 /**
  * @param {Promise<LintResult[]>[]} results results
@@ -196,8 +180,6 @@ async function linter(key, options, compilation) {
   /** @type {Promise<LintResult[]>[]} */
   const rawResults = [];
 
-  const crossRunResultStorage = getResultStorage(compilation);
-
   try {
     ({ eslint, lintFiles, cleanup, threads } = await getESLint(key, options));
   } catch (err) {
@@ -208,9 +190,6 @@ async function linter(key, options, compilation) {
    * @param {string | string[]} files files
    */
   function lint(files) {
-    for (const file of arrify(files)) {
-      delete crossRunResultStorage[file];
-    }
     rawResults.push(
       lintFiles(files).catch((err) => {
         compilation.errors.push(new ESLintError(err.message));
@@ -224,19 +203,13 @@ async function linter(key, options, compilation) {
    */
   async function report() {
     // Filter out ignored files.
-    let results = await removeIgnoredWarnings(
+    const results = await removeIgnoredWarnings(
       eslint,
       // Get the current results, resetting the rawResults to empty
       await flatten(rawResults.splice(0)),
     );
 
     await cleanup();
-
-    for (const result of results) {
-      crossRunResultStorage[result.filePath] = result;
-    }
-
-    results = Object.values(crossRunResultStorage);
 
     // do not analyze if there are no results or eslint config
     if (!results || results.length < 1) {
