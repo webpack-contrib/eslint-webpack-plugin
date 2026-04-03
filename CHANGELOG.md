@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.0.0](https://github.com/webpack/eslint-webpack-plugin/compare/v5.0.3...v6.0.0) (2026-04-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove threads option (#299)
+* use `compiler.options.mode` to set the default value of `failOnError` (#296)
+* add support for ESLint v10 and remove support for ESLint v8 and Node.js v18 (#295)
+
+### Features
+
+* add support for ESLint v10 and remove support for ESLint v8 and Node.js v18 ([#295](https://github.com/webpack/eslint-webpack-plugin/issues/295)) ([42de4fe](https://github.com/webpack/eslint-webpack-plugin/commit/42de4fefc67d0d3983a14c73a70d93f497735e73))
+
+
+### Bug Fixes
+
+* do not store errors, errors from files not included should not be reported ([#298](https://github.com/webpack/eslint-webpack-plugin/issues/298)) ([a4400b2](https://github.com/webpack/eslint-webpack-plugin/commit/a4400b2396b179bb8b15ee2a1b159a106d7c962a))
+* use `compiler.options.mode` to set the default value of `failOnError` ([#296](https://github.com/webpack/eslint-webpack-plugin/issues/296)) ([def99b0](https://github.com/webpack/eslint-webpack-plugin/commit/def99b0c1d72c8d6b70361f0b2215ff2dc3ead59))
+
+
+* remove threads option ([#299](https://github.com/webpack/eslint-webpack-plugin/issues/299)) ([a53360e](https://github.com/webpack/eslint-webpack-plugin/commit/a53360e1291ea08307d21efa7102d6a7c9725f42))
+
 ### [5.0.3](https://github.com/webpack/eslint-webpack-plugin/compare/v5.0.2...v5.0.3) (2026-02-27)
 
 
