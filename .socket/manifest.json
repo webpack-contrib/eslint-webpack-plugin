@@ -1,0 +1,85 @@
+{
+  "patches": {
+    "pkg:npm/fast-uri@3.1.0": {
+      "uuid": "59e4b25f-8fe3-4daf-bff9-0e0faa0dc035",
+      "exportedAt": "Thu, 30 Jul 2026 15:28:55 GMT",
+      "files": {
+        "index.js": {
+          "beforeHash": "804473a06214202a11a0bd34eb740308f3720d23adb647873b22682fc631d93d",
+          "afterHash": "d68419620651843475984f0e17729b310c75e0f29e4c496b8529ce6433a8ab72"
+        },
+        "lib/utils.js": {
+          "beforeHash": "50bec46a9e79d5b651cd908036dc88bb4e6afda8d71f8e1cd1823b69e7ccb7f9",
+          "afterHash": "77518588a668f29909607e1ded5ceeb459c93dd0f429d1cc3729d753f235d56b"
+        }
+      },
+      "vulnerabilities": {
+        "GHSA-q3j6-qgpj-74h6": {
+          "cves": [
+            "CVE-2026-6321"
+          ],
+          "summary": "fast-uri vulnerable to path traversal via percent-encoded dot segments",
+          "severity": "HIGH",
+          "description": "### Impact\n\n`fast-uri` v3.1.0 and earlier decodes percent-encoded path separators (`%2F`) and dot segments (`%2E`) before applying dot-segment removal in `normalize()` and `equal()`. This makes encoded path data behave like real `/` and `..`, so distinct URIs collapse onto the same normalized path.\n\nFor example, `http://example.com/public/%2e%2e/admin` normalizes to `http://example.com/admin`, and `equal()` considers them the same URI.\n\nApplications that normalize or compare attacker-controlled URLs to enforce path-based policy can be bypassed. A path that looks confined under an allowed prefix can normalize to a different location.\n\n### Patches\n\nUpgrade to `fast-uri` >= 3.1.1, or if you are in the v2.x release line, v2.4.1\n\n### Workarounds\n\nNone. Upgrade to the patched version."
+        }
+      },
+      "description": "",
+      "license": "",
+      "tier": "free"
+    },
+    "pkg:npm/lodash@4.17.23": {
+      "uuid": "e32d867a-2d12-4ee4-8bd2-5f976af2db55",
+      "exportedAt": "Fri, 24 Jul 2026 22:28:42 GMT",
+      "files": {
+        "lodash.js": {
+          "beforeHash": "834236b7a9f0cd15d96594c1ae29387aac82c4fb3db59b7c62e6a4967ff1f5b9",
+          "afterHash": "90fbe253df4923c186ef795f27e1aa878043f1ef787bd122777dbc9492c71026"
+        },
+        "lodash.min.js": {
+          "beforeHash": "bbaa7fb62f939816d6779b2c0156ea771aec209a379ffb432227fcdd265b132b",
+          "afterHash": "bd4ee74ebe7b9395fcb9d13aac267445060e2c8cfeb5f73d6ba18a7b334da0c0"
+        },
+        "template.js": {
+          "beforeHash": "4cac4a20c5607248d3a16c00d8ca6676ac6835d3d6c65621dbff10ed7a86fb58",
+          "afterHash": "c1f013c2c6ee91c0953aaa35fabf47f2e8669e7ece6a9d5ac41a47d6261bc405"
+        }
+      },
+      "vulnerabilities": {
+        "GHSA-r5fr-rjxr-66jc": {
+          "cves": [
+            "CVE-2026-4800"
+          ],
+          "summary": "lodash vulnerable to Code Injection via `_.template` imports key names",
+          "severity": "HIGH",
+          "description": "### Impact\n\nThe fix for [CVE-2021-23337](https://github.com/advisories/GHSA-35jh-r3h4-6jhm) added validation for the `variable` option in `_.template` but did not apply the same validation to `options.imports` key names. Both paths flow into the same `Function()` constructor sink.\n\nWhen an application passes untrusted input as `options.imports` key names, an attacker can inject default-parameter expressions that execute arbitrary code at template compilation time.\n\nAdditionally, `_.template` uses `assignInWith` to merge imports, which enumerates inherited properties via `for..in`. If `Object.prototype` has been polluted by any other vector, the polluted keys are copied into the imports object and passed to `Function()`.\n\n### Patches\n\nUsers should upgrade to version 4.18.0.\n\nThe fix applies two changes:\n1. Validate `importsKeys` against the existing `reForbiddenIdentifierChars` regex (same check already used for the `variable` option)\n2. Replace `assignInWith` with `assignWith` when merging imports, so only own properties are enumerated\n\n### Workarounds\n\nDo not pass untrusted input as key names in `options.imports`. Only use developer-controlled, static key names."
+        }
+      },
+      "description": "",
+      "license": "",
+      "tier": "free"
+    },
+    "pkg:npm/shell-quote@1.8.3": {
+      "uuid": "7e947070-90ed-4a05-988b-19b2efa7e40f",
+      "exportedAt": "Thu, 23 Jul 2026 16:13:01 GMT",
+      "files": {
+        "quote.js": {
+          "beforeHash": "2d2f2a9cc9c6c6f8960bc45c90cb8d22ff878b1cf3a2ca249f22b2076acb5cd3",
+          "afterHash": "cf137993d06cc11c10400f7f9ecc469fae6050e41bf4d5ffd29ed8730b8e7532"
+        }
+      },
+      "vulnerabilities": {
+        "GHSA-w7jw-789q-3m8p": {
+          "cves": [
+            "CVE-2026-9277"
+          ],
+          "summary": "shell-quote quote() does not escape newlines in object .op values",
+          "severity": "CRITICAL",
+          "description": "### Summary\n\n`shell-quote`'s `quote()` function did not validate object-token inputs against the operator model used by `parse()`. The `.op` field was backslash-escaped character by character using `/(.)/g`, which in JavaScript does not match line terminators (`\\n`, `\\r`, U+2028, U+2029). A line terminator in `.op` therefore passed through unescaped into the output; POSIX shells treat a literal `\\n` as a command separator, so any content after it would execute as a second command.\n\nThe vulnerable code path is reachable in two ways. Neither requires the parser to misbehave — `parse()` only emits ops from a fixed control set — but both are documented API surface:\n\n1. **Direct construction.** A caller builds `{ op: '...\\n...' }` from external input (e.g. a deserialized argument array) and passes it to `quote()`.\n2. **`envFn` return.** `parse(cmd, envFn)` is documented to splice the return value of `envFn` into the result array when it is an object. An attacker-influenced data source consulted by `envFn` can introduce an object token whose `.op` reaches `quote()`.\n\n### Impact\n\nShell command injection in callers that pass object tokens with attacker-influenced `.op` values to `quote()` and then hand the result to a shell. The preconditions are narrower than ordinary string injection — they require the caller to feed object tokens into `quote()` — but object tokens are a public, documented part of the API surface, and `quote()` is intended to be a shell-safety boundary.\n\n### PoC\n\n```js\nconst { parse, quote } = require('shell-quote');\n\n// Direct construction\nquote([{ op: ';\\nid' }]);\n// → \"\\;\\n\\\\i\\\\d\"  ← literal newline; second line executes as a command\n\n// Via parse() with an envFn returning attacker-shaped objects\nconst tokens = parse('echo $X', () => ({ op: ';\\nid' }));\nrequire('child_process').execSync(quote(tokens), { shell: true });\n// Executes `id` after `echo \\;`.\n```\n\nConfirmed under `sh`, `bash`, `dash`, and `zsh`.\n\n### Patch\n\nFixed by replacing the per-character escape with strict shape validation in `quote()`. The object-token branch now:\n\n- **`{ op }`** — `.op` must be a string from the same allowlist the parser emits (`||`, `&&`, `;;`, `|&`, `<(`, `<<<`, `>>`, `>&`, `<&`, `&`, `;`, `(`, `)`, `|`, `<`, `>`). Anything else throws `TypeError`. This is the direct fix for the reported issue and removes the entire class of `.op` injection.\n- **`{ op: 'glob', pattern }`** — `.pattern` must be a string with no line terminators. Glob metacharacters (`*`, `?`, `[`, `]`, `{`, `}`, `,`) pass through; all other shell-special characters are backslash-escaped. (Previously the pattern field was discarded entirely and the literal string `\\g\\l\\o\\b` was emitted — a latent bug, not security-relevant.)\n- **`{ comment }`** — `.comment` must be a string with no line terminators (line terminators would end the shell comment and resume command parsing — same injection shape).\n- **Any other object shape** — `TypeError`.\n\nThe fix is allowlist-based rather than a targeted regex tweak, so it closes the reported vector and forecloses adjacent ones (U+2028 / U+2029 line separators in `.op`, line terminators in comments, unknown-shape objects coerced through `.replace`).\n\n### Workarounds\n\nPrior to upgrading, callers that build object tokens from untrusted input should validate `.op` against the parser's operator set themselves, and never construct `{ op }` from attacker-controlled strings.\n\n### Credits\n\nReported by Akshat Sinha"
+        }
+      },
+      "description": "",
+      "license": "",
+      "tier": "free"
+    }
+  }
+}
