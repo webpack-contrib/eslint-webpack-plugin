@@ -2,7 +2,7 @@ import { join } from "node:path";
 
 import webpack from "webpack";
 
-import ESLintPlugin from "../src";
+import LintPlugin from "../src";
 
 describe("empty", () => {
   it("no error when no files matching", (done) => {
@@ -10,7 +10,7 @@ describe("empty", () => {
       context: join(__dirname, "fixtures", "empty"),
       mode: "development",
       entry: "../",
-      plugins: [new ESLintPlugin()],
+      plugins: [new LintPlugin({ eslint: true })],
     });
 
     compiler.run((err, stats) => {

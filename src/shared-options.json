@@ -1,0 +1,88 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "cache": {
+      "description": "Enable the linter cache to decrease execution time.",
+      "type": "boolean"
+    },
+    "cacheLocation": {
+      "description": "Specify the path to the cache location, it can be a file or a directory.",
+      "type": "string"
+    },
+    "emitError": {
+      "description": "The errors found will always be emitted, to disable set to `false`.",
+      "type": "boolean"
+    },
+    "emitWarning": {
+      "description": "The warnings found will always be emitted, to disable set to `false`.",
+      "type": "boolean"
+    },
+    "exclude": {
+      "description": "Specify the files and/or directories to exclude. Must be relative to `options.context`.",
+      "anyOf": [{ "type": "string" }, { "type": "array" }]
+    },
+    "extensions": {
+      "description": "Specify extensions that should be checked.",
+      "anyOf": [{ "type": "string" }, { "type": "array" }]
+    },
+    "failOnError": {
+      "description": "Will cause the module build to fail if there are any errors, to disable set to `false`.",
+      "type": "boolean"
+    },
+    "failOnWarning": {
+      "description": "Will cause the module build to fail if there are any warnings, if set to `true`.",
+      "type": "boolean"
+    },
+    "files": {
+      "description": "Specify the files and/or directories to traverse. Must be relative to `options.context`.",
+      "anyOf": [{ "type": "string" }, { "type": "array" }]
+    },
+    "fix": {
+      "description": "Will enable the autofix feature of the linter.",
+      "type": "boolean"
+    },
+    "formatter": {
+      "description": "Specify the formatter that you would like to use to format your results.",
+      "anyOf": [
+        { "type": "string" },
+        { "instanceof": "Function" },
+        { "instanceof": "Promise" }
+      ]
+    },
+    "outputReport": {
+      "description": "Write the output of the errors to a file, for example a checkstyle xml file for use for reporting on Jenkins CI.",
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "filePath": {
+              "description": "The `filePath` is relative to the webpack config: `output.path`.",
+              "anyOf": [{ "type": "string" }]
+            },
+            "formatter": {
+              "description": "You can pass in a different formatter for the output file, if none is passed in the default/configured formatter will be used.",
+              "anyOf": [
+                { "type": "string" },
+                { "instanceof": "Function" },
+                { "instanceof": "Promise" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "quiet": {
+      "description": "Will process and report errors only and ignore warnings, if set to `true`.",
+      "type": "boolean"
+    },
+    "resourceQueryExclude": {
+      "description": "Specify the resource query to exclude.",
+      "anyOf": [{ "instanceof": "RegExp" }, { "type": "array" }]
+    }
+  }
+}

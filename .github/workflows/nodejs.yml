@@ -1,4 +1,4 @@
-name: eslint-webpack-plugin
+name: lint-webpack-plugin
 
 on:
   push:

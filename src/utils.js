@@ -2,9 +2,11 @@
 /** @typedef {any} EXPECTED_ANY */
 
 const { statSync } = require("node:fs");
-const { resolve } = require("node:path");
+const { dirname, resolve } = require("node:path");
 
 const normalizePath = require("normalize-path");
+
+/** @typedef {import("webpack").Compiler} Compiler */
 
 /**
  * @template T
@@ -90,8 +92,81 @@ function parseFoldersToGlobs(patterns, extensions = []) {
   });
 }
 
+/**
+ * @param {{ [key: string]: EXPECTED_ANY }} options options
+ * @param {{ [key: string]: EXPECTED_ANY }} properties schema properties to drop
+ * @param {string[]=} keep keys to keep even when the schema describes them
+ * @returns {{ [key: string]: EXPECTED_ANY }} options the linter itself understands
+ */
+function omitPluginOptions(options, properties, keep = []) {
+  const linterOptions = { ...options };
+
+  // No need to guard the for-in because the schema properties are hardcoded.
+
+  for (const option in properties) {
+    if (!keep.includes(option)) {
+      delete linterOptions[option];
+    }
+  }
+
+  return linterOptions;
+}
+
+/**
+ * @param {string} _ key, but unused
+ * @param {EXPECTED_ANY} value value
+ * @returns {{ [key: string]: EXPECTED_ANY }} result
+ */
+const jsonStringifyReplacerSortKeys = (_, value) => {
+  /**
+   * @param {{ [key: string]: EXPECTED_ANY }} sorted sorted
+   * @param {string | number} key key
+   * @returns {{ [key: string]: EXPECTED_ANY }} result
+   */
+  const insert = (sorted, key) => {
+    sorted[key] = value[key];
+    return sorted;
+  };
+
+  return value instanceof Object && !Array.isArray(value)
+    ? Object.keys(value).toSorted().reduce(insert, {})
+    : value;
+};
+
+/**
+ * @param {Compiler} compiler compiler
+ * @param {string} name absolute file name
+ * @param {string | Buffer} content content
+ * @returns {Promise<void>}
+ */
+function writeOutputFile(compiler, name, content) {
+  return /** @type {Promise<void>} */ (
+    new Promise((finish, bail) => {
+      if (!compiler.outputFileSystem) return;
+
+      const { mkdir, writeFile } = compiler.outputFileSystem;
+
+      mkdir(dirname(name), { recursive: true }, (err) => {
+        /* istanbul ignore if */
+        if (err) {
+          bail(err);
+        } else {
+          writeFile(name, content, (/** @type {unknown} */ err2) => {
+            /* istanbul ignore if */
+            if (err2) bail(err2);
+            else finish();
+          });
+        }
+      });
+    })
+  );
+}
+
 module.exports = {
   arrify,
+  jsonStringifyReplacerSortKeys,
+  omitPluginOptions,
   parseFiles,
   parseFoldersToGlobs,
+  writeOutputFile,
 };

@@ -1,17 +1,18 @@
 {
-  "name": "eslint-webpack-plugin",
+  "name": "lint-webpack-plugin",
   "version": "6.0.0",
-  "description": "A ESLint plugin for webpack",
+  "description": "A unified linting plugin for webpack, currently running ESLint and Stylelint",
   "keywords": [
     "eslint",
+    "stylelint",
     "lint",
     "linter",
     "plugin",
     "webpack"
   ],
-  "homepage": "https://github.com/webpack/eslint-webpack-plugin",
-  "bugs": "https://github.com/webpack/eslint-webpack-plugin/issues",
-  "repository": "webpack/eslint-webpack-plugin",
+  "homepage": "https://github.com/webpack/lint-webpack-plugin",
+  "bugs": "https://github.com/webpack/lint-webpack-plugin/issues",
+  "repository": "webpack/lint-webpack-plugin",
   "funding": {
     "type": "opencollective",
     "url": "https://opencollective.com/webpack"
@@ -51,6 +52,8 @@
   },
   "dependencies": {
     "@types/eslint": "^9.6.1",
+    "globby": "^11.1.0",
+    "jest-worker": "^29.7.0",
     "micromatch": "^4.0.8",
     "normalize-path": "^3.0.0",
     "schema-utils": "^4.3.3"
@@ -72,20 +75,32 @@
     "del-cli": "^7.0.0",
     "eslint": "^9.39.4",
     "eslint-config-webpack": "^4.9.4",
+    "file-loader": "^6.2.0",
     "fs-extra": "^11.3.4",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "jest": "^30.3.0",
     "lint-staged": "^16.4.0",
     "npm-run-all": "^4.1.5",
+    "postcss-scss": "^4.0.9",
     "prettier": "^3.8.1",
     "standard-version": "^9.5.0",
+    "stylelint": "^17.1.0",
     "typescript": "^5.9.3",
     "webpack": "^5.105.4"
   },
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0",
+    "stylelint": "^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0",
     "webpack": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
+    },
+    "stylelint": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">= 20.9.0"

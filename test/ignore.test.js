@@ -1,4 +1,4 @@
-import ESLintError from "../src/ESLintError";
+import LintError from "../src/LintError";
 import pack from "./utils/pack";
 
 describe("eslintignore", () => {
@@ -11,7 +11,7 @@ describe("eslintignore", () => {
     const stats = await compiler.runAsync();
     expect(stats.hasWarnings()).toBe(false);
     expect(
-      stats.compilation.errors.filter((x) => x instanceof ESLintError),
+      stats.compilation.errors.filter((x) => x instanceof LintError),
     ).toEqual([]);
   });
 });

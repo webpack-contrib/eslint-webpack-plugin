@@ -1,4 +1,4 @@
-import { getESLintOptions } from "../src/options";
+import { getESLintOptions } from "../src/linters/eslint";
 
 describe("eslint options", () => {
   it("should filter loader options", () => {

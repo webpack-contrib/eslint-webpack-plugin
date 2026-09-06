@@ -1,48 +1,43 @@
 export = linter;
 /**
- * @param {Options} options options
+ * Creates the linter synchronously so that the compilation hooks are tapped
+ * before webpack starts building modules, whatever the linter takes to load.
+ * @param {string} key a key unique to the compiler the linter runs for
+ * @param {EnabledLinter} linter the linter to run
  * @param {Compilation} compilation compilation
- * @returns {Promise<{ lint: Linter, report: Reporter }>} linter with additional functions
+ * @returns {Runner} the runner collecting and reporting the results
  */
 declare function linter(
-  options: Options,
+  key: string,
+  { name, adapter, options }: EnabledLinter,
   compilation: Compilation,
-): Promise<{
-  lint: Linter;
-  report: Reporter;
-}>;
+): Runner;
 declare namespace linter {
   export {
-    ESLint,
-    Formatter,
-    LintResult,
-    Compiler,
     Compilation,
-    Options,
-    FormatterFunction,
-    GenerateReport,
+    LintResult,
+    LinterInstance,
+    EnabledLinter,
+    OutputReportContent,
     Report,
-    Reporter,
-    Linter,
-    LintResultMap,
+    Runner,
   };
 }
-type ESLint = import("eslint").ESLint;
-type Formatter = import("eslint").ESLint.Formatter;
-type LintResult = import("eslint").ESLint.LintResult;
-type Compiler = import("webpack").Compiler;
 type Compilation = import("webpack").Compilation;
-type Options = import("./options").Options;
-type FormatterFunction = import("./options").FormatterFunction;
-type GenerateReport = (compilation: Compilation) => Promise<void>;
+type LintResult = import("./linters").LintResult;
+type LinterInstance = import("./linters").LinterInstance;
+type EnabledLinter = import("./options").EnabledLinter;
+type OutputReportContent = {
+  filePath: string;
+  content: string;
+};
 type Report = {
-  errors?: ESLintError;
-  warnings?: ESLintError;
-  generateReportAsset?: GenerateReport;
+  errors?: LintError;
+  warnings?: LintError;
+  outputReport?: OutputReportContent;
 };
-type Reporter = () => Promise<Report>;
-type Linter = (files: string | string[]) => void;
-type LintResultMap = {
-  [files: string]: LintResult;
+type Runner = {
+  lint: (files: string[]) => void;
+  report: () => Promise<Report>;
 };
-import ESLintError = require("./ESLintError");
+import LintError = require("./LintError");
