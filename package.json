@@ -53,7 +53,7 @@
   "dependencies": {
     "@types/eslint": "^9.6.1",
     "globby": "^11.1.0",
-    "jest-worker": "^29.7.0",
+    "jest-worker": "^30.3.0",
     "micromatch": "^4.0.8",
     "normalize-path": "^3.0.0",
     "schema-utils": "^4.3.3"
@@ -91,7 +91,7 @@
   },
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0",
-    "stylelint": "^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0",
+    "stylelint": "^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0",
     "webpack": "^5.0.0"
   },
   "peerDependenciesMeta": {

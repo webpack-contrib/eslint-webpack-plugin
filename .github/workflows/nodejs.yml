@@ -95,3 +95,38 @@ jobs:
         uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-linters:
+    name: Test - linters - Eslint ${{ matrix.eslint-version }}, Stylelint ${{ matrix.stylelint-version }}
+
+    strategy:
+      matrix:
+        eslint-version: [9.x, 10.x]
+        stylelint-version: [13.x, 14.x, 15.x, 16.x, 17.x]
+
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: test-linters-${{ matrix.eslint-version }}-${{ matrix.stylelint-version }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Use Node.js lts/*
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install eslint ${{ matrix.eslint-version }}
+        run: npm i eslint@${{ matrix.eslint-version }}
+
+      - name: Install stylelint ${{ matrix.stylelint-version }}
+        run: npm i stylelint@${{ matrix.stylelint-version }}
+
+      - name: Run tests
+        run: npm run test:only -- --ci
