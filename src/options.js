@@ -9,6 +9,7 @@ const sharedSchema = require("./shared-options.json");
 
 /** @typedef {import("./linters").FormatterOption} FormatterOption */
 /** @typedef {import("./linters").LinterAdapter} LinterAdapter */
+/** @typedef {import("./linters").LinterAdapterInput} LinterAdapterInput */
 
 /**
  * @typedef {object} OutputReport
@@ -35,11 +36,7 @@ const sharedSchema = require("./shared-options.json");
  */
 
 /**
- * @typedef {SharedOptions & { configType?: string, eslintPath?: string, [option: string]: EXPECTED_ANY }} ESLintOptions
- */
-
-/**
- * @typedef {SharedOptions & { stylelintPath?: string, threads?: number | boolean, [option: string]: EXPECTED_ANY }} StylelintOptions
+ * @typedef {SharedOptions & { use: string | LinterAdapterInput, [option: string]: EXPECTED_ANY }} LinterEntry
  */
 
 /**
@@ -50,8 +47,7 @@ const sharedSchema = require("./shared-options.json");
  * @typedef {object} PluginOptions
  * @property {string=} context a string indicating the root of your files
  * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
- * @property {boolean | ESLintOptions=} eslint run ESLint, optionally with options of its own
- * @property {boolean | StylelintOptions=} stylelint run Stylelint, optionally with options of its own
+ * @property {LinterEntry[]} linters the linters to run
  */
 
 /** @typedef {SharedOptions & PluginOptions} Options */
@@ -75,47 +71,70 @@ const SHARED_DEFAULTS = {
   emitWarning: true,
 };
 
-/**
- * The plugin schema is composed at load time so that a linter added to the
- * registry brings its own options with it.
- * @returns {{ [key: string]: EXPECTED_ANY }} the schema of the plugin options
- */
-function buildSchema() {
-  /** @type {{ [key: string]: EXPECTED_ANY }} */
-  const properties = {
-    ...pluginSchema.properties,
-    ...sharedSchema.properties,
-  };
+const DEFAULT_FOLDER_TO_EXCLUDE = "**/node_modules/**";
 
-  for (const [name, adapter] of linters) {
-    properties[name] = {
-      description: `Run ${adapter.label}, set to \`true\` to run it with the default options.`,
-      anyOf: [
-        { type: "boolean" },
-        {
-          type: "object",
-          additionalProperties: true,
-          properties: {
-            ...sharedSchema.properties,
-            ...adapter.schema.properties,
-          },
-        },
-      ],
+const { use: useProperty, ...pluginProperties } = pluginSchema.properties;
+
+const entrySchema = {
+  type: "object",
+  additionalProperties: true,
+  properties: { use: useProperty, ...sharedSchema.properties },
+  required: ["use"],
+};
+
+const schema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    ...pluginProperties,
+    ...sharedSchema.properties,
+    linters: { ...pluginProperties.linters, items: entrySchema },
+  },
+  required: ["linters"],
+};
+
+/**
+ * A `use` is either the name of a built-in linter or an adapter of its own, so
+ * a linter can ship outside this package.
+ * @param {string | LinterAdapterInput} use the linter to resolve
+ * @returns {LinterAdapter} the adapter to run
+ */
+function toAdapter(use) {
+  if (typeof use !== "string") {
+    if (!use || typeof use.create !== "function" || !use.name) {
+      throw new Error(
+        "Lint Webpack Plugin: `use` needs the name of a built-in linter or a linter adapter with a `name` and a `create` function.",
+      );
+    }
+
+    return {
+      label: use.name,
+      filesSource: "modules",
+      schema: { properties: {} },
+      defaults: {},
+      defaultExclude: () => DEFAULT_FOLDER_TO_EXCLUDE,
+      ...use,
     };
   }
 
-  return {
-    type: "object",
-    additionalProperties: false,
-    properties,
-  };
+  const adapter = linters.get(use);
+
+  if (!adapter) {
+    throw new Error(
+      `Lint Webpack Plugin: unknown linter '${use}', expected one of ${[
+        ...linters.keys(),
+      ]
+        .map((name) => `'${name}'`)
+        .join(", ")} or a linter adapter.`,
+    );
+  }
+
+  return adapter;
 }
 
-const schema = buildSchema();
-
 /**
- * Splits the options shared by every linter from the per-linter groups and
- * merges each group over them.
+ * Splits the options shared by every linter from the per-linter entries and
+ * merges each entry over them.
  * @param {Options} pluginOptions plugin options
  * @returns {NormalizedOptions} normalized plugin options
  */
@@ -125,31 +144,35 @@ function getOptions(pluginOptions) {
     baseDataPath: "options",
   });
 
-  const { context, lintDirtyModulesOnly, ...rest } = pluginOptions;
+  const {
+    context,
+    lintDirtyModulesOnly,
+    linters: entries,
+    ...shared
+  } = pluginOptions;
 
-  /** @type {LinterOptions} */
-  const shared = {};
+  const enabled = entries.map((entry, index) => {
+    const { use, ...own } = entry;
+    const adapter = toAdapter(use);
 
-  for (const option of Object.keys(rest)) {
-    if (linters.has(option)) continue;
-
-    shared[option] = /** @type {EXPECTED_ANY} */ (rest)[option];
-  }
-
-  /** @type {EnabledLinter[]} */
-  const enabled = [];
-
-  for (const [name, adapter] of linters) {
-    const value = /** @type {EXPECTED_ANY} */ (pluginOptions)[name];
-
-    if (!value) continue;
+    validate(
+      /** @type {EXPECTED_ANY} */ ({
+        ...entrySchema,
+        properties: { ...entrySchema.properties, ...adapter.schema.properties },
+      }),
+      entry,
+      {
+        name: `Lint Webpack Plugin (${adapter.label})`,
+        baseDataPath: `options.linters[${index}]`,
+      },
+    );
 
     /** @type {LinterOptions} */
     const options = {
       ...SHARED_DEFAULTS,
       ...adapter.defaults,
       ...shared,
-      ...(value === true ? {} : value),
+      ...own,
     };
 
     if (options.quiet) {
@@ -157,18 +180,8 @@ function getOptions(pluginOptions) {
       options.emitWarning = false;
     }
 
-    enabled.push({ name, adapter, options });
-  }
-
-  if (enabled.length === 0) {
-    throw new Error(
-      `Lint Webpack Plugin: no linter enabled, set at least one of ${[
-        ...linters.keys(),
-      ]
-        .map((name) => `\`${name}\``)
-        .join(", ")} in the plugin options.`,
-    );
-  }
+    return { name: adapter.name, adapter, options };
+  });
 
   return { context, lintDirtyModulesOnly, linters: enabled };
 }

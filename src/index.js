@@ -55,9 +55,9 @@ function collectFromFileSystem(compiler, wanted, exclude) {
 
 class LintWebpackPlugin {
   /**
-   * @param {Options=} options options
+   * @param {Options} options options
    */
-  constructor(options = {}) {
+  constructor(options = /** @type {Options} */ ({})) {
     this.key = LINT_PLUGIN;
     this.options = getOptions(options);
     this.run = this.run.bind(this);

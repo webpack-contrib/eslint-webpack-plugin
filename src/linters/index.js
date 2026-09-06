@@ -36,6 +36,19 @@ const stylelint = require("./stylelint");
  */
 
 /**
+ * What a linter shipped outside this package has to provide; everything the
+ * plugin can default is optional.
+ * @typedef {object} LinterAdapterInput
+ * @property {string} name the option key the linter is configured under
+ * @property {(context: LinterContext) => Promise<LinterInstance>} create creates a linter for one compilation
+ * @property {string=} label the human readable name, used in diagnostics
+ * @property {"modules" | "glob"=} filesSource whether the linter lints the files webpack built or every file matching `files`
+ * @property {{ properties: { [key: string]: EXPECTED_ANY } }=} schema JSON schema of the options only this linter understands
+ * @property {{ [key: string]: EXPECTED_ANY }=} defaults default options for this linter
+ * @property {((compiler: Compiler) => string | string[])=} defaultExclude the globs excluded when the user specifies none
+ */
+
+/**
  * @typedef {object} LinterAdapter
  * @property {string} name the option key the linter is configured under
  * @property {string} label the human readable name, used in diagnostics

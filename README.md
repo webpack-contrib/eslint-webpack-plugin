@@ -56,8 +56,10 @@ module.exports = {
   // ...
   plugins: [
     new LintPlugin({
-      eslint: { extensions: ["js", "mjs"] },
-      stylelint: { extensions: ["css", "scss"] },
+      linters: [
+        { use: "eslint", extensions: ["js", "mjs"] },
+        { use: "stylelint", extensions: ["css", "scss"] },
+      ],
     }),
   ],
   // ...
@@ -68,13 +70,13 @@ module.exports = {
 
 The plugin options have three layers:
 
-| Layer                     | Where it goes            | What it covers                                                                         |
-| :------------------------ | :----------------------- | :------------------------------------------------------------------------------------- |
-| [Plugin](#plugin-options) | Top level only           | How the plugin schedules its work, for every linter at once.                           |
-| [Shared](#shared-options) | Top level or in a linter | Which files are linted and how problems are reported. A linter overrides what it sets. |
-| Linter                    | In a linter              | Options only that linter understands, plus everything its own Node.js API accepts.     |
+| Layer                     | Where it goes                     | What it covers                                                                         |
+| :------------------------ | :-------------------------------- | :------------------------------------------------------------------------------------- |
+| [Plugin](#plugin-options) | Top level only                    | How the plugin schedules its work, for every linter at once.                           |
+| [Shared](#shared-options) | Top level or in a `linters` entry | Which files are linted and how problems are reported. An entry overrides what it sets. |
+| Linter                    | In a `linters` entry              | Options only that linter understands, plus everything its own Node.js API accepts.     |
 
-A linter runs when it is given options, or when it is set to `true` to run with its defaults. At least one linter has to be enabled.
+Every linter to run is an entry in `linters`, named by its `use`. The list may name the same linter more than once, so one instance can lint two file sets under different configurations.
 
 ```js
 new LintPlugin({
@@ -83,9 +85,11 @@ new LintPlugin({
   // Shared options, every linter uses them unless it says otherwise
   failOnError: true,
   exclude: ["node_modules", "vendor"],
-  // Linter options
-  eslint: { extensions: ["js", "ts"], fix: true },
-  stylelint: { extensions: ["css", "scss"], threads: true },
+  // The linters to run, each with the options only it understands
+  linters: [
+    { use: "eslint", extensions: ["js", "ts"], fix: true },
+    { use: "stylelint", extensions: ["css", "scss"], threads: true },
+  ],
 });
 ```
 
@@ -305,20 +309,26 @@ Write the results to a file, for example a checkstyle xml file for use for repor
 - `filePath`: path to the output report file, relative to `output.path` unless absolute.
 - `formatter`: a different `formatter` for the output file; the default/configured formatter is used when none is passed in.
 
-Set at the top level, every linter appends its report to the same file. Set it inside a linter to give that linter a file of its own.
+Set at the top level, every linter appends its report to the same file. Set it inside a `linters` entry to give that linter a file of its own.
 
 ```js
 new LintPlugin({
-  eslint: { outputReport: { filePath: "eslint.json", formatter: "json" } },
-  stylelint: {
-    outputReport: { filePath: "stylelint.json", formatter: "json" },
-  },
+  linters: [
+    {
+      use: "eslint",
+      outputReport: { filePath: "eslint.json", formatter: "json" },
+    },
+    {
+      use: "stylelint",
+      outputReport: { filePath: "stylelint.json", formatter: "json" },
+    },
+  ],
 });
 ```
 
 ## ESLint
 
-Enabled with the `eslint` option. It lints the files webpack builds, so only the modules that end up in the bundle are checked.
+Run with `{ use: "eslint" }`. It lints the files webpack builds, so only the modules that end up in the bundle are checked.
 
 Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are.
 
@@ -355,7 +365,7 @@ If the `eslintPath` is a folder like the official ESLint, or you specify a `form
 
 ## Stylelint
 
-Enabled with the `stylelint` option, and requires `stylelint >= 17`. It lints every file matching `files` and `extensions` on disk, whether or not webpack imported it, so a stylesheet nothing imports yet is still checked.
+Run with `{ use: "stylelint" }`, and requires `stylelint >= 17`. It lints every file matching `files` and `extensions` on disk, whether or not webpack imported it, so a stylesheet nothing imports yet is still checked.
 
 Alongside the shared options you can pass any [Stylelint option](https://stylelint.io/user-guide/usage/node-api#options) — they are handed to `stylelint.lint()` as they are.
 
@@ -385,11 +395,44 @@ Set to `true` for an auto-selected pool size based on the number of CPUs. Set to
 
 Set to `false`, `1`, or less to disable and only run in the main process.
 
+## Adding a linter
+
+A `use` may also be a linter of its own rather than a built-in name, so a linter can ship as its own package without an entry in this one:
+
+```js
+new LintPlugin({
+  linters: [{ use: require("lint-webpack-plugin-typescript"), strict: true }],
+});
+```
+
+Such a linter is an object with a `name`, and a `create` returning the five functions the plugin drives it through — what to lint, what came back, which results are errors and which warnings, how to format them, and what to release afterwards:
+
+```js
+module.exports = {
+  name: "made-up",
+  // "modules" lints the files webpack built, "glob" every file matching `files`
+  filesSource: "glob",
+  // Merged under the options the user passes, and under the shared options
+  defaults: { extensions: ["ts"] },
+  async create({ key, options, compilation }) {
+    return {
+      lintFiles: async (files) => runTheLinter(files),
+      getResults: async (results) => results,
+      splitResults: (results) => ({ errors: results, warnings: [] }),
+      getFormatter: async (formatter) => async (results) => format(results),
+      cleanup: async () => {},
+    };
+  },
+};
+```
+
+`label`, `filesSource`, `defaults`, `defaultExclude` and `schema` are optional; the plugin fills in the defaults of a module-scanning linter that excludes `node_modules`.
+
 ## Migrating
 
 ### From `eslint-webpack-plugin`
 
-Move the options you were passing into an `eslint` group:
+Move the options you were passing into a `linters` entry:
 
 ```diff
 -const ESLintPlugin = require("eslint-webpack-plugin");
@@ -398,7 +441,9 @@ Move the options you were passing into an `eslint` group:
  module.exports = {
    plugins: [
 -    new ESLintPlugin({ extensions: ["js"], fix: true }),
-+    new LintPlugin({ eslint: { extensions: ["js"], fix: true } }),
++    new LintPlugin({
++      linters: [{ use: "eslint", extensions: ["js"], fix: true }],
++    }),
    ],
  };
 ```
@@ -407,7 +452,7 @@ The shared options — `context`, `files`, `exclude`, `failOnError` and the rest
 
 ### From `stylelint-webpack-plugin`
 
-Move the options you were passing into a `stylelint` group:
+Move the options you were passing into a `linters` entry:
 
 ```diff
 -const StylelintPlugin = require("stylelint-webpack-plugin");
@@ -416,7 +461,9 @@ Move the options you were passing into a `stylelint` group:
  module.exports = {
    plugins: [
 -    new StylelintPlugin({ extensions: ["css"], threads: true }),
-+    new LintPlugin({ stylelint: { extensions: ["css"], threads: true } }),
++    new LintPlugin({
++      linters: [{ use: "stylelint", extensions: ["css"], threads: true }],
++    }),
    ],
  };
 ```
@@ -441,8 +488,10 @@ The two plugins become one instance, and options they had in common are written 
 +    new LintPlugin({
 +      context: "src",
 +      failOnError: true,
-+      eslint: { extensions: ["js"] },
-+      stylelint: { extensions: ["css"] },
++      linters: [
++        { use: "eslint", extensions: ["js"] },
++        { use: "stylelint", extensions: ["css"] },
++      ],
 +    }),
    ],
  };

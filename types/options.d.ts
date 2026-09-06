@@ -1,6 +1,7 @@
 export type EXPECTED_ANY = any;
 export type FormatterOption = import("./linters").FormatterOption;
 export type LinterAdapter = import("./linters").LinterAdapter;
+export type LinterAdapterInput = import("./linters").LinterAdapterInput;
 export type OutputReport = {
   /**
    * a file path
@@ -69,14 +70,8 @@ export type SharedOptions = {
    */
   resourceQueryExclude?: (RegExp | RegExp[] | string | string[]) | undefined;
 };
-export type ESLintOptions = SharedOptions & {
-  configType?: string;
-  eslintPath?: string;
-  [option: string]: EXPECTED_ANY;
-};
-export type StylelintOptions = SharedOptions & {
-  stylelintPath?: string;
-  threads?: number | boolean;
+export type LinterEntry = SharedOptions & {
+  use: string | LinterAdapterInput;
   [option: string]: EXPECTED_ANY;
 };
 export type LinterOptions = SharedOptions & {
@@ -92,13 +87,9 @@ export type PluginOptions = {
    */
   lintDirtyModulesOnly?: boolean | undefined;
   /**
-   * run ESLint, optionally with options of its own
+   * the linters to run
    */
-  eslint?: (boolean | ESLintOptions) | undefined;
-  /**
-   * run Stylelint, optionally with options of its own
-   */
-  stylelint?: (boolean | StylelintOptions) | undefined;
+  linters: LinterEntry[];
 };
 export type Options = SharedOptions & PluginOptions;
 export type EnabledLinter = {
@@ -130,12 +121,264 @@ export type NormalizedOptions = {
   linters: EnabledLinter[];
 };
 /**
- * Splits the options shared by every linter from the per-linter groups and
- * merges each group over them.
+ * Splits the options shared by every linter from the per-linter entries and
+ * merges each entry over them.
  * @param {Options} pluginOptions plugin options
  * @returns {NormalizedOptions} normalized plugin options
  */
 export function getOptions(pluginOptions: Options): NormalizedOptions;
-export const schema: {
-  [key: string]: any;
-};
+export namespace schema {
+  let type: string;
+  let additionalProperties: boolean;
+  let properties: {
+    linters: {
+      items: {
+        type: string;
+        additionalProperties: boolean;
+        properties: {
+          cache: {
+            description: string;
+            type: string;
+          };
+          cacheLocation: {
+            description: string;
+            type: string;
+          };
+          emitError: {
+            description: string;
+            type: string;
+          };
+          emitWarning: {
+            description: string;
+            type: string;
+          };
+          exclude: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+          extensions: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+          failOnError: {
+            description: string;
+            type: string;
+          };
+          failOnWarning: {
+            description: string;
+            type: string;
+          };
+          files: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+          fix: {
+            description: string;
+            type: string;
+          };
+          formatter: {
+            description: string;
+            anyOf: (
+              | {
+                  type: string;
+                  instanceof?: undefined;
+                }
+              | {
+                  instanceof: string;
+                  type?: undefined;
+                }
+            )[];
+          };
+          outputReport: {
+            description: string;
+            anyOf: (
+              | {
+                  type: string;
+                  additionalProperties?: undefined;
+                  properties?: undefined;
+                }
+              | {
+                  type: string;
+                  additionalProperties: boolean;
+                  properties: {
+                    filePath: {
+                      description: string;
+                      anyOf: {
+                        type: string;
+                      }[];
+                    };
+                    formatter: {
+                      description: string;
+                      anyOf: (
+                        | {
+                            type: string;
+                            instanceof?: undefined;
+                          }
+                        | {
+                            instanceof: string;
+                            type?: undefined;
+                          }
+                      )[];
+                    };
+                  };
+                }
+            )[];
+          };
+          quiet: {
+            description: string;
+            type: string;
+          };
+          resourceQueryExclude: {
+            description: string;
+            anyOf: (
+              | {
+                  instanceof: string;
+                  type?: undefined;
+                }
+              | {
+                  type: string;
+                  instanceof?: undefined;
+                }
+            )[];
+          };
+          use: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+        };
+        required: string[];
+      };
+      description: string;
+      type: string;
+      minItems: number;
+    };
+    cache: {
+      description: string;
+      type: string;
+    };
+    cacheLocation: {
+      description: string;
+      type: string;
+    };
+    emitError: {
+      description: string;
+      type: string;
+    };
+    emitWarning: {
+      description: string;
+      type: string;
+    };
+    exclude: {
+      description: string;
+      anyOf: {
+        type: string;
+      }[];
+    };
+    extensions: {
+      description: string;
+      anyOf: {
+        type: string;
+      }[];
+    };
+    failOnError: {
+      description: string;
+      type: string;
+    };
+    failOnWarning: {
+      description: string;
+      type: string;
+    };
+    files: {
+      description: string;
+      anyOf: {
+        type: string;
+      }[];
+    };
+    fix: {
+      description: string;
+      type: string;
+    };
+    formatter: {
+      description: string;
+      anyOf: (
+        | {
+            type: string;
+            instanceof?: undefined;
+          }
+        | {
+            instanceof: string;
+            type?: undefined;
+          }
+      )[];
+    };
+    outputReport: {
+      description: string;
+      anyOf: (
+        | {
+            type: string;
+            additionalProperties?: undefined;
+            properties?: undefined;
+          }
+        | {
+            type: string;
+            additionalProperties: boolean;
+            properties: {
+              filePath: {
+                description: string;
+                anyOf: {
+                  type: string;
+                }[];
+              };
+              formatter: {
+                description: string;
+                anyOf: (
+                  | {
+                      type: string;
+                      instanceof?: undefined;
+                    }
+                  | {
+                      instanceof: string;
+                      type?: undefined;
+                    }
+                )[];
+              };
+            };
+          }
+      )[];
+    };
+    quiet: {
+      description: string;
+      type: string;
+    };
+    resourceQueryExclude: {
+      description: string;
+      anyOf: (
+        | {
+            instanceof: string;
+            type?: undefined;
+          }
+        | {
+            type: string;
+            instanceof?: undefined;
+          }
+      )[];
+    };
+    context: {
+      description: string;
+      type: string;
+    };
+    lintDirtyModulesOnly: {
+      description: string;
+      type: string;
+    };
+  };
+  let required: string[];
+}

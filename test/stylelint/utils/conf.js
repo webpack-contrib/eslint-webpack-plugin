@@ -29,7 +29,12 @@ export default (context, pluginConf = {}, webpackConf = {}) => {
     output: {
       path: join(testDir, "outputs"),
     },
-    plugins: [new LintPlugin({ ...plugin, stylelint })],
+    plugins: [
+      new LintPlugin({
+        ...plugin,
+        linters: [{ use: "stylelint", ...stylelint }],
+      }),
+    ],
     ...webpackConf,
   };
 };

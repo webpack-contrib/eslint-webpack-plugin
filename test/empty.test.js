@@ -10,7 +10,7 @@ describe("empty", () => {
       context: join(__dirname, "fixtures", "empty"),
       mode: "development",
       entry: "../",
-      plugins: [new LintPlugin({ eslint: true })],
+      plugins: [new LintPlugin({ linters: [{ use: "eslint" }] })],
     });
 
     compiler.run((err, stats) => {

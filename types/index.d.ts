@@ -1,9 +1,9 @@
 export = LintWebpackPlugin;
 declare class LintWebpackPlugin {
   /**
-   * @param {Options=} options options
+   * @param {Options} options options
    */
-  constructor(options?: Options | undefined);
+  constructor(options?: Options);
   key: string;
   options: import("./options").NormalizedOptions;
   /**

@@ -9,8 +9,14 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({ stylelint: true, exclude: "error.scss" }),
-          new LintPlugin({ stylelint: true, exclude: "error.scss" }),
+          new LintPlugin({
+            exclude: "error.scss",
+            linters: [{ use: "stylelint" }],
+          }),
+          new LintPlugin({
+            exclude: "error.scss",
+            linters: [{ use: "stylelint" }],
+          }),
         ],
       },
     );
@@ -26,8 +32,14 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({ stylelint: true, exclude: "good.scss" }),
-          new LintPlugin({ stylelint: true, exclude: "error.scss" }),
+          new LintPlugin({
+            exclude: "good.scss",
+            linters: [{ use: "stylelint" }],
+          }),
+          new LintPlugin({
+            exclude: "error.scss",
+            linters: [{ use: "stylelint" }],
+          }),
         ],
       },
     );
@@ -43,8 +55,14 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({ stylelint: true, exclude: "error.scss" }),
-          new LintPlugin({ stylelint: true, exclude: "good.scss" }),
+          new LintPlugin({
+            exclude: "error.scss",
+            linters: [{ use: "stylelint" }],
+          }),
+          new LintPlugin({
+            exclude: "good.scss",
+            linters: [{ use: "stylelint" }],
+          }),
         ],
       },
     );

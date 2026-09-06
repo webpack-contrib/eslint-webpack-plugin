@@ -32,7 +32,9 @@ export default (entry, pluginConf = {}, webpackConf = {}) => {
     output: {
       path: join(testDir, "outputs"),
     },
-    plugins: [new LintPlugin({ ...plugin, eslint })],
+    plugins: [
+      new LintPlugin({ ...plugin, linters: [{ use: "eslint", ...eslint }] }),
+    ],
     ...webpackConf,
   };
 };

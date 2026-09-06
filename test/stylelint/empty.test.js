@@ -8,7 +8,7 @@ describe("empty", () => {
       "empty",
       {},
       {
-        plugins: [new LintPlugin({ stylelint: true })],
+        plugins: [new LintPlugin({ linters: [{ use: "stylelint" }] })],
       },
     );
     const stats = await compiler.runAsync();

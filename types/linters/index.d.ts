@@ -25,6 +25,18 @@ export = linters;
  * @property {() => Promise<void>} cleanup releases whatever the linter holds after a run
  */
 /**
+ * What a linter shipped outside this package has to provide; everything the
+ * plugin can default is optional.
+ * @typedef {object} LinterAdapterInput
+ * @property {string} name the option key the linter is configured under
+ * @property {(context: LinterContext) => Promise<LinterInstance>} create creates a linter for one compilation
+ * @property {string=} label the human readable name, used in diagnostics
+ * @property {"modules" | "glob"=} filesSource whether the linter lints the files webpack built or every file matching `files`
+ * @property {{ properties: { [key: string]: EXPECTED_ANY } }=} schema JSON schema of the options only this linter understands
+ * @property {{ [key: string]: EXPECTED_ANY }=} defaults default options for this linter
+ * @property {((compiler: Compiler) => string | string[])=} defaultExclude the globs excluded when the user specifies none
+ */
+/**
  * @typedef {object} LinterAdapter
  * @property {string} name the option key the linter is configured under
  * @property {string} label the human readable name, used in diagnostics
@@ -47,6 +59,7 @@ declare namespace linters {
     Format,
     LinterContext,
     LinterInstance,
+    LinterAdapterInput,
     LinterAdapter,
   };
 }
@@ -103,6 +116,50 @@ type LinterInstance = {
    * releases whatever the linter holds after a run
    */
   cleanup: () => Promise<void>;
+};
+/**
+ * What a linter shipped outside this package has to provide; everything the
+ * plugin can default is optional.
+ */
+type LinterAdapterInput = {
+  /**
+   * the option key the linter is configured under
+   */
+  name: string;
+  /**
+   * creates a linter for one compilation
+   */
+  create: (context: LinterContext) => Promise<LinterInstance>;
+  /**
+   * the human readable name, used in diagnostics
+   */
+  label?: string | undefined;
+  /**
+   * whether the linter lints the files webpack built or every file matching `files`
+   */
+  filesSource?: ("modules" | "glob") | undefined;
+  /**
+   * JSON schema of the options only this linter understands
+   */
+  schema?:
+    | {
+        properties: {
+          [key: string]: EXPECTED_ANY;
+        };
+      }
+    | undefined;
+  /**
+   * default options for this linter
+   */
+  defaults?:
+    | {
+        [key: string]: EXPECTED_ANY;
+      }
+    | undefined;
+  /**
+   * the globs excluded when the user specifies none
+   */
+  defaultExclude?: ((compiler: Compiler) => string | string[]) | undefined;
 };
 type LinterAdapter = {
   /**

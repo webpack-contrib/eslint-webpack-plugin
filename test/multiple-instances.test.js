@@ -12,24 +12,30 @@ describe("multiple instances", () => {
           new LintPlugin({
             failOnError: true,
             exclude: "error.js",
-            eslint: {
-              overrideConfigFile: join(
-                __dirname,
-                "./config-for-tests/eslint.config.mjs",
-              ),
-              ignore: false,
-            },
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
           new LintPlugin({
             failOnError: true,
             exclude: "error.js",
-            eslint: {
-              overrideConfigFile: join(
-                __dirname,
-                "./config-for-tests/eslint.config.mjs",
-              ),
-              ignore: false,
-            },
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
         ],
       },
@@ -49,24 +55,30 @@ describe("multiple instances", () => {
           new LintPlugin({
             failOnError: true,
             exclude: "good.js",
-            eslint: {
-              overrideConfigFile: join(
-                __dirname,
-                "./config-for-tests/eslint.config.mjs",
-              ),
-              ignore: false,
-            },
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
           new LintPlugin({
             failOnError: true,
             exclude: "error.js",
-            eslint: {
-              overrideConfigFile: join(
-                __dirname,
-                "./config-for-tests/eslint.config.mjs",
-              ),
-              ignore: false,
-            },
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
         ],
       },
@@ -84,24 +96,30 @@ describe("multiple instances", () => {
           new LintPlugin({
             failOnError: true,
             exclude: "error.js",
-            eslint: {
-              overrideConfigFile: join(
-                __dirname,
-                "./config-for-tests/eslint.config.mjs",
-              ),
-              ignore: false,
-            },
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
           new LintPlugin({
             failOnError: true,
             exclude: "good.js",
-            eslint: {
-              overrideConfigFile: join(
-                __dirname,
-                "./config-for-tests/eslint.config.mjs",
-              ),
-              ignore: false,
-            },
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
         ],
       },
