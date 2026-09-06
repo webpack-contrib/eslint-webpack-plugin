@@ -20,7 +20,7 @@ async function getStylelint() {
   if (!stylelintPromise) {
     stylelintPromise = (async () => {
       const mod = await import(stylelintPath);
-      // Handle both CJS (v13-v16) and ESM (v17) exports
+      // A `stylelintPath` may name a CommonJS module, which has no default export
       return mod.default || mod;
     })();
   }

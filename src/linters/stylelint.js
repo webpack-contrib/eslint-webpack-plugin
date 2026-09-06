@@ -167,17 +167,13 @@ async function loadFormatter(stylelint, formatter) {
 
   if (typeof formatter === "string") {
     try {
-      const loaded = stylelint.formatters[formatter];
-      // Handle both sync (v13-v15) and promise-based (v16+) formatters
-      return loaded instanceof Promise ? await loaded : loaded;
+      return await stylelint.formatters[formatter];
     } catch {
       // Load the default formatter.
     }
   }
 
-  const fallback = stylelint.formatters.string;
-
-  return fallback instanceof Promise ? await fallback : fallback;
+  return stylelint.formatters.string;
 }
 
 /**

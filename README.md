@@ -41,7 +41,7 @@ pnpm add -D lint-webpack-plugin
 
 > [!NOTE]
 >
-> Install the linters you want to run as well — the plugin only requires the ones you enable:
+> Install the linters you want to run as well — the plugin only requires the ones you enable. It supports `eslint >= 9` and `stylelint >= 17`:
 
 ```console
 npm install eslint stylelint --save-dev
@@ -355,7 +355,7 @@ If the `eslintPath` is a folder like the official ESLint, or you specify a `form
 
 ## Stylelint
 
-Enabled with the `stylelint` option. It lints every file matching `files` and `extensions` on disk, whether or not webpack imported it, so a stylesheet nothing imports yet is still checked.
+Enabled with the `stylelint` option, and requires `stylelint >= 17`. It lints every file matching `files` and `extensions` on disk, whether or not webpack imported it, so a stylesheet nothing imports yet is still checked.
 
 Alongside the shared options you can pass any [Stylelint option](https://stylelint.io/user-guide/usage/node-api#options) — they are handed to `stylelint.lint()` as they are.
 
@@ -421,8 +421,9 @@ Move the options you were passing into a `stylelint` group:
  };
 ```
 
-Two things changed beyond the option shape:
+Three things changed beyond the option shape:
 
+- **Stylelint 17 or later is required.** `stylelint-webpack-plugin` accepted `13` through `17`; the merged plugin drops the older majors rather than carrying their compatibility branches forward. Stylelint 17 itself needs Node `>= 20.19`.
 - **Errors and warnings are no longer swapped.** Errors are reported as webpack errors and warnings as webpack warnings, whatever `failOnError` and `failOnWarning` say; those two now decide whether the build is failed, not how a problem is reported. Previously `failOnError: false` turned errors into warnings, and `failOnWarning: true` turned warnings into errors.
 - **`failOnError` defaults to `false` in `development` mode**, matching the rest of the plugin, rather than being `true` everywhere.
 
