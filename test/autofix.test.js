@@ -28,8 +28,9 @@ describe("autofix stop", () => {
     const stats = await compiler.runAsync();
     assert.strictEqual(stats.hasWarnings(), false);
     assert.strictEqual(stats.hasErrors(), false);
+    // Git checks the fixture out with CRLF on Windows and ESLint keeps it.
     assert.strictEqual(
-      readFileSync(entry).toString("utf8"),
+      readFileSync(entry, "utf8").replaceAll("\r\n", "\n"),
       "function foo() {\n  return true;\n}\n\nfoo();\n",
     );
   });
