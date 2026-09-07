@@ -20,8 +20,7 @@ describe("eslint options", () => {
       eslintPath: "some/place/where/eslint/lives",
       formatter: "table",
       fix: true,
-      emit: false,
-      failOn: ["error"],
+      reportAs: false,
       quiet: false,
       outputReport: true,
     };

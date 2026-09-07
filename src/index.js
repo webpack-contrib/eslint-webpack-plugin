@@ -7,7 +7,6 @@ import createCheckRunner from "./check.js";
 import { getOptions, validateOptions } from "./options.js";
 import {
   arrify,
-  coversSeverity,
   parseFiles,
   parseFoldersToGlobs,
   writeOutputFile,
@@ -24,14 +23,13 @@ const { isMatch } = micromatch;
 /** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
 /** @typedef {import("./options.js").EnabledCheck} EnabledCheck */
 /** @typedef {import("./options.js").CheckOptions} CheckOptions */
-/** @typedef {import("./options.js").ResolvedCheckOptions} ResolvedCheckOptions */
 /** @typedef {import("./options.js").Options} Options */
 
 /**
  * @typedef {object} ResolvedCheck
  * @property {string} name check name
  * @property {CheckAdapter} adapter the adapter running it
- * @property {ResolvedCheckOptions} options options resolved for this check
+ * @property {CheckOptions} options options resolved for this check
  * @property {string[]} wanted the globs of the files to lint
  * @property {string[]} exclude the globs of the files not to lint
  */
@@ -136,13 +134,10 @@ class DiagnosticsWebpackPlugin {
   resolveCheck(compiler, context, { name, adapter, options }) {
     const resourceQueries = arrify(options.resourceQueryExclude || []);
 
-    /** @type {ResolvedCheckOptions} */
+    /** @type {CheckOptions} */
     const resolved = {
       ...options,
       context,
-      failOn:
-        options.failOn ??
-        (compiler.options.mode === "development" ? false : "error"),
       exclude: options.exclude
         ? parseFiles(options.exclude, context)
         : adapter.defaultExclude(compiler),
@@ -252,18 +247,28 @@ class DiagnosticsWebpackPlugin {
         async (_, callback) => {
           /** @type {Map<string, string[]>} */
           const outputReports = new Map();
-          /** @type {Error | undefined} */
-          let failure;
 
           for (const { options, runner } of runners) {
             const { errors, warnings, outputReport } = await runner.report();
 
+            // `reportAs` names the one place every result goes; left unset, each
+            // stays at the severity the check gave it.
             if (warnings) {
-              compilation.warnings.push(warnings);
+              const reported =
+                options.reportAs === "error"
+                  ? compilation.errors
+                  : compilation.warnings;
+
+              reported.push(warnings);
             }
 
             if (errors) {
-              compilation.errors.push(errors);
+              const reported =
+                options.reportAs === "warning"
+                  ? compilation.warnings
+                  : compilation.errors;
+
+              reported.push(errors);
             }
 
             if (outputReport) {
@@ -271,14 +276,6 @@ class DiagnosticsWebpackPlugin {
 
               contents.push(outputReport.content);
               outputReports.set(outputReport.filePath, contents);
-            }
-
-            if (!failure) {
-              if (warnings && coversSeverity(options.failOn, "warning")) {
-                failure = warnings;
-              } else if (errors && coversSeverity(options.failOn, "error")) {
-                failure = errors;
-              }
             }
           }
 
@@ -288,7 +285,7 @@ class DiagnosticsWebpackPlugin {
             ),
           );
 
-          callback(failure);
+          callback();
         },
       );
     });

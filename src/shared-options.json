@@ -10,10 +10,6 @@
       "description": "Specify the path to the cache location, it can be a file or a directory.",
       "type": "string"
     },
-    "emit": {
-      "description": "The least severe result that is reported: `\"warning\"` reports warnings and errors, `\"error\"` reports errors alone, `false` reports nothing.",
-      "enum": ["error", "warning", false]
-    },
     "exclude": {
       "description": "Specify the files and/or directories to exclude. Must be relative to `options.context`.",
       "anyOf": [
@@ -35,10 +31,6 @@
           "type": "array"
         }
       ]
-    },
-    "failOn": {
-      "description": "The least severe result that fails the build: `\"warning\"` fails on warnings and errors, `\"error\"` fails on errors alone, `false` fails on nothing.",
-      "enum": ["error", "warning", false]
     },
     "files": {
       "description": "Specify the files and/or directories to traverse. Must be relative to `options.context`.",
@@ -108,6 +100,10 @@
     "quiet": {
       "description": "Will process and report errors only and ignore warnings, if set to `true`.",
       "type": "boolean"
+    },
+    "reportAs": {
+      "description": "What a check reports its results as: `\"error\"` reports them as webpack errors and fails the build, `\"warning\"` reports them as webpack warnings, `false` reports nothing.",
+      "enum": ["error", "warning", false]
     },
     "resourceQueryExclude": {
       "description": "Specify the resource query to exclude.",

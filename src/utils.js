@@ -73,20 +73,6 @@ async function importFrom(specifier) {
   }
 }
 
-/** @typedef {import("./options.js").Severity} Severity */
-/** @typedef {import("./options.js").SeverityLevel} SeverityLevel */
-
-/**
- * `emit` and `failOn` each name the least severe result they take in, so
- * `"warning"` covers the errors above it and `false` covers nothing.
- * @param {SeverityLevel} level the level an option is set to
- * @param {Severity} severity the severity to test against it
- * @returns {boolean} whether the level covers the severity
- */
-function coversSeverity(level, severity) {
-  return level === "warning" || (level === "error" && severity === "error");
-}
-
 /**
  * @param {string | string[]} files files
  * @param {string} context context
@@ -202,7 +188,6 @@ function writeOutputFile(compiler, name, content) {
 
 export {
   arrify,
-  coversSeverity,
   importFrom,
   jsonStringifyReplacerSortKeys,
   omitPluginOptions,

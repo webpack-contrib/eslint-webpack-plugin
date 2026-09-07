@@ -7,7 +7,6 @@ export type Runner = import("./check.js").Runner;
 export type CheckAdapter = import("./checks/index.js").CheckAdapter;
 export type EnabledCheck = import("./options.js").EnabledCheck;
 export type CheckOptions = import("./options.js").CheckOptions;
-export type ResolvedCheckOptions = import("./options.js").ResolvedCheckOptions;
 export type Options = import("./options.js").Options;
 export type ResolvedCheck = {
   /**
@@ -21,7 +20,7 @@ export type ResolvedCheck = {
   /**
    * options resolved for this check
    */
-  options: ResolvedCheckOptions;
+  options: CheckOptions;
   /**
    * the globs of the files to lint
    */

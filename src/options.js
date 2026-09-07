@@ -13,8 +13,7 @@ const nodeRequire = createRequire(import.meta.url);
 const PLUGIN_NAME = "Diagnostics Webpack Plugin";
 
 /** @typedef {import("webpack").Compiler} Compiler */
-/** @typedef {"error" | "warning"} Severity */
-/** @typedef {Severity | false} SeverityLevel */
+/** @typedef {"error" | "warning" | false} ReportAs */
 /** @typedef {import("./checks/index.js").FormatterOption} FormatterOption */
 /** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
 /** @typedef {import("./checks/index.js").CheckAdapterInput} CheckAdapterInput */
@@ -29,10 +28,9 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @typedef {object} SharedOptions
  * @property {boolean=} cache enable the tool's cache to decrease execution time
  * @property {string=} cacheLocation specify the path to the cache location
- * @property {SeverityLevel=} emit the least severe result that is reported
+ * @property {ReportAs=} reportAs what a check reports its results as
  * @property {string | string[]=} exclude specify the files and/or directories to exclude
  * @property {string | string[]=} extensions specify the extensions that should be checked
- * @property {SeverityLevel=} failOn the least severe result that fails the build
  * @property {string | string[]=} files specify directories, files, or globs
  * @property {boolean=} fix apply fixes
  * @property {FormatterOption=} formatter specify the formatter you would like to use to format your results
@@ -46,12 +44,9 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  */
 
 /**
- * @typedef {Omit<SharedOptions, "emit"> & { emit: SeverityLevel, [option: string]: EXPECTED_ANY }} CheckOptions
- */
-
-/**
- * What a check reads once the plugin has resolved it against a compiler.
- * @typedef {Omit<SharedOptions, "emit" | "failOn"> & { emit: SeverityLevel, failOn: SeverityLevel, [option: string]: EXPECTED_ANY }} ResolvedCheckOptions
+ * The options of one check, as given and then as the plugin resolves them
+ * against a compiler.
+ * @typedef {SharedOptions & { [option: string]: EXPECTED_ANY }} CheckOptions
  */
 
 /**
@@ -76,8 +71,6 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
  * @property {EnabledCheck[]} checks the checks to run
  */
-
-const DEFAULT_EMIT = /** @type {SeverityLevel} */ ("warning");
 
 const DEFAULT_FOLDER_TO_EXCLUDE = "**/node_modules/**";
 
@@ -177,15 +170,8 @@ function getOptions(pluginOptions) {
     const { use, ...own } = entry;
     const adapter = toAdapter(use);
 
-    const merged = { ...adapter.defaults, ...shared, ...own };
-
-    // `??`, not a default merged under them, so that an option written out as
-    // `undefined` reads as the one left unwritten.
     /** @type {CheckOptions} */
-    const options = {
-      ...merged,
-      emit: merged.quiet ? "error" : (merged.emit ?? DEFAULT_EMIT),
-    };
+    const options = { ...adapter.defaults, ...shared, ...own };
 
     return { name: adapter.name, adapter, options };
   });

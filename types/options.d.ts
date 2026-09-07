@@ -1,7 +1,6 @@
 export type EXPECTED_ANY = any;
 export type Compiler = import("webpack").Compiler;
-export type Severity = "error" | "warning";
-export type SeverityLevel = Severity | false;
+export type ReportAs = "error" | "warning" | false;
 export type FormatterOption = import("./checks/index.js").FormatterOption;
 export type CheckAdapter = import("./checks/index.js").CheckAdapter;
 export type CheckAdapterInput = import("./checks/index.js").CheckAdapterInput;
@@ -25,9 +24,9 @@ export type SharedOptions = {
    */
   cacheLocation?: string | undefined;
   /**
-   * the least severe result that is reported
+   * what a check reports its results as
    */
-  emit?: SeverityLevel | undefined;
+  reportAs?: ReportAs | undefined;
   /**
    * specify the files and/or directories to exclude
    */
@@ -36,10 +35,6 @@ export type SharedOptions = {
    * specify the extensions that should be checked
    */
   extensions?: (string | string[]) | undefined;
-  /**
-   * the least severe result that fails the build
-   */
-  failOn?: SeverityLevel | undefined;
   /**
    * specify directories, files, or globs
    */
@@ -69,16 +64,11 @@ export type CheckEntry = SharedOptions & {
   use: string | CheckAdapterInput;
   [option: string]: EXPECTED_ANY;
 };
-export type CheckOptions = Omit<SharedOptions, "emit"> & {
-  emit: SeverityLevel;
-  [option: string]: EXPECTED_ANY;
-};
 /**
- * What a check reads once the plugin has resolved it against a compiler.
+ * The options of one check, as given and then as the plugin resolves them
+ * against a compiler.
  */
-export type ResolvedCheckOptions = Omit<SharedOptions, "emit" | "failOn"> & {
-  emit: SeverityLevel;
-  failOn: SeverityLevel;
+export type CheckOptions = SharedOptions & {
   [option: string]: EXPECTED_ANY;
 };
 export type PluginOptions = {

@@ -5,7 +5,7 @@ import { createRequire } from "node:module";
 import { isAbsolute, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { coversSeverity, importFrom, omitPluginOptions } from "../utils.js";
+import { importFrom, omitPluginOptions } from "../utils.js";
 
 const nodeRequire = createRequire(import.meta.url);
 
@@ -223,24 +223,18 @@ async function create({ options }) {
       for (const file of /** @type {LintResult[]} */ (results)) {
         if (file.errorCount > 0) {
           const messages = file.messages.filter(
-            (message) =>
-              coversSeverity(options.emit, "error") && message.severity === 2,
+            (message) => message.severity === 2,
           );
 
-          if (messages.length > 0) {
-            errors.push({ ...file, messages });
-          }
+          if (messages.length > 0) errors.push({ ...file, messages });
         }
 
         if (file.warningCount > 0) {
           const messages = file.messages.filter(
-            (message) =>
-              coversSeverity(options.emit, "warning") && message.severity === 1,
+            (message) => message.severity === 1,
           );
 
-          if (messages.length > 0) {
-            warnings.push({ ...file, messages });
-          }
+          if (messages.length > 0) warnings.push({ ...file, messages });
         }
       }
 
