@@ -371,7 +371,7 @@ If the `eslintPath` is a folder like the official ESLint, or you specify a `form
 
 ### Suppressions
 
-[Bulk suppressions](https://eslint.org/docs/latest/use/suppressions) work through the same pass-through: enable ESLint's own `applySuppressions`, and point `suppressionsLocation` at the file if it is not the default `eslint-suppressions.json`.
+[Bulk suppressions](https://eslint.org/docs/latest/use/suppressions) are supported: enable ESLint's own `applySuppressions`, and point `suppressionsLocation` at the file if it is not the default `eslint-suppressions.json`.
 
 ```js
 new DiagnosticsPlugin({
@@ -392,7 +392,7 @@ new DiagnosticsPlugin({
 > });
 > ```
 
-This needs ESLint 10. ESLint 9 has suppressions in its CLI only, and rejects the option with `Invalid Options: - Unknown options: applySuppressions`.
+Suppressions need ESLint 9.24 or later. ESLint 10 takes both options itself; below that they reach its CLI alone, so the plugin applies the suppressions after linting instead — the same file, the same paths, the same result.
 
 ## Stylelint
 

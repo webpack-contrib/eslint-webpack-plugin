@@ -1,5 +1,5 @@
 ---
-"diagnostics-webpack-plugin": patch
+"diagnostics-webpack-plugin": minor
 ---
 
-Documented ESLint bulk suppressions. `applySuppressions` and `suppressionsLocation` reach the `ESLint` class through the usual pass-through and need ESLint 10, which is where they became constructor options.
+Added ESLint bulk suppressions. `applySuppressions` and `suppressionsLocation` reach the `ESLint` class as they are on ESLint 10, and on ESLint 9.24 and later the plugin applies the suppressions itself, since ESLint only wires them into its CLI there.

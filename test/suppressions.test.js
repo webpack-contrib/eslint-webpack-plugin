@@ -8,17 +8,14 @@ import { ESLint } from "eslint";
 import pack from "./utils/pack.js";
 
 const fixtures = join(import.meta.dirname, "fixtures");
+const subdirectory = join(fixtures, "subdir");
 const defaultLocation = join(fixtures, "eslint-suppressions.json");
 const customLocation = join(fixtures, "custom-suppressions.json");
 
-// ESLint resolves both the suppressions file and the paths inside it against
-// its own `cwd`, which is why every case sets one.
 const violations = {
-  "suppressed-error.js": {
-    "no-undef": { count: 1 },
-    "no-unused-vars": { count: 1 },
-    "no-var": { count: 1 },
-  },
+  "no-undef": { count: 1 },
+  "no-unused-vars": { count: 1 },
+  "no-var": { count: 1 },
 };
 
 /**
@@ -29,9 +26,10 @@ function writeSuppressions(filePath, suppressions) {
   writeFileSync(filePath, JSON.stringify(suppressions, null, 2));
 }
 
-// `applySuppressions` reached the ESLint constructor in v10; v9 has the
-// feature in its CLI only and rejects the option.
-const supported = Number.parseInt(ESLint.version, 10) >= 10;
+// Suppressions landed in ESLint 9.24, as a CLI feature; the plugin drives the
+// service itself below ESLint 10, which is where it became an option.
+const [major, minor] = ESLint.version.split(".").map(Number);
+const supported = major > 9 || (major === 9 && minor >= 24);
 
 (supported ? describe : describe.skip)("suppressions", () => {
   afterEach(() => {
@@ -52,7 +50,7 @@ const supported = Number.parseInt(ESLint.version, 10) >= 10;
   });
 
   it("should suppress the errors a suppressions file records", async () => {
-    writeSuppressions(defaultLocation, violations);
+    writeSuppressions(defaultLocation, { "suppressed-error.js": violations });
 
     const compiler = pack("suppressed-error", {
       applySuppressions: true,
@@ -66,7 +64,7 @@ const supported = Number.parseInt(ESLint.version, 10) >= 10;
   });
 
   it("should read the suppressions file named by suppressionsLocation", async () => {
-    writeSuppressions(customLocation, violations);
+    writeSuppressions(customLocation, { "suppressed-error.js": violations });
 
     const compiler = pack("suppressed-error", {
       applySuppressions: true,
@@ -77,6 +75,49 @@ const supported = Number.parseInt(ESLint.version, 10) >= 10;
     const stats = await compiler.runAsync();
 
     assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), false);
+  });
+
+  it("should accept an absolute suppressionsLocation", async () => {
+    writeSuppressions(customLocation, { "suppressed-error.js": violations });
+
+    const compiler = pack("suppressed-error", {
+      applySuppressions: true,
+      cwd: fixtures,
+      suppressionsLocation: customLocation,
+    });
+
+    const stats = await compiler.runAsync();
+
+    assert.strictEqual(stats.hasErrors(), false);
+  });
+
+  it("should record a nested file under the path relative to cwd", async () => {
+    writeSuppressions(defaultLocation, {
+      "subdir/suppressed-error.js": violations,
+    });
+
+    const compiler = pack("subdir/suppressed-error", {
+      applySuppressions: true,
+      cwd: fixtures,
+    });
+
+    const stats = await compiler.runAsync();
+
+    assert.strictEqual(stats.hasErrors(), false);
+  });
+
+  it("should reach a suppressions file outside cwd", async () => {
+    writeSuppressions(defaultLocation, { "suppressed-error.js": violations });
+
+    const compiler = pack("subdir/suppressed-error", {
+      applySuppressions: true,
+      cwd: subdirectory,
+      suppressionsLocation: "../eslint-suppressions.json",
+    });
+
+    const stats = await compiler.runAsync();
+
     assert.strictEqual(stats.hasErrors(), false);
   });
 
