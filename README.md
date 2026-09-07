@@ -369,6 +369,31 @@ Path to the `eslint` instance that will be used for linting.
 
 If the `eslintPath` is a folder like the official ESLint, or you specify a `formatter` option, you don't have to install `eslint`.
 
+### Suppressions
+
+[Bulk suppressions](https://eslint.org/docs/latest/use/suppressions) work through the same pass-through: enable ESLint's own `applySuppressions`, and point `suppressionsLocation` at the file if it is not the default `eslint-suppressions.json`.
+
+```js
+new LintPlugin({
+  linters: [{ use: "eslint", applySuppressions: true }],
+});
+```
+
+> [!IMPORTANT]
+>
+> ESLint resolves the suppressions file, and every path recorded inside it, against its own `cwd` — not against the plugin's [`context`](#context). Where the two differ, pass `cwd` to the linter as well:
+>
+> ```js
+> new LintPlugin({
+>   context: "src",
+>   linters: [
+>     { use: "eslint", applySuppressions: true, cwd: import.meta.dirname },
+>   ],
+> });
+> ```
+
+This needs ESLint 10. ESLint 9 has suppressions in its CLI only, and rejects the option with `Invalid Options: - Unknown options: applySuppressions`.
+
 ## Stylelint
 
 Run with `{ use: "stylelint" }`, and requires `stylelint >= 17`. It lints every file matching `files` and `extensions` on disk, whether or not webpack imported it, so a stylesheet nothing imports yet is still checked.

@@ -10,6 +10,7 @@ yarn-debug.log*
 /local
 /reports
 /node_modules
+/test/fixtures/*-suppressions.json
 /test/outputs
 /test/stylelint/outputs
 /test/unified/outputs
