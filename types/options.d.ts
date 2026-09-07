@@ -128,12 +128,6 @@ export type NormalizedOptions = {
  * @returns {NormalizedOptions} normalized plugin options
  */
 export function getOptions(pluginOptions: Options): NormalizedOptions;
-export namespace schema {
-  let type: string;
-  let additionalProperties: boolean;
-  let properties: any;
-  let required: string[];
-}
 /**
  * Runs from `compiler.hooks.validate`, so webpack's own `validate: false`
  * turns it off the way it does for webpack's plugins.

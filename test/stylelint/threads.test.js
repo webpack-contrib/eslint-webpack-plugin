@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import { beforeEach, describe, it } from "node:test";
+import { describe, it } from "node:test";
 
 // @ts-expect-error no types
 import normalizePath from "normalize-path";
 
+import { lintFiles, setup } from "../../src/checks/stylelint-worker.js";
 import { getLoadedStylelint } from "../../src/checks/stylelint.js";
 
 import pack from "./utils/pack.js";
@@ -53,14 +54,6 @@ describe("Threading", () => {
   });
 
   describe("worker coverage", () => {
-    beforeEach(() => {
-      // The worker holds its stylelint path in module state, so drop the copy
-      // a previous test set up.
-      delete require.cache[
-        require.resolve("../../src/checks/stylelint-worker.cjs")
-      ];
-    });
-
     it("worker can start", async () => {
       const mockStylelintPath = join(
         import.meta.dirname,
@@ -72,11 +65,8 @@ describe("Threading", () => {
 
       mock._reset();
 
-      const {
-        lintFiles,
-        setup,
-      } = require("../../src/checks/stylelint-worker.cjs");
-
+      // `setup` resets the path and the cached stylelint, so the module state
+      // another test left behind does not carry into this one.
       setup({ stylelintPath: mockStylelintPath });
 
       await lintFiles("foo");
