@@ -4,7 +4,7 @@ import globby from "globby";
 import micromatch from "micromatch";
 
 import createCheckRunner from "./check.js";
-import { getOptions } from "./options.js";
+import { getOptions, validateOptions } from "./options.js";
 import {
   arrify,
   parseFiles,
@@ -62,6 +62,7 @@ class DiagnosticsWebpackPlugin {
    */
   constructor(options = /** @type {Options} */ ({})) {
     this.key = LINT_PLUGIN;
+    this.given = options;
     this.options = getOptions(options);
     this.run = this.run.bind(this);
   }
@@ -75,16 +76,39 @@ class DiagnosticsWebpackPlugin {
     // this differentiates one from the other when being cached.
     this.key = compiler.name || `${this.key}_${(compilerId += 1)}`;
 
-    const context = this.getContext(compiler);
-    const checks = this.options.checks.map((check) =>
-      this.resolveCheck(compiler, context, check),
-    );
+    const validateGiven = () => {
+      validateOptions(compiler, this.given, this.options.checks);
+    };
+
+    // The hook, and webpack's `validate: false` with it, arrived in 5.106.
+    if (compiler.hooks.validate) {
+      compiler.hooks.validate.tap(this.key, validateGiven);
+    } else {
+      validateGiven();
+    }
+
+    /** @type {ResolvedCheck[] | undefined} */
+    let checks;
+
+    // Resolved on the first build rather than here, so that an option the
+    // schema rejects is reported by the hook above and not by this.
+    const getChecks = () => {
+      if (!checks) {
+        const context = this.getContext(compiler);
+
+        checks = this.options.checks.map((check) =>
+          this.resolveCheck(compiler, context, check),
+        );
+      }
+
+      return checks;
+    };
 
     // If `lintDirtyModulesOnly` is disabled,
     // execute the checks on the build
     if (!this.options.lintDirtyModulesOnly) {
       compiler.hooks.run.tapPromise(this.key, (compiler) =>
-        this.run(compiler, checks),
+        this.run(compiler, getChecks()),
       );
     }
 
@@ -92,7 +116,7 @@ class DiagnosticsWebpackPlugin {
 
     compiler.hooks.watchRun.tapPromise(this.key, (compiler) => {
       if (!hasCompilerRunByDirtyModule) {
-        return this.run(compiler, checks);
+        return this.run(compiler, getChecks());
       }
 
       hasCompilerRunByDirtyModule = false;

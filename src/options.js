@@ -12,6 +12,9 @@ const schemaRequire = createRequire(import.meta.url);
 const pluginSchema = schemaRequire("./options.json");
 const sharedSchema = schemaRequire("./shared-options.json");
 
+const PLUGIN_NAME = "Diagnostics Webpack Plugin";
+
+/** @typedef {import("webpack").Compiler} Compiler */
 /** @typedef {import("./checks/index.js").FormatterOption} FormatterOption */
 /** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
 /** @typedef {import("./checks/index.js").CheckAdapterInput} CheckAdapterInput */
@@ -108,7 +111,7 @@ function toAdapter(use) {
   if (typeof use !== "string") {
     if (!use || typeof use.create !== "function" || !use.name) {
       throw new Error(
-        "Diagnostics Webpack Plugin: `use` needs the name of a built-in check or a check adapter with a `name` and a `create` function.",
+        `${PLUGIN_NAME}: \`use\` needs the name of a built-in check or a check adapter with a \`name\` and a \`create\` function.`,
       );
     }
 
@@ -126,7 +129,7 @@ function toAdapter(use) {
 
   if (!adapter) {
     throw new Error(
-      `Diagnostics Webpack Plugin: unknown check '${use}', expected one of ${[
+      `${PLUGIN_NAME}: unknown check '${use}', expected one of ${[
         ...adapters.keys(),
       ]
         .map((name) => `'${name}'`)
@@ -144,33 +147,16 @@ function toAdapter(use) {
  * @returns {NormalizedOptions} normalized plugin options
  */
 function getOptions(pluginOptions) {
-  validate(/** @type {EXPECTED_ANY} */ (schema), pluginOptions, {
-    name: "Diagnostics Webpack Plugin",
-    baseDataPath: "options",
-  });
-
   const {
     context,
     lintDirtyModulesOnly,
-    checks: entries,
+    checks: entries = [],
     ...shared
   } = pluginOptions;
 
-  const enabled = entries.map((entry, index) => {
+  const enabled = entries.map((entry) => {
     const { use, ...own } = entry;
     const adapter = toAdapter(use);
-
-    validate(
-      /** @type {EXPECTED_ANY} */ ({
-        ...entrySchema,
-        properties: { ...entrySchema.properties, ...adapter.schema.properties },
-      }),
-      entry,
-      {
-        name: `Diagnostics Webpack Plugin (${adapter.label})`,
-        baseDataPath: `options.checks[${index}]`,
-      },
-    );
 
     /** @type {CheckOptions} */
     const options = {
@@ -191,4 +177,47 @@ function getOptions(pluginOptions) {
   return { context, lintDirtyModulesOnly, checks: enabled };
 }
 
-export { getOptions, schema };
+/**
+ * Runs from `compiler.hooks.validate`, so webpack's own `validate: false`
+ * turns it off the way it does for webpack's plugins.
+ * @param {Compiler} compiler compiler
+ * @param {Options} pluginOptions the options as they were given
+ * @param {EnabledCheck[]} checks the checks resolved from them
+ * @returns {void}
+ */
+function validateOptions(compiler, pluginOptions, checks) {
+  // `compiler.validate` arrived with the hook, in webpack 5.106.
+  const check = compiler.validate
+    ? compiler.validate.bind(compiler)
+    : /** @type {typeof compiler.validate} */ (
+        (schemaToUse, value, options) =>
+          validate(
+            /** @type {EXPECTED_ANY} */ (schemaToUse),
+            /** @type {EXPECTED_ANY} */ (value),
+            options,
+          )
+      );
+
+  check(/** @type {EXPECTED_ANY} */ (schema), pluginOptions, {
+    name: PLUGIN_NAME,
+    baseDataPath: "options",
+  });
+
+  for (const [index, entry] of (pluginOptions.checks || []).entries()) {
+    const { adapter } = checks[index];
+
+    check(
+      /** @type {EXPECTED_ANY} */ ({
+        ...entrySchema,
+        properties: { ...entrySchema.properties, ...adapter.schema.properties },
+      }),
+      entry,
+      {
+        name: `${PLUGIN_NAME} (${adapter.label})`,
+        baseDataPath: `options.checks[${index}]`,
+      },
+    );
+  }
+}
+
+export { getOptions, schema, validateOptions };

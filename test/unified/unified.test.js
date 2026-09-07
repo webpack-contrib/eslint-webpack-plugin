@@ -25,12 +25,44 @@ const checks = [eslint, stylelint];
 
 describe("unified plugin", () => {
   it("should require at least one check", () => {
+    assert.throws(() => pack("good"), /options misses the property/u);
     assert.throws(
-      () => new DiagnosticsPlugin(),
-      /options misses the property/u,
+      () => pack("good", { checks: [] }),
+      /options\.checks should be a non-empty array/u,
     );
+  });
+
+  it("should reject an option the check does not understand", () => {
     assert.throws(
-      () => new DiagnosticsPlugin({ checks: [] }),
+      () => pack("good", { checks: [{ use: "eslint", extensions: 42 }] }),
+      /options\.checks\[0\]\.extensions should be one of these/u,
+    );
+  });
+
+  it("should validate nothing when webpack's validate is off", () => {
+    assert.doesNotThrow(() =>
+      pack("good", { checks: [] }, { validate: false }),
+    );
+    assert.doesNotThrow(() =>
+      pack(
+        "good",
+        { checks: [{ use: "eslint", extensions: 42 }] },
+        {
+          validate: false,
+        },
+      ),
+    );
+  });
+
+  it("should validate at once where webpack has no validate hook", () => {
+    // webpack below 5.106 has neither the hook nor `compiler.validate`.
+    const compiler = {
+      name: "no-validate-hook",
+      hooks: { run: { tapPromise() {} }, watchRun: { tapPromise() {} } },
+    };
+
+    assert.throws(
+      () => new DiagnosticsPlugin({ checks: [] }).apply(compiler),
       /options\.checks should be a non-empty array/u,
     );
   });

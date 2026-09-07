@@ -1,4 +1,5 @@
 export type EXPECTED_ANY = any;
+export type Compiler = import("webpack").Compiler;
 export type FormatterOption = import("./checks/index.js").FormatterOption;
 export type CheckAdapter = import("./checks/index.js").CheckAdapter;
 export type CheckAdapterInput = import("./checks/index.js").CheckAdapterInput;
@@ -133,3 +134,16 @@ export namespace schema {
   let properties: any;
   let required: string[];
 }
+/**
+ * Runs from `compiler.hooks.validate`, so webpack's own `validate: false`
+ * turns it off the way it does for webpack's plugins.
+ * @param {Compiler} compiler compiler
+ * @param {Options} pluginOptions the options as they were given
+ * @param {EnabledCheck[]} checks the checks resolved from them
+ * @returns {void}
+ */
+export function validateOptions(
+  compiler: Compiler,
+  pluginOptions: Options,
+  checks: EnabledCheck[],
+): void;
