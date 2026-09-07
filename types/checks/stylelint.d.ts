@@ -2,7 +2,7 @@ declare namespace _default {
   export let name: string;
   export let label: string;
   export let filesSource: string;
-  export { schema };
+  export const schema: any;
   export namespace defaults {
     let cache: boolean;
     let cacheLocation: string;
@@ -14,6 +14,7 @@ declare namespace _default {
   export { create };
 }
 export default _default;
+export type EXPECTED_ANY = any;
 export type Formatter = import("stylelint").Formatter;
 export type FormatterType = import("stylelint").FormatterType;
 export type LintResult = import("stylelint").LintResult;
@@ -62,7 +63,6 @@ export function getLoadedStylelint(
 export function getStylelintOptions(
   options: Options,
 ): Partial<StylelintOptions>;
-declare const schema: any;
 /**
  * @param {CheckContext} context check context
  * @returns {Promise<CheckInstance>} stylelint check

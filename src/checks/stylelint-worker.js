@@ -1,10 +1,4 @@
-"use strict";
-
-// eslint-disable-next-line jsdoc/reject-any-type
-/** @typedef {any} EXPECTED_ANY */
-
-const { isAbsolute } = require("node:path");
-const { pathToFileURL } = require("node:url");
+import { importFrom } from "../utils.js";
 
 /** @typedef {import("./stylelint.js").LintResult} LintResult */
 /** @typedef {import("./stylelint.js").StylelintOptions} StylelintOptions */
@@ -19,24 +13,6 @@ let linterOptions;
 
 /** @type {Promise<Stylelint> | null} */
 let stylelintPromise = null;
-
-/**
- * A package name is imported as it is; a path may name a directory or a
- * CommonJS entry, neither of which ESM resolves, so it is resolved first.
- * @param {string} specifier a module specifier or path
- * @returns {Promise<EXPECTED_ANY>} the imported module
- */
-async function importFrom(specifier) {
-  if (!specifier.startsWith(".") && !isAbsolute(specifier)) {
-    return import(specifier);
-  }
-
-  try {
-    return await import(pathToFileURL(require.resolve(specifier)).href);
-  } catch {
-    return import(specifier);
-  }
-}
 
 /**
  * Lazily load stylelint on first use.
@@ -89,4 +65,4 @@ async function lintFiles(files) {
   }));
 }
 
-module.exports = { getStylelint, lintFiles, setup };
+export { getStylelint, lintFiles, setup };

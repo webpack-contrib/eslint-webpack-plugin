@@ -1,5 +1,9 @@
+// eslint-disable-next-line jsdoc/reject-any-type
+/** @typedef {any} EXPECTED_ANY */
+
 import { createRequire } from "node:module";
 import { cpus } from "node:os";
+import { fileURLToPath } from "node:url";
 
 import { Worker as JestWorker } from "jest-worker";
 
@@ -9,18 +13,33 @@ import {
   parseFiles,
 } from "../utils.js";
 
-// JSON is read through CommonJS: import attributes are still ahead of the tooling
-const nodeRequire = createRequire(import.meta.url);
-const pluginSchema = nodeRequire("../options.json");
-const sharedSchema = nodeRequire("../shared-options.json");
-const schema = nodeRequire("./stylelint.json");
-
-// The worker entry stays CommonJS so every runner can load it in a worker thread
-const {
-  getStylelint: getStylelintInstance,
+import {
+  getStylelint as getStylelintInstance,
   lintFiles,
   setup,
-} = nodeRequire("./stylelint-worker.cjs");
+} from "./stylelint-worker.js";
+
+const nodeRequire = createRequire(import.meta.url);
+
+/** @type {{ plugin: EXPECTED_ANY, shared: EXPECTED_ANY, own: EXPECTED_ANY } | undefined} */
+let schemas;
+
+/**
+ * Read on demand, because a build that validates nothing never needs them.
+ * JSON is read through CommonJS: import attributes are still ahead of the tooling.
+ * @returns {{ plugin: EXPECTED_ANY, shared: EXPECTED_ANY, own: EXPECTED_ANY }} the schemas
+ */
+function getSchemas() {
+  if (!schemas) {
+    schemas = {
+      plugin: nodeRequire("../options.json"),
+      shared: nodeRequire("../shared-options.json"),
+      own: nodeRequire("./stylelint.json"),
+    };
+  }
+
+  return schemas;
+}
 
 /** @typedef {import("stylelint").Formatter} Formatter */
 /** @typedef {import("stylelint").FormatterType} FormatterType */
@@ -75,9 +94,9 @@ function getStylelintOptions(options) {
     omitPluginOptions(
       options,
       {
-        ...pluginSchema.properties,
-        ...sharedSchema.properties,
-        ...schema.properties,
+        ...getSchemas().plugin.properties,
+        ...getSchemas().shared.properties,
+        ...getSchemas().own.properties,
       },
       KEPT_OPTIONS,
     )
@@ -106,7 +125,7 @@ function loadStylelint(options) {
  * @returns {Loaded} loaded stylelint
  */
 function loadStylelintThreaded(cacheKey, poolSize, options) {
-  const source = nodeRequire.resolve("./stylelint-worker.cjs");
+  const source = fileURLToPath(import.meta.resolve("./stylelint-worker.js"));
   const local = loadStylelint(options);
 
   let worker = /** @type {Worker | null} */ (
@@ -302,7 +321,9 @@ export default {
   name: "stylelint",
   label: "Stylelint",
   filesSource: "glob",
-  schema,
+  get schema() {
+    return getSchemas().own;
+  },
   defaults: {
     cache: true,
     cacheLocation:
