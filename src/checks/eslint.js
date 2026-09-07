@@ -1,13 +1,33 @@
+// eslint-disable-next-line jsdoc/reject-any-type
+/** @typedef {any} EXPECTED_ANY */
+
 import { createRequire } from "node:module";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { importFrom, omitPluginOptions } from "../utils.js";
 
-// JSON is read through CommonJS: import attributes are still ahead of the tooling
 const nodeRequire = createRequire(import.meta.url);
-const pluginSchema = nodeRequire("../options.json");
-const sharedSchema = nodeRequire("../shared-options.json");
-const schema = nodeRequire("./eslint.json");
+
+/** @type {{ plugin: EXPECTED_ANY, shared: EXPECTED_ANY, own: EXPECTED_ANY } | undefined} */
+let schemas;
+
+/**
+ * Read on demand, because a build that validates nothing never needs them.
+ * JSON is read through CommonJS: import attributes are still ahead of the tooling.
+ * @returns {{ plugin: EXPECTED_ANY, shared: EXPECTED_ANY, own: EXPECTED_ANY }} the schemas
+ */
+function getSchemas() {
+  if (!schemas) {
+    schemas = {
+      plugin: nodeRequire("../options.json"),
+      shared: nodeRequire("../shared-options.json"),
+      own: nodeRequire("./eslint.json"),
+    };
+  }
+
+  return schemas;
+}
 
 /** @typedef {import("eslint").ESLint} ESLint */
 /** @typedef {import("eslint").ESLint.Formatter} Formatter */
@@ -60,24 +80,23 @@ async function removeIgnoredWarnings(eslint, results) {
  * into its CLI alone, so the plugin drives it the way ESLint 10 would.
  * @param {string} specifier the `eslintPath`, or `eslint`
  * @param {ESLintOptions} eslintOptions the options ESLint was given
- * @returns {(results: LintResult[]) => Promise<LintResult[]>} drops suppressed messages
+ * @returns {Promise<(results: LintResult[]) => Promise<LintResult[]>>} drops suppressed messages
  */
-function createSuppressionsFilter(specifier, eslintOptions) {
+async function createSuppressionsFilter(specifier, eslintOptions) {
   const manifest =
     isAbsolute(specifier) || specifier.startsWith(".")
-      ? join(specifier, "package.json")
-      : `${specifier}/package.json`;
+      ? pathToFileURL(join(specifier, "package.json")).href
+      : import.meta.resolve(`${specifier}/package.json`);
 
   let SuppressionsService;
 
   try {
     // `exports` hides the service, so it is read by path rather than specifier.
-    ({ SuppressionsService } = nodeRequire(
-      join(
-        dirname(nodeRequire.resolve(manifest)),
-        "lib/services/suppressions-service.js",
-      ),
-    ));
+    const service = await import(
+      new URL("./lib/services/suppressions-service.js", manifest).href
+    );
+
+    ({ SuppressionsService } = service.default || service);
   } catch (error) {
     throw new Error(
       "`applySuppressions` needs ESLint 9.24 or later, and the ESLint in use does not ship suppressions.",
@@ -126,9 +145,9 @@ function getESLintOptions(options) {
     omitPluginOptions(
       options,
       {
-        ...pluginSchema.properties,
-        ...sharedSchema.properties,
-        ...schema.properties,
+        ...getSchemas().plugin.properties,
+        ...getSchemas().shared.properties,
+        ...getSchemas().own.properties,
       },
       KEPT_OPTIONS,
     )
@@ -167,7 +186,10 @@ async function create({ options }) {
     eslintOptions.applySuppressions &&
     Number.parseInt(ESLint.version, 10) < 10
   ) {
-    applySuppressions = createSuppressionsFilter(specifier, eslintOptions);
+    applySuppressions = await createSuppressionsFilter(
+      specifier,
+      eslintOptions,
+    );
     delete eslintOptions.applySuppressions;
     delete eslintOptions.suppressionsLocation;
   }
@@ -238,7 +260,9 @@ export default {
   name: "eslint",
   label: "ESLint",
   filesSource: "modules",
-  schema,
+  get schema() {
+    return getSchemas().own;
+  },
   defaults: {
     cache: true,
     cacheLocation:

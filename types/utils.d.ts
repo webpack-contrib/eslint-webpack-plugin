@@ -30,8 +30,8 @@ export type EXPECTED_ANY = any;
 export function arrify<T>(value: T): ArrifyResult<T>;
 /**
  * A package name is imported as it is, so a test can still mock it. A path may
- * name a directory or a CommonJS entry, neither of which ESM resolves, so
- * CommonJS resolution finds the file first.
+ * name a directory, which `import.meta.resolve` returns unchanged for
+ * `import` to reject, so CommonJS resolution finds the entry file first.
  * @param {string} specifier a module specifier or path
  * @returns {Promise<EXPECTED_ANY>} the imported module
  */

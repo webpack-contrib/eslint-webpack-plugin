@@ -2,7 +2,7 @@ declare namespace _default {
   export let name: string;
   export let label: string;
   export let filesSource: string;
-  export { schema };
+  export const schema: any;
   export namespace defaults {
     let cache: boolean;
     let cacheLocation: string;
@@ -14,6 +14,7 @@ declare namespace _default {
   export { getESLintOptions };
 }
 export default _default;
+export type EXPECTED_ANY = any;
 export type ESLint = import("eslint").ESLint;
 export type Formatter = import("eslint").ESLint.Formatter;
 export type LintResult = import("eslint").ESLint.LintResult;
@@ -32,7 +33,6 @@ export type ESLintClass = {
  * @returns {ESLintOptions} the options ESLint itself understands
  */
 export function getESLintOptions(options: Options): ESLintOptions;
-declare const schema: any;
 /**
  * @param {CheckContext} context check context
  * @returns {Promise<CheckInstance>} eslint check

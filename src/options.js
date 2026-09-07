@@ -8,9 +8,7 @@ import { validate } from "schema-utils";
 import adapters from "./checks/index.js";
 
 // JSON is read through CommonJS: import attributes are still ahead of the tooling
-const schemaRequire = createRequire(import.meta.url);
-const pluginSchema = schemaRequire("./options.json");
-const sharedSchema = schemaRequire("./shared-options.json");
+const nodeRequire = createRequire(import.meta.url);
 
 const PLUGIN_NAME = "Diagnostics Webpack Plugin";
 
@@ -81,25 +79,44 @@ const SHARED_DEFAULTS = {
 
 const DEFAULT_FOLDER_TO_EXCLUDE = "**/node_modules/**";
 
-const { use: useProperty, ...pluginProperties } = pluginSchema.properties;
+/** @type {{ schema: EXPECTED_ANY, entrySchema: EXPECTED_ANY } | undefined} */
+let schemas;
 
-const entrySchema = {
-  type: "object",
-  additionalProperties: true,
-  properties: { use: useProperty, ...sharedSchema.properties },
-  required: ["use"],
-};
+/**
+ * Read on demand, because a build that validates nothing never needs them.
+ * JSON is read through CommonJS: import attributes are still ahead of the tooling.
+ * @returns {{ schema: EXPECTED_ANY, entrySchema: EXPECTED_ANY }} the plugin schemas
+ */
+function getSchemas() {
+  if (!schemas) {
+    const pluginSchema = nodeRequire("./options.json");
+    const sharedSchema = nodeRequire("./shared-options.json");
+    const { use: useProperty, ...pluginProperties } = pluginSchema.properties;
 
-const schema = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    ...pluginProperties,
-    ...sharedSchema.properties,
-    checks: { ...pluginProperties.checks, items: entrySchema },
-  },
-  required: ["checks"],
-};
+    const entrySchema = {
+      type: "object",
+      additionalProperties: true,
+      properties: { use: useProperty, ...sharedSchema.properties },
+      required: ["use"],
+    };
+
+    schemas = {
+      entrySchema,
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          ...pluginProperties,
+          ...sharedSchema.properties,
+          checks: { ...pluginProperties.checks, items: entrySchema },
+        },
+        required: ["checks"],
+      },
+    };
+  }
+
+  return schemas;
+}
 
 /**
  * A `use` is either the name of a built-in check or an adapter of its own, so
@@ -192,13 +209,15 @@ function validateOptions(compiler, pluginOptions, checks) {
     : /** @type {typeof compiler.validate} */ (
         (schemaToUse, value, options) =>
           validate(
-            /** @type {EXPECTED_ANY} */ (schemaToUse),
+            /** @type {EXPECTED_ANY} */ (
+              typeof schemaToUse === "function" ? schemaToUse() : schemaToUse
+            ),
             /** @type {EXPECTED_ANY} */ (value),
             options,
           )
       );
 
-  check(/** @type {EXPECTED_ANY} */ (schema), pluginOptions, {
+  check(() => getSchemas().schema, pluginOptions, {
     name: PLUGIN_NAME,
     baseDataPath: "options",
   });
@@ -207,10 +226,17 @@ function validateOptions(compiler, pluginOptions, checks) {
     const { adapter } = checks[index];
 
     check(
-      /** @type {EXPECTED_ANY} */ ({
-        ...entrySchema,
-        properties: { ...entrySchema.properties, ...adapter.schema.properties },
-      }),
+      () => {
+        const { entrySchema } = getSchemas();
+
+        return {
+          ...entrySchema,
+          properties: {
+            ...entrySchema.properties,
+            ...adapter.schema.properties,
+          },
+        };
+      },
       entry,
       {
         name: `${PLUGIN_NAME} (${adapter.label})`,
@@ -220,4 +246,4 @@ function validateOptions(compiler, pluginOptions, checks) {
   }
 }
 
-export { getOptions, schema, validateOptions };
+export { getOptions, validateOptions };
