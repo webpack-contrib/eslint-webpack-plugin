@@ -1,4 +1,7 @@
-import { getESLintOptions } from "../src/linters/eslint";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+
+import { getESLintOptions } from "../src/linters/eslint.js";
 
 describe("eslint options", () => {
   it("should filter loader options", () => {
@@ -6,7 +9,7 @@ describe("eslint options", () => {
       formatter: "table",
       ignore: false,
     };
-    expect(getESLintOptions(options)).toStrictEqual({
+    assert.deepStrictEqual(getESLintOptions(options), {
       ignore: false,
     });
   });
@@ -24,7 +27,7 @@ describe("eslint options", () => {
       quiet: false,
       outputReport: true,
     };
-    expect(getESLintOptions(options)).toStrictEqual({
+    assert.deepStrictEqual(getESLintOptions(options), {
       fix: true,
     });
   });

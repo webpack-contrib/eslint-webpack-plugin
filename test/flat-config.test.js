@@ -1,5 +1,8 @@
+import assert from "node:assert/strict";
 import { join } from "node:path";
-import pack from "./utils/pack";
+import { describe, it } from "node:test";
+
+import pack from "./utils/pack.js";
 
 describe("succeed on flat-configuration", () => {
   it("should work with flat configuration type", async () => {
@@ -16,9 +19,9 @@ describe("succeed on flat-configuration", () => {
     const stats = await compiler.runAsync();
     const { errors } = stats.compilation;
 
-    expect(stats.hasErrors()).toBe(true);
-    expect(errors).toHaveLength(1);
-    expect(errors[0].message).toMatch(/full-of-problems\.js/i);
-    expect(stats.hasWarnings()).toBe(true);
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.strictEqual(errors.length, 1);
+    assert.match(errors[0].message, /full-of-problems\.js/i);
+    assert.strictEqual(stats.hasWarnings(), true);
   });
 });

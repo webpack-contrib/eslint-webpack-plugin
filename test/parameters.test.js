@@ -1,4 +1,7 @@
-import pack from "./utils/pack";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+
+import pack from "./utils/pack.js";
 
 describe("parameters", () => {
   it("should supports query strings parameters", async () => {
@@ -10,7 +13,7 @@ describe("parameters", () => {
     const compiler = pack("good", loaderOptions);
 
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(false);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), false);
   });
 });

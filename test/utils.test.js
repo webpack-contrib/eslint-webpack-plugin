@@ -1,79 +1,52 @@
-import { jest } from "@jest/globals";
+import assert from "node:assert/strict";
+import { join } from "node:path";
+import { describe, it } from "node:test";
 
-jest.unstable_mockModule("node:fs", () => ({
-  statSync(pattern) {
-    return {
-      isDirectory() {
-        return pattern.indexOf("/path/") === 0;
-      },
-    };
-  },
-}));
+import { parseFiles, parseFoldersToGlobs } from "../src/utils.js";
 
-const { parseFiles, parseFoldersToGlobs } = await import("../src/utils.js");
+// `parseFoldersToGlobs` stats what it is given, so the fixtures have to exist.
+const directory = join(import.meta.dirname, "fixtures");
+const file = join(import.meta.dirname, "fixtures", "good.js");
 
 describe("utils", () => {
   it("parseFiles should return relative files from context", () => {
-    expect(
-      parseFiles(
-        ["**/*", "../package-a/src/**/", "../package-b/src/**/"],
-        "main/src",
-      ),
-    ).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining("main/src/**/*"),
-        expect.stringContaining("main/package-a/src/**"),
-        expect.stringContaining("main/package-b/src/**"),
-      ]),
+    const [all, packageA, packageB] = parseFiles(
+      ["**/*", "../package-a/src/**/", "../package-b/src/**/"],
+      "main/src",
     );
+
+    assert.ok(all.endsWith("main/src/**/*"));
+    assert.ok(packageA.endsWith("main/package-a/src/**"));
+    assert.ok(packageB.endsWith("main/package-b/src/**"));
   });
 
   it("parseFoldersToGlobs should return globs for folders", () => {
-    const withoutSlash = "/path/to/code";
-    const withSlash = `${withoutSlash}/`;
+    assert.deepStrictEqual(parseFoldersToGlobs(directory, "js"), [
+      `${directory}/**/*.js`,
+    ]);
+    assert.deepStrictEqual(parseFoldersToGlobs(`${directory}/`, "js"), [
+      `${directory}/**/*.js`,
+    ]);
 
-    expect(parseFoldersToGlobs(withoutSlash, "js")).toMatchInlineSnapshot(`
-    [
-      "/path/to/code/**/*.js",
-    ]
-  `);
-    expect(parseFoldersToGlobs(withSlash, "js")).toMatchInlineSnapshot(`
-    [
-      "/path/to/code/**/*.js",
-    ]
-  `);
-
-    expect(
+    assert.deepStrictEqual(
       parseFoldersToGlobs(
-        [withoutSlash, withSlash, "/some/file.js"],
+        [directory, `${directory}/`, file],
         ["js", "cjs", "mjs"],
       ),
-    ).toMatchInlineSnapshot(`
-    [
-      "/path/to/code/**/*.{js,cjs,mjs}",
-      "/path/to/code/**/*.{js,cjs,mjs}",
-      "/some/file.js",
-    ]
-  `);
+      [
+        `${directory}/**/*.{js,cjs,mjs}`,
+        `${directory}/**/*.{js,cjs,mjs}`,
+        file,
+      ],
+    );
 
-    expect(parseFoldersToGlobs(withoutSlash)).toMatchInlineSnapshot(`
-    [
-      "/path/to/code/**",
-    ]
-  `);
-
-    expect(parseFoldersToGlobs(withSlash)).toMatchInlineSnapshot(`
-    [
-      "/path/to/code/**",
-    ]
-  `);
+    assert.deepStrictEqual(parseFoldersToGlobs(directory), [`${directory}/**`]);
+    assert.deepStrictEqual(parseFoldersToGlobs(`${directory}/`), [
+      `${directory}/**`,
+    ]);
   });
 
   it("parseFoldersToGlobs should return unmodified globs for globs (ignoring extensions)", () => {
-    expect(parseFoldersToGlobs("**.notjs", "js")).toMatchInlineSnapshot(`
-    [
-      "**.notjs",
-    ]
-  `);
+    assert.deepStrictEqual(parseFoldersToGlobs("**.notjs", "js"), ["**.notjs"]);
   });
 });

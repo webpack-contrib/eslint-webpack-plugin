@@ -1,6 +1,9 @@
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+
 import webpack from "webpack";
 
-import conf from "./utils/conf";
+import conf from "./utils/conf.js";
 
 const PLUGIN_NAME = "ChildPlugin";
 class ChildPlugin {
@@ -24,7 +27,7 @@ class ChildPlugin {
 }
 
 describe("child compiler", () => {
-  it("should have linting process", (done) => {
+  it("should have linting process", (t, done) => {
     const config = conf("good");
     config.plugins.push(
       new ChildPlugin({
@@ -34,9 +37,9 @@ describe("child compiler", () => {
       }),
     );
     webpack(config).run((err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasErrors()).toBe(false);
-      expect(stats.hasWarnings()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasErrors(), false);
+      assert.strictEqual(stats.hasWarnings(), true);
       done();
     });
   });

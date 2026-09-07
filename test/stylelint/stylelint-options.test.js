@@ -1,4 +1,7 @@
-import { getStylelintOptions } from "../../src/linters/stylelint";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+
+import { getStylelintOptions } from "../../src/linters/stylelint.js";
 
 describe("eslint options", () => {
   it("should filter plugin options", () => {
@@ -6,7 +9,7 @@ describe("eslint options", () => {
       formatter: "json",
       emitError: false,
     };
-    expect(getStylelintOptions(options)).toStrictEqual({
+    assert.deepStrictEqual(getStylelintOptions(options), {
       formatter: "json",
     });
   });
@@ -23,7 +26,7 @@ describe("eslint options", () => {
       quiet: false,
       outputReport: true,
     };
-    expect(getStylelintOptions(options)).toStrictEqual({
+    assert.deepStrictEqual(getStylelintOptions(options), {
       formatter: "json",
       files: ["file.scss"],
     });

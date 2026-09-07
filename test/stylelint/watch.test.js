@@ -1,8 +1,9 @@
+import assert from "node:assert/strict";
+import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { afterEach, describe, it } from "node:test";
 
-import { removeSync, writeFileSync } from "fs-extra";
-
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 const target = join(import.meta.dirname, "fixtures", "watch", "entry.scss");
 const target2 = join(import.meta.dirname, "fixtures", "watch", "leaf.scss");
@@ -14,22 +15,22 @@ describe("watch", () => {
     if (watch) {
       watch.close();
     }
-    removeSync(target);
-    removeSync(target2);
+    rmSync(target, { force: true, recursive: true });
+    rmSync(target2, { force: true, recursive: true });
   });
 
-  it("should watch", (done) => {
+  it("should watch", (t, done) => {
     const compiler = pack("good");
 
     watch = compiler.watch({}, (err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), false);
       done();
     });
   });
 
-  it("should watch with unique messages", (done) => {
+  it("should watch with unique messages", (t, done) => {
     writeFileSync(target, "#foo { background: black; }\n");
     writeFileSync(target2, "");
 
@@ -39,49 +40,49 @@ describe("watch", () => {
     watch = compiler.watch({}, (err, stats) => next(err, stats));
 
     function finish(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), false);
       done();
     }
 
     function thirdPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
+      assert.strictEqual(errors.length, 1);
       const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching("entry.scss"));
-      expect(message).not.toEqual(expect.stringMatching("leaf.scss"));
+      assert.match(message, /entry.scss/u);
+      assert.doesNotMatch(message, /leaf.scss/u);
 
       next = finish;
       writeFileSync(target, "#bar { background: #000000; }\n");
     }
 
     function secondPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
+      assert.strictEqual(errors.length, 1);
       const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching("entry.scss"));
-      expect(message).toEqual(expect.stringMatching("leaf.scss"));
+      assert.match(message, /entry.scss/u);
+      assert.match(message, /leaf.scss/u);
 
       next = thirdPass;
       writeFileSync(target2, "#bar { background: #000000; }\n");
     }
 
     function firstPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
+      assert.strictEqual(errors.length, 1);
       const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching("entry.scss"));
-      expect(message).not.toEqual(expect.stringMatching("leaf.scss"));
+      assert.match(message, /entry.scss/u);
+      assert.doesNotMatch(message, /leaf.scss/u);
 
       next = secondPass;
       writeFileSync(target2, "#bar { background: black; }\n");

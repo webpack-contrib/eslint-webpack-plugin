@@ -1,9 +1,9 @@
-import { writeFileSync } from "node:fs";
+import assert from "node:assert/strict";
+import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { afterEach, describe, it } from "node:test";
 
-import { removeSync } from "fs-extra";
-
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 const target = join(
   import.meta.dirname,
@@ -18,10 +18,10 @@ describe("lint dirty modules only", () => {
     if (watch) {
       watch.close();
     }
-    removeSync(target);
+    rmSync(target, { force: true, recursive: true });
   });
 
-  it("skips linting on initial run", (done) => {
+  it("skips linting on initial run", (t, done) => {
     writeFileSync(target, "const foo = false\n");
 
     // eslint-disable-next-line no-use-before-define
@@ -32,21 +32,19 @@ describe("lint dirty modules only", () => {
     watch = compiler.watch({}, (err, stats) => next(err, stats));
 
     function secondPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
-      expect(stats.compilation.errors[0].message).toEqual(
-        expect.stringMatching("no-unused-vars"),
-      );
+      assert.strictEqual(errors.length, 1);
+      assert.match(stats.compilation.errors[0].message, /no-unused-vars/u);
       done();
     }
 
     function firstPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), false);
 
       next = secondPass;
 

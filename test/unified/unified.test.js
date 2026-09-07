@@ -1,12 +1,11 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, it, mock } from "node:test";
 
-import { jest } from "@jest/globals";
+import LintPlugin from "../../src/index.js";
 
-import { existsSync, readFileSync } from "fs-extra";
-
-import LintPlugin from "../../src";
-
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 const eslint = {
   use: "eslint",
@@ -26,21 +25,24 @@ const linters = [eslint, stylelint];
 
 describe("unified plugin", () => {
   it("should require at least one linter", () => {
-    expect(() => new LintPlugin()).toThrow("options misses the property");
-    expect(() => new LintPlugin({ linters: [] })).toThrow(
-      "options.linters should be a non-empty array",
+    assert.throws(() => new LintPlugin(), /options misses the property/u);
+    assert.throws(
+      () => new LintPlugin({ linters: [] }),
+      /options\.linters should be a non-empty array/u,
     );
   });
 
   it("should reject a linter it does not know", () => {
-    expect(() => new LintPlugin({ linters: [{ use: "prettier" }] })).toThrow(
-      "unknown linter 'prettier'",
+    assert.throws(
+      () => new LintPlugin({ linters: [{ use: "prettier" }] }),
+      /unknown linter 'prettier'/u,
     );
   });
 
   it("should reject an adapter that cannot lint", () => {
-    expect(() => new LintPlugin({ linters: [{ use: { name: "x" } }] })).toThrow(
-      "a `name` and a `create` function",
+    assert.throws(
+      () => new LintPlugin({ linters: [{ use: { name: "x" } }] }),
+      /a `name` and a `create` function/u,
     );
   });
 
@@ -52,17 +54,17 @@ describe("unified plugin", () => {
       ...stats.compilation.warnings,
     ].map(({ message }) => message);
 
-    expect(stats.hasErrors()).toBe(true);
-    expect(stats.hasWarnings()).toBe(true);
-    expect(messages.join("\n")).toEqual(expect.stringMatching("bad.js"));
-    expect(messages.join("\n")).toEqual(expect.stringMatching("bad.scss"));
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.strictEqual(stats.hasWarnings(), true);
+    assert.match(messages.join("\n"), /bad.js/u);
+    assert.match(messages.join("\n"), /bad.scss/u);
   });
 
   it("should lint nothing to report when every file is fine", async () => {
     const compiler = pack("good", { linters });
     const stats = await compiler.runAsync();
-    expect(stats.hasErrors()).toBe(false);
-    expect(stats.hasWarnings()).toBe(false);
+    assert.strictEqual(stats.hasErrors(), false);
+    assert.strictEqual(stats.hasWarnings(), false);
   });
 
   it("should run a linter given no options of its own", async () => {
@@ -73,10 +75,8 @@ describe("unified plugin", () => {
     });
     const stats = await compiler.runAsync();
 
-    expect(stats.hasErrors()).toBe(true);
-    expect(stats.compilation.errors[0].message).toEqual(
-      expect.stringMatching("bad.scss"),
-    );
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.match(stats.compilation.errors[0].message, /bad.scss/u);
   });
 
   it("should let a linter override a shared option", async () => {
@@ -87,8 +87,8 @@ describe("unified plugin", () => {
     const stats = await compiler.runAsync();
     const [error] = stats.compilation.errors;
 
-    expect(stats.compilation.errors).toHaveLength(1);
-    expect(error.message).toEqual(expect.stringMatching("bad.scss"));
+    assert.strictEqual(stats.compilation.errors.length, 1);
+    assert.match(error.message, /bad.scss/u);
   });
 
   it("should run the same linter more than once", async () => {
@@ -101,12 +101,12 @@ describe("unified plugin", () => {
     const stats = await compiler.runAsync();
     const messages = stats.compilation.errors.map(({ message }) => message);
 
-    expect(messages).toHaveLength(1);
-    expect(messages[0]).toEqual(expect.stringMatching("bad.js"));
+    assert.strictEqual(messages.length, 1);
+    assert.match(messages[0], /bad.js/u);
   });
 
   it("should run a linter shipped outside this package", async () => {
-    const lintFiles = jest.fn().mockResolvedValue([{ file: "checked" }]);
+    const lintFiles = mock.fn(async () => [{ file: "checked" }]);
     const compiler = pack("good", {
       linters: [
         {
@@ -125,8 +125,9 @@ describe("unified plugin", () => {
     });
     const stats = await compiler.runAsync();
 
-    expect(lintFiles).toHaveBeenCalled();
-    expect(stats.compilation.errors[0].message).toBe(
+    assert.ok(lintFiles.mock.callCount() > 0);
+    assert.strictEqual(
+      stats.compilation.errors[0].message,
       "[made-up] made up problem",
     );
   });
@@ -134,7 +135,7 @@ describe("unified plugin", () => {
   it("should fail the build when a shared failOnError is set", async () => {
     const compiler = pack("both", { failOnError: true, linters });
 
-    await expect(compiler.runAsync()).rejects.toThrow("bad.js");
+    await assert.rejects(compiler.runAsync(), /bad\.js/u);
   });
 
   it("should join the reports of every linter into one output report", async () => {
@@ -146,17 +147,15 @@ describe("unified plugin", () => {
 
     await compiler.runAsync();
 
-    expect(existsSync(filePath)).toBe(true);
+    assert.strictEqual(existsSync(filePath), true);
 
     const [eslintReport, stylelintReport] = readFileSync(filePath, "utf8")
       .split("\n")
       .map((report) => JSON.parse(report));
 
-    expect(eslintReport).toMatchObject([
-      { filePath: expect.stringContaining("bad.js") },
-    ]);
-    expect(stylelintReport).toMatchObject([
-      { source: expect.stringContaining("bad.scss") },
-    ]);
+    assert.strictEqual(eslintReport.length, 1);
+    assert.ok(eslintReport[0].filePath.includes("bad.js"));
+    assert.strictEqual(stylelintReport.length, 1);
+    assert.ok(stylelintReport[0].source.includes("bad.scss"));
   });
 });

@@ -1,14 +1,14 @@
+import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-
-import { jest } from "@jest/globals";
+import { beforeEach, describe, it } from "node:test";
 
 // @ts-expect-error no types
 import normalizePath from "normalize-path";
 
-import { getLoadedStylelint } from "../../src/linters/stylelint";
+import { getLoadedStylelint } from "../../src/linters/stylelint.js";
 
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 const require = createRequire(import.meta.url);
 
@@ -16,19 +16,19 @@ describe("Threading", () => {
   it("should don't throw error if file is ok with threads", async () => {
     const compiler = pack("good", { threads: 2 });
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(false);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), false);
   });
 
   it("threaded interface should look like non-threaded interface", async () => {
     const single = getLoadedStylelint("single", {});
     const threaded = getLoadedStylelint("threaded", { threads: 2 });
     for (const key of Object.keys(single)) {
-      expect(typeof single[key]).toEqual(typeof threaded[key]);
+      assert.deepStrictEqual(typeof single[key], typeof threaded[key]);
     }
 
-    expect(single.lintFiles).not.toBe(threaded.lintFiles);
-    expect(single.cleanup).not.toBe(threaded.cleanup);
+    assert.notStrictEqual(single.lintFiles, threaded.lintFiles);
+    assert.notStrictEqual(single.cleanup, threaded.cleanup);
 
     single.cleanup();
     threaded.cleanup();
@@ -45,8 +45,8 @@ describe("Threading", () => {
           normalizePath(join(import.meta.dirname, "fixtures/error/test.scss")),
         ),
       ]);
-      expect(good[0].errored).toBe(false);
-      expect(bad[0].errored).toBe(true);
+      assert.strictEqual(good[0].errored, false);
+      assert.strictEqual(bad[0].errored, true);
     } finally {
       threaded.cleanup();
     }
@@ -54,7 +54,11 @@ describe("Threading", () => {
 
   describe("worker coverage", () => {
     beforeEach(() => {
-      jest.resetModules();
+      // The worker holds its stylelint path in module state, so drop the copy
+      // a previous test set up.
+      delete require.cache[
+        require.resolve("../../src/linters/stylelint-worker.cjs")
+      ];
     });
 
     it("worker can start", async () => {
@@ -68,7 +72,6 @@ describe("Threading", () => {
 
       mock._reset();
 
-      // Now require the worker (fresh copy due to resetModules)
       const {
         lintFiles,
         setup,
@@ -78,10 +81,10 @@ describe("Threading", () => {
 
       await lintFiles("foo");
 
-      expect(mock._calls[0]).toMatchObject({
-        files: "foo",
-        quietDeprecationWarnings: true,
-      });
+      const [call] = mock._calls;
+
+      assert.strictEqual(call.files, "foo");
+      assert.strictEqual(call.quietDeprecationWarnings, true);
     });
   });
 });

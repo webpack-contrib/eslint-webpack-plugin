@@ -1,8 +1,9 @@
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, it } from "node:test";
 
-import { existsSync, readFileSync } from "fs-extra";
-
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 describe("output report", () => {
   it("should output report a default formatter", async () => {
@@ -11,9 +12,9 @@ describe("output report", () => {
       outputReport: { filePath },
     });
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(true);
-    expect(existsSync(join(compiler.outputPath, filePath))).toBe(true);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.strictEqual(existsSync(join(compiler.outputPath, filePath)), true);
   });
 
   it("should output report with a custom formatter", async () => {
@@ -25,11 +26,12 @@ describe("output report", () => {
       },
     });
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(true);
-    expect(existsSync(filePath)).toBe(true);
-    expect(JSON.parse(readFileSync(filePath, "utf8"))).toMatchObject([
-      { source: expect.stringContaining("test.scss") },
-    ]);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.strictEqual(existsSync(filePath), true);
+    const report = JSON.parse(readFileSync(filePath, "utf8"));
+
+    assert.strictEqual(report.length, 1);
+    assert.ok(report[0].source.includes("test.scss"));
   });
 });

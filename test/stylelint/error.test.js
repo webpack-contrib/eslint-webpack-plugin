@@ -1,19 +1,15 @@
+import assert from "node:assert/strict";
 import { join } from "node:path";
+import { describe, it } from "node:test";
 
-import { jest } from "@jest/globals";
-
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 describe("error", () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it("should return error if file is bad", async () => {
     const compiler = pack("error");
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(true);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), true);
   });
 
   it("should propagate stylelint lint exceptions as errors", async () => {
@@ -22,8 +18,8 @@ describe("error", () => {
 
     const compiler = pack("good", { stylelintPath: mockStylelintPath });
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(true);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), true);
   });
 
   it("should propagate stylelint load exceptions as errors", async () => {
@@ -35,7 +31,7 @@ describe("error", () => {
 
     const compiler = pack("good", { stylelintPath: mockStylelintPath });
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(true);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), true);
   });
 });
