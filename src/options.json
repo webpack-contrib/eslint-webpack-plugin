@@ -10,13 +10,13 @@
       "description": "Lint only changed files, skip lint on start.",
       "type": "boolean"
     },
-    "linters": {
-      "description": "The linters to run, each with the options only it understands.",
+    "checks": {
+      "description": "The checks to run, each with the options only it understands.",
       "type": "array",
       "minItems": 1
     },
     "use": {
-      "description": "The linter to run, either the name of a built-in one or a linter adapter.",
+      "description": "The check to run, either the name of a built-in one or a check adapter.",
       "anyOf": [{ "type": "string" }, { "type": "object" }]
     }
   }

@@ -51,7 +51,7 @@ export function jsonStringifyReplacerSortKeys(
  * @param {{ [key: string]: EXPECTED_ANY }} options options
  * @param {{ [key: string]: EXPECTED_ANY }} properties schema properties to drop
  * @param {string[]=} keep keys to keep even when the schema describes them
- * @returns {{ [key: string]: EXPECTED_ANY }} options the linter itself understands
+ * @returns {{ [key: string]: EXPECTED_ANY }} options the tool itself understands
  */
 export function omitPluginOptions(
   options: {

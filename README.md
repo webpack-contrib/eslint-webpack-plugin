@@ -11,32 +11,32 @@
 [![discussion][discussion]][discussion-url]
 [![size][size]][size-url]
 
-# lint-webpack-plugin
+# diagnostics-webpack-plugin
 
 > This plugin only supports webpack 5 and Node.js `>= 22.12.0`.
 
-This plugin runs linters and diagnostic tools over your sources during the webpack build and reports what they find as webpack errors and warnings.
+This plugin runs linters, type checkers and other diagnostic tools over your sources during the webpack build and reports what they find as webpack errors and warnings.
 
 It replaces `eslint-webpack-plugin` and `stylelint-webpack-plugin`: one plugin, one place to configure how problems are reported, and one pass over your project. Today it runs [`ESLint`](https://eslint.org/) and [`Stylelint`](https://stylelint.io/); more linters and diagnostic tools are meant to be added the same way.
 
 ## Getting Started
 
-To begin, you'll need to install `lint-webpack-plugin`:
+To begin, you'll need to install `diagnostics-webpack-plugin`:
 
 ```console
-npm install lint-webpack-plugin --save-dev
+npm install diagnostics-webpack-plugin --save-dev
 ```
 
 or
 
 ```console
-yarn add -D lint-webpack-plugin
+yarn add -D diagnostics-webpack-plugin
 ```
 
 or
 
 ```console
-pnpm add -D lint-webpack-plugin
+pnpm add -D diagnostics-webpack-plugin
 ```
 
 > [!NOTE]
@@ -47,16 +47,16 @@ pnpm add -D lint-webpack-plugin
 npm install eslint stylelint --save-dev
 ```
 
-Then add the plugin to your webpack configuration and enable a linter for each language you want checked:
+Then add the plugin to your webpack configuration and enable a check for each language you want inspected:
 
 ```js
-import LintPlugin from "lint-webpack-plugin";
+import DiagnosticsPlugin from "diagnostics-webpack-plugin";
 
 export default {
   // ...
   plugins: [
-    new LintPlugin({
-      linters: [
+    new DiagnosticsPlugin({
+      checks: [
         { use: "eslint", extensions: ["js", "mjs"] },
         { use: "stylelint", extensions: ["css", "scss"] },
       ],
@@ -69,30 +69,30 @@ export default {
 The package ships an ECMAScript build next to a CommonJS one, so a CommonJS configuration works just as well:
 
 ```js
-const LintPlugin = require("lint-webpack-plugin");
+const DiagnosticsPlugin = require("diagnostics-webpack-plugin");
 ```
 
 ## Options
 
 The plugin options have three layers:
 
-| Layer                     | Where it goes                     | What it covers                                                                         |
-| :------------------------ | :-------------------------------- | :------------------------------------------------------------------------------------- |
-| [Plugin](#plugin-options) | Top level only                    | How the plugin schedules its work, for every linter at once.                           |
-| [Shared](#shared-options) | Top level or in a `linters` entry | Which files are linted and how problems are reported. An entry overrides what it sets. |
-| Linter                    | In a `linters` entry              | Options only that linter understands, plus everything its own Node.js API accepts.     |
+| Layer                     | Where it goes                    | What it covers                                                                         |
+| :------------------------ | :------------------------------- | :------------------------------------------------------------------------------------- |
+| [Plugin](#plugin-options) | Top level only                   | How the plugin schedules its work, for every check at once.                            |
+| [Shared](#shared-options) | Top level or in a `checks` entry | Which files are linted and how problems are reported. An entry overrides what it sets. |
+| Check                     | In a `checks` entry              | Options only that tool understands, plus everything its own Node.js API accepts.       |
 
-Every linter to run is an entry in `linters`, named by its `use`. The list may name the same linter more than once, so one instance can lint two file sets under different configurations.
+Every check to run is an entry in `checks`, named by its `use`. The list may name the same tool more than once, so one instance can inspect two file sets under different configurations.
 
 ```js
-new LintPlugin({
+new DiagnosticsPlugin({
   // Plugin options
   context: "src",
-  // Shared options, every linter uses them unless it says otherwise
+  // Shared options, every check uses them unless it says otherwise
   failOnError: true,
   exclude: ["node_modules", "vendor"],
-  // The linters to run, each with the options only it understands
-  linters: [
+  // The checks to run, each with the options only it understands
+  checks: [
     { use: "eslint", extensions: ["js", "ts"], fix: true },
     { use: "stylelint", extensions: ["css", "scss"], threads: true },
   ],
@@ -127,7 +127,7 @@ Lint only changed files, skipping the initial lint on build start.
 
 ### Shared options
 
-These can be set at the top level, where they apply to every linter, or inside one linter, where they apply to that linter alone.
+These can be set at the top level, where they apply to every check, or inside one check, where they apply to that check alone.
 
 #### `cache`
 
@@ -149,7 +149,7 @@ The cache is enabled by default to decrease execution time.
 type cacheLocation = string;
 ```
 
-- Default: `node_modules/.cache/lint-webpack-plugin/.<linter>cache`
+- Default: `node_modules/.cache/diagnostics-webpack-plugin/.<tool>cache`
 
 Specify the path to the cache location. Can be a file or a directory.
 
@@ -201,7 +201,7 @@ type resourceQueryExclude = RegExp | RegExp[];
 
 - Default: `[]`
 
-Specify the resource query to exclude. Only affects linters that read the module graph, such as ESLint.
+Specify the resource query to exclude. Only affects checks that read the module graph, such as ESLint.
 
 #### `fix`
 
@@ -213,7 +213,7 @@ type fix = boolean;
 
 - Default: `false`
 
-Will enable the autofix feature of the linter.
+Will enable the autofix feature of the tool.
 
 **Be careful: this option will modify source files.**
 
@@ -225,15 +225,15 @@ Will enable the autofix feature of the linter.
 type formatter = string | ((results: LintResult[]) => string);
 ```
 
-- Default: the linter's own default formatter
+- Default: the tool's own default formatter
 
-Accepts the name of a formatter the linter ships, or a function that receives the linter's results and returns the output as a string.
+Accepts the name of a formatter the tool ships, or a function that receives its results and returns the output as a string.
 
 See the [ESLint formatters](https://eslint.org/docs/user-guide/formatters/) and the [Stylelint `formatter` option](https://stylelint.io/user-guide/usage/options#formatter).
 
 ### Errors and warnings
 
-Every linter reports its errors as webpack errors and its warnings as webpack warnings. `emitError` and `emitWarning` choose what is reported at all, and `failOnError` and `failOnWarning` choose whether the build is failed over it.
+Every check reports its errors as webpack errors and its warnings as webpack warnings. `emitError` and `emitWarning` choose what is reported at all, and `failOnError` and `failOnWarning` choose whether the build is failed over it.
 
 #### `emitError`
 
@@ -315,11 +315,11 @@ Write the results to a file, for example a checkstyle xml file for use for repor
 - `filePath`: path to the output report file, relative to `output.path` unless absolute.
 - `formatter`: a different `formatter` for the output file; the default/configured formatter is used when none is passed in.
 
-Set at the top level, every linter appends its report to the same file. Set it inside a `linters` entry to give that linter a file of its own.
+Set at the top level, every check appends its report to the same file. Set it inside a `checks` entry to give that check a file of its own.
 
 ```js
-new LintPlugin({
-  linters: [
+new DiagnosticsPlugin({
+  checks: [
     {
       use: "eslint",
       outputReport: { filePath: "eslint.json", formatter: "json" },
@@ -374,19 +374,19 @@ If the `eslintPath` is a folder like the official ESLint, or you specify a `form
 [Bulk suppressions](https://eslint.org/docs/latest/use/suppressions) work through the same pass-through: enable ESLint's own `applySuppressions`, and point `suppressionsLocation` at the file if it is not the default `eslint-suppressions.json`.
 
 ```js
-new LintPlugin({
-  linters: [{ use: "eslint", applySuppressions: true }],
+new DiagnosticsPlugin({
+  checks: [{ use: "eslint", applySuppressions: true }],
 });
 ```
 
 > [!IMPORTANT]
 >
-> ESLint resolves the suppressions file, and every path recorded inside it, against its own `cwd` — not against the plugin's [`context`](#context). Where the two differ, pass `cwd` to the linter as well:
+> ESLint resolves the suppressions file, and every path recorded inside it, against its own `cwd` — not against the plugin's [`context`](#context). Where the two differ, pass `cwd` to the check as well:
 >
 > ```js
-> new LintPlugin({
+> new DiagnosticsPlugin({
 >   context: "src",
->   linters: [
+>   checks: [
 >     { use: "eslint", applySuppressions: true, cwd: import.meta.dirname },
 >   ],
 > });
@@ -426,17 +426,19 @@ Set to `true` for an auto-selected pool size based on the number of CPUs. Set to
 
 Set to `false`, `1`, or less to disable and only run in the main process.
 
-## Adding a linter
+## Adding a check
 
-A `use` may also be a linter of its own rather than a built-in name, so a linter can ship as its own package without an entry in this one:
+A `use` may also be an adapter of its own rather than a built-in name, so a check can ship as its own package without an entry in this one:
 
 ```js
-new LintPlugin({
-  linters: [{ use: require("lint-webpack-plugin-typescript"), strict: true }],
+new DiagnosticsPlugin({
+  checks: [
+    { use: require("diagnostics-webpack-plugin-typescript"), strict: true },
+  ],
 });
 ```
 
-Such a linter is an object with a `name`, and a `create` returning the five functions the plugin drives it through — what to lint, what came back, which results are errors and which warnings, how to format them, and what to release afterwards:
+Such an adapter is an object with a `name`, and a `create` returning the five functions the plugin drives it through — what to lint, what came back, which results are errors and which warnings, how to format them, and what to release afterwards:
 
 ```js
 module.exports = {
@@ -447,7 +449,7 @@ module.exports = {
   defaults: { extensions: ["ts"] },
   async create({ key, options, compilation }) {
     return {
-      lintFiles: async (files) => runTheLinter(files),
+      lintFiles: async (files) => runTheTool(files),
       getResults: async (results) => results,
       splitResults: (results) => ({ errors: results, warnings: [] }),
       getFormatter: async (formatter) => async (results) => format(results),
@@ -457,43 +459,43 @@ module.exports = {
 };
 ```
 
-`label`, `filesSource`, `defaults`, `defaultExclude` and `schema` are optional; the plugin fills in the defaults of a module-scanning linter that excludes `node_modules`.
+`label`, `filesSource`, `defaults`, `defaultExclude` and `schema` are optional; the plugin fills in the defaults of a module-scanning check that excludes `node_modules`.
 
 ## Migrating
 
 ### From `eslint-webpack-plugin`
 
-Move the options you were passing into a `linters` entry:
+Move the options you were passing into a `checks` entry:
 
 ```diff
 -const ESLintPlugin = require("eslint-webpack-plugin");
-+const LintPlugin = require("lint-webpack-plugin");
++const DiagnosticsPlugin = require("diagnostics-webpack-plugin");
 
  module.exports = {
    plugins: [
 -    new ESLintPlugin({ extensions: ["js"], fix: true }),
-+    new LintPlugin({
-+      linters: [{ use: "eslint", extensions: ["js"], fix: true }],
++    new DiagnosticsPlugin({
++      checks: [{ use: "eslint", extensions: ["js"], fix: true }],
 +    }),
    ],
  };
 ```
 
-The shared options — `context`, `files`, `exclude`, `failOnError` and the rest of [Errors and warnings](#errors-and-warnings) — may stay at the top level instead. Everything else behaves as it did, and the default `cacheLocation` moved to `node_modules/.cache/lint-webpack-plugin/.eslintcache`.
+The shared options — `context`, `files`, `exclude`, `failOnError` and the rest of [Errors and warnings](#errors-and-warnings) — may stay at the top level instead. Everything else behaves as it did, and the default `cacheLocation` moved to `node_modules/.cache/diagnostics-webpack-plugin/.eslintcache`.
 
 ### From `stylelint-webpack-plugin`
 
-Move the options you were passing into a `linters` entry:
+Move the options you were passing into a `checks` entry:
 
 ```diff
 -const StylelintPlugin = require("stylelint-webpack-plugin");
-+const LintPlugin = require("lint-webpack-plugin");
++const DiagnosticsPlugin = require("diagnostics-webpack-plugin");
 
  module.exports = {
    plugins: [
 -    new StylelintPlugin({ extensions: ["css"], threads: true }),
-+    new LintPlugin({
-+      linters: [{ use: "stylelint", extensions: ["css"], threads: true }],
++    new DiagnosticsPlugin({
++      checks: [{ use: "stylelint", extensions: ["css"], threads: true }],
 +    }),
    ],
  };
@@ -505,7 +507,7 @@ Three things changed beyond the option shape:
 - **Errors and warnings are no longer swapped.** Errors are reported as webpack errors and warnings as webpack warnings, whatever `failOnError` and `failOnWarning` say; those two now decide whether the build is failed, not how a problem is reported. Previously `failOnError: false` turned errors into warnings, and `failOnWarning: true` turned warnings into errors.
 - **`failOnError` defaults to `false` in `development` mode**, matching the rest of the plugin, rather than being `true` everywhere.
 
-The default `cacheLocation` moved to `node_modules/.cache/lint-webpack-plugin/.stylelintcache`.
+The default `cacheLocation` moved to `node_modules/.cache/diagnostics-webpack-plugin/.stylelintcache`.
 
 ### Running both
 
@@ -516,10 +518,10 @@ The two plugins become one instance, and options they had in common are written 
    plugins: [
 -    new ESLintPlugin({ context: "src", failOnError: true, extensions: ["js"] }),
 -    new StylelintPlugin({ context: "src", failOnError: true, extensions: ["css"] }),
-+    new LintPlugin({
++    new DiagnosticsPlugin({
 +      context: "src",
 +      failOnError: true,
-+      linters: [
++      checks: [
 +        { use: "eslint", extensions: ["js"] },
 +        { use: "stylelint", extensions: ["css"] },
 +      ],
@@ -538,21 +540,21 @@ We welcome all contributions!
 
 If you're new here, please take a moment to review our contributing guidelines.
 
-[CONTRIBUTING](https://github.com/webpack/lint-webpack-plugin?tab=contributing-ov-file#contributing)
+[CONTRIBUTING](https://github.com/webpack/diagnostics-webpack-plugin?tab=contributing-ov-file#contributing)
 
 ## License
 
 [MIT](./LICENSE)
 
-[npm]: https://img.shields.io/npm/v/lint-webpack-plugin.svg
-[npm-url]: https://npmjs.com/package/lint-webpack-plugin
-[node]: https://img.shields.io/node/v/lint-webpack-plugin.svg
+[npm]: https://img.shields.io/npm/v/diagnostics-webpack-plugin.svg
+[npm-url]: https://npmjs.com/package/diagnostics-webpack-plugin
+[node]: https://img.shields.io/node/v/diagnostics-webpack-plugin.svg
 [node-url]: https://nodejs.org
-[tests]: https://github.com/webpack/lint-webpack-plugin/workflows/lint-webpack-plugin/badge.svg
-[tests-url]: https://github.com/webpack/lint-webpack-plugin/actions
-[cover]: https://codecov.io/gh/webpack/lint-webpack-plugin/branch/main/graph/badge.svg
-[cover-url]: https://codecov.io/gh/webpack/lint-webpack-plugin
+[tests]: https://github.com/webpack/diagnostics-webpack-plugin/workflows/diagnostics-webpack-plugin/badge.svg
+[tests-url]: https://github.com/webpack/diagnostics-webpack-plugin/actions
+[cover]: https://codecov.io/gh/webpack/diagnostics-webpack-plugin/branch/main/graph/badge.svg
+[cover-url]: https://codecov.io/gh/webpack/diagnostics-webpack-plugin
 [discussion]: https://img.shields.io/github/discussions/webpack/webpack
 [discussion-url]: https://github.com/webpack/webpack/discussions
-[size]: https://packagephobia.now.sh/badge?p=lint-webpack-plugin
-[size-url]: https://packagephobia.now.sh/result?p=lint-webpack-plugin
+[size]: https://packagephobia.now.sh/badge?p=diagnostics-webpack-plugin
+[size-url]: https://packagephobia.now.sh/result?p=diagnostics-webpack-plugin

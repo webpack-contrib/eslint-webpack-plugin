@@ -7,9 +7,9 @@ const { isAbsolute } = require("node:path");
 const { pathToFileURL } = require("node:url");
 
 /** @typedef {import("./stylelint.js").LintResult} LintResult */
-/** @typedef {import("./stylelint.js").LinterOptions} StylelintOptions */
+/** @typedef {import("./stylelint.js").StylelintOptions} StylelintOptions */
 /** @typedef {import("./stylelint.js").Stylelint} Stylelint */
-/** @typedef {import("../options.js").LinterOptions} Options */
+/** @typedef {import("../options.js").CheckOptions} Options */
 
 /** @type {string} */
 let stylelintPath = "stylelint";

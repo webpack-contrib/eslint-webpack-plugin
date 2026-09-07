@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import LintError from "../src/LintError.js";
+import DiagnosticError from "../src/DiagnosticError.js";
 
 import pack from "./utils/pack.js";
 
@@ -15,7 +15,7 @@ describe("eslintignore", () => {
     const stats = await compiler.runAsync();
     assert.strictEqual(stats.hasWarnings(), false);
     assert.deepStrictEqual(
-      stats.compilation.errors.filter((x) => x instanceof LintError),
+      stats.compilation.errors.filter((x) => x instanceof DiagnosticError),
       [],
     );
   });

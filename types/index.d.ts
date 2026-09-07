@@ -1,26 +1,26 @@
-export default LintWebpackPlugin;
+export default DiagnosticsWebpackPlugin;
 export type Compilation = import("webpack").Compilation;
 export type Compiler = import("webpack").Compiler;
 export type Module = import("webpack").Module;
 export type NormalModule = import("webpack").NormalModule;
-export type Runner = import("./linter.js").Runner;
-export type LinterAdapter = import("./linters/index.js").LinterAdapter;
-export type EnabledLinter = import("./options.js").EnabledLinter;
-export type LinterOptions = import("./options.js").LinterOptions;
+export type Runner = import("./check.js").Runner;
+export type CheckAdapter = import("./checks/index.js").CheckAdapter;
+export type EnabledCheck = import("./options.js").EnabledCheck;
+export type CheckOptions = import("./options.js").CheckOptions;
 export type Options = import("./options.js").Options;
-export type ResolvedLinter = {
+export type ResolvedCheck = {
   /**
-   * linter name
+   * check name
    */
   name: string;
   /**
-   * linter adapter
+   * the adapter running it
    */
-  adapter: LinterAdapter;
+  adapter: CheckAdapter;
   /**
-   * options resolved for this linter
+   * options resolved for this check
    */
-  options: LinterOptions;
+  options: CheckOptions;
   /**
    * the globs of the files to lint
    */
@@ -30,7 +30,7 @@ export type ResolvedLinter = {
    */
   exclude: string[];
 };
-declare class LintWebpackPlugin {
+declare class DiagnosticsWebpackPlugin {
   /**
    * @param {Options} options options
    */
@@ -39,9 +39,9 @@ declare class LintWebpackPlugin {
   options: import("./options.js").NormalizedOptions;
   /**
    * @param {Compiler} compiler compiler
-   * @param {ResolvedLinter[]} linters the linters to run
+   * @param {ResolvedCheck[]} checks the checks to run
    */
-  run(compiler: Compiler, linters: ResolvedLinter[]): Promise<void>;
+  run(compiler: Compiler, checks: ResolvedCheck[]): Promise<void>;
   /**
    * @param {Compiler} compiler compiler
    * @returns {void}
@@ -50,21 +50,21 @@ declare class LintWebpackPlugin {
   /**
    * @param {Compiler} compiler compiler
    * @param {string} context context
-   * @param {EnabledLinter} linter the linter to resolve the globs of
-   * @returns {ResolvedLinter} the linter with its globs resolved
+   * @param {EnabledCheck} check the check to resolve the globs of
+   * @returns {ResolvedCheck} the check with its globs resolved
    */
-  resolveLinter(
+  resolveCheck(
     compiler: Compiler,
     context: string,
-    { name, adapter, options }: EnabledLinter,
-  ): ResolvedLinter;
+    { name, adapter, options }: EnabledCheck,
+  ): ResolvedCheck;
   /**
-   * @param {ResolvedLinter} linter the linter to create a runner for
+   * @param {ResolvedCheck} check the check to create a runner for
    * @param {Compilation} compilation compilation
    * @returns {Runner} runner
    */
   createRunner(
-    { name, adapter, options }: ResolvedLinter,
+    { name, adapter, options }: ResolvedCheck,
     compilation: Compilation,
   ): Runner;
   /**

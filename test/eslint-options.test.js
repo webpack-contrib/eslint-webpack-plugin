@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { getESLintOptions } from "../src/linters/eslint.js";
+import { getESLintOptions } from "../src/checks/eslint.js";
 
 describe("eslint options", () => {
   it("should filter loader options", () => {

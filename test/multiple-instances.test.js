@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import LintPlugin from "../src/index.js";
+import DiagnosticsPlugin from "../src/index.js";
 
 import pack from "./utils/pack.js";
 
@@ -13,10 +13,10 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({
+          new DiagnosticsPlugin({
             failOnError: true,
             exclude: "error.js",
-            linters: [
+            checks: [
               {
                 use: "eslint",
                 overrideConfigFile: join(
@@ -27,10 +27,10 @@ describe("multiple instances", () => {
               },
             ],
           }),
-          new LintPlugin({
+          new DiagnosticsPlugin({
             failOnError: true,
             exclude: "error.js",
-            linters: [
+            checks: [
               {
                 use: "eslint",
                 overrideConfigFile: join(
@@ -56,10 +56,10 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({
+          new DiagnosticsPlugin({
             failOnError: true,
             exclude: "good.js",
-            linters: [
+            checks: [
               {
                 use: "eslint",
                 overrideConfigFile: join(
@@ -70,10 +70,10 @@ describe("multiple instances", () => {
               },
             ],
           }),
-          new LintPlugin({
+          new DiagnosticsPlugin({
             failOnError: true,
             exclude: "error.js",
-            linters: [
+            checks: [
               {
                 use: "eslint",
                 overrideConfigFile: join(
@@ -97,10 +97,10 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({
+          new DiagnosticsPlugin({
             failOnError: true,
             exclude: "error.js",
-            linters: [
+            checks: [
               {
                 use: "eslint",
                 overrideConfigFile: join(
@@ -111,10 +111,10 @@ describe("multiple instances", () => {
               },
             ],
           }),
-          new LintPlugin({
+          new DiagnosticsPlugin({
             failOnError: true,
             exclude: "good.js",
-            linters: [
+            checks: [
               {
                 use: "eslint",
                 overrideConfigFile: join(

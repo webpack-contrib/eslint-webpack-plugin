@@ -18,10 +18,10 @@ export type ESLint = import("eslint").ESLint;
 export type Formatter = import("eslint").ESLint.Formatter;
 export type LintResult = import("eslint").ESLint.LintResult;
 export type ESLintOptions = import("eslint").ESLint.Options;
-export type FormatterOption = import("../linters/index.js").FormatterOption;
-export type LinterContext = import("../linters/index.js").LinterContext;
-export type LinterInstance = import("../linters/index.js").LinterInstance;
-export type Options = import("../options.js").LinterOptions;
+export type FormatterOption = import("../checks/index.js").FormatterOption;
+export type CheckContext = import("../checks/index.js").CheckContext;
+export type CheckInstance = import("../checks/index.js").CheckInstance;
+export type Options = import("../options.js").CheckOptions;
 export type ESLintClass = {
   new (arg0: ESLintOptions): ESLint;
   outputFixes: (arg0: LintResult[]) => Promise<void>;
@@ -33,7 +33,7 @@ export type ESLintClass = {
 export function getESLintOptions(options: Options): ESLintOptions;
 declare const schema: any;
 /**
- * @param {LinterContext} context linter context
- * @returns {Promise<LinterInstance>} eslint linter
+ * @param {CheckContext} context check context
+ * @returns {Promise<CheckInstance>} eslint check
  */
-declare function create({ options }: LinterContext): Promise<LinterInstance>;
+declare function create({ options }: CheckContext): Promise<CheckInstance>;

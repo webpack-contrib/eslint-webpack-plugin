@@ -3,7 +3,7 @@
   "additionalProperties": true,
   "properties": {
     "cache": {
-      "description": "Enable the linter cache to decrease execution time.",
+      "description": "Enable the tool's cache to decrease execution time.",
       "type": "boolean"
     },
     "cacheLocation": {
@@ -39,7 +39,7 @@
       "anyOf": [{ "type": "string" }, { "type": "array" }]
     },
     "fix": {
-      "description": "Will enable the autofix feature of the linter.",
+      "description": "Will enable the autofix feature of the tool.",
       "type": "boolean"
     },
     "formatter": {

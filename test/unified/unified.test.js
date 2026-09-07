@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, mock } from "node:test";
 
-import LintPlugin from "../../src/index.js";
+import DiagnosticsPlugin from "../../src/index.js";
 
 import pack from "./utils/pack.js";
 
@@ -21,33 +21,36 @@ const stylelint = {
   cache: false,
   configFile: join(import.meta.dirname, ".stylelintrc"),
 };
-const linters = [eslint, stylelint];
+const checks = [eslint, stylelint];
 
 describe("unified plugin", () => {
-  it("should require at least one linter", () => {
-    assert.throws(() => new LintPlugin(), /options misses the property/u);
+  it("should require at least one check", () => {
     assert.throws(
-      () => new LintPlugin({ linters: [] }),
-      /options\.linters should be a non-empty array/u,
+      () => new DiagnosticsPlugin(),
+      /options misses the property/u,
+    );
+    assert.throws(
+      () => new DiagnosticsPlugin({ checks: [] }),
+      /options\.checks should be a non-empty array/u,
     );
   });
 
-  it("should reject a linter it does not know", () => {
+  it("should reject a check it does not know", () => {
     assert.throws(
-      () => new LintPlugin({ linters: [{ use: "prettier" }] }),
-      /unknown linter 'prettier'/u,
+      () => new DiagnosticsPlugin({ checks: [{ use: "prettier" }] }),
+      /unknown check 'prettier'/u,
     );
   });
 
   it("should reject an adapter that cannot lint", () => {
     assert.throws(
-      () => new LintPlugin({ linters: [{ use: { name: "x" } }] }),
+      () => new DiagnosticsPlugin({ checks: [{ use: { name: "x" } }] }),
       /a `name` and a `create` function/u,
     );
   });
 
-  it("should report the problems of every linter it runs", async () => {
-    const compiler = pack("both", { linters });
+  it("should report the problems of every check it runs", async () => {
+    const compiler = pack("both", { checks });
     const stats = await compiler.runAsync();
     const messages = [
       ...stats.compilation.errors,
@@ -61,17 +64,17 @@ describe("unified plugin", () => {
   });
 
   it("should lint nothing to report when every file is fine", async () => {
-    const compiler = pack("good", { linters });
+    const compiler = pack("good", { checks });
     const stats = await compiler.runAsync();
     assert.strictEqual(stats.hasErrors(), false);
     assert.strictEqual(stats.hasWarnings(), false);
   });
 
-  it("should run a linter given no options of its own", async () => {
+  it("should run a check given no options of its own", async () => {
     const compiler = pack("both", {
       // The bundled config of this repository is the one ESLint finds here.
       exclude: "**/*.js",
-      linters: [{ use: "eslint" }, stylelint],
+      checks: [{ use: "eslint" }, stylelint],
     });
     const stats = await compiler.runAsync();
 
@@ -79,10 +82,10 @@ describe("unified plugin", () => {
     assert.match(stats.compilation.errors[0].message, /bad.scss/u);
   });
 
-  it("should let a linter override a shared option", async () => {
+  it("should let a check override a shared option", async () => {
     const compiler = pack("both", {
       emitError: false,
-      linters: [eslint, { ...stylelint, emitError: true }],
+      checks: [eslint, { ...stylelint, emitError: true }],
     });
     const stats = await compiler.runAsync();
     const [error] = stats.compilation.errors;
@@ -91,9 +94,9 @@ describe("unified plugin", () => {
     assert.match(error.message, /bad.scss/u);
   });
 
-  it("should run the same linter more than once", async () => {
+  it("should run the same check more than once", async () => {
     const compiler = pack("both", {
-      linters: [
+      checks: [
         { ...eslint, files: "bad.js" },
         { ...eslint, files: "index.js" },
       ],
@@ -105,10 +108,10 @@ describe("unified plugin", () => {
     assert.match(messages[0], /bad.js/u);
   });
 
-  it("should run a linter shipped outside this package", async () => {
+  it("should run a check shipped outside this package", async () => {
     const lintFiles = mock.fn(async () => [{ file: "checked" }]);
     const compiler = pack("good", {
-      linters: [
+      checks: [
         {
           use: {
             name: "made-up",
@@ -133,16 +136,16 @@ describe("unified plugin", () => {
   });
 
   it("should fail the build when a shared failOnError is set", async () => {
-    const compiler = pack("both", { failOnError: true, linters });
+    const compiler = pack("both", { failOnError: true, checks });
 
     await assert.rejects(compiler.runAsync(), /bad\.js/u);
   });
 
-  it("should join the reports of every linter into one output report", async () => {
+  it("should join the reports of every check into one output report", async () => {
     const filePath = join(import.meta.dirname, "outputs", "report.json");
     const compiler = pack("both", {
       outputReport: { filePath, formatter: "json" },
-      linters,
+      checks,
     });
 
     await compiler.runAsync();

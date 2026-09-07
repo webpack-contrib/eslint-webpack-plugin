@@ -5,16 +5,16 @@ import { createRequire } from "node:module";
 
 import { validate } from "schema-utils";
 
-import linters from "./linters/index.js";
+import adapters from "./checks/index.js";
 
 // JSON is read through CommonJS: import attributes are still ahead of the tooling
 const schemaRequire = createRequire(import.meta.url);
 const pluginSchema = schemaRequire("./options.json");
 const sharedSchema = schemaRequire("./shared-options.json");
 
-/** @typedef {import("./linters/index.js").FormatterOption} FormatterOption */
-/** @typedef {import("./linters/index.js").LinterAdapter} LinterAdapter */
-/** @typedef {import("./linters/index.js").LinterAdapterInput} LinterAdapterInput */
+/** @typedef {import("./checks/index.js").FormatterOption} FormatterOption */
+/** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
+/** @typedef {import("./checks/index.js").CheckAdapterInput} CheckAdapterInput */
 
 /**
  * @typedef {object} OutputReport
@@ -24,7 +24,7 @@ const sharedSchema = schemaRequire("./shared-options.json");
 
 /**
  * @typedef {object} SharedOptions
- * @property {boolean=} cache enable the linter cache to decrease execution time
+ * @property {boolean=} cache enable the tool's cache to decrease execution time
  * @property {string=} cacheLocation specify the path to the cache location
  * @property {boolean=} emitError the errors found will always be emitted
  * @property {boolean=} emitWarning the warnings found will always be emitted
@@ -41,34 +41,34 @@ const sharedSchema = schemaRequire("./shared-options.json");
  */
 
 /**
- * @typedef {SharedOptions & { use: string | LinterAdapterInput, [option: string]: EXPECTED_ANY }} LinterEntry
+ * @typedef {SharedOptions & { use: string | CheckAdapterInput, [option: string]: EXPECTED_ANY }} CheckEntry
  */
 
 /**
- * @typedef {SharedOptions & { [option: string]: EXPECTED_ANY }} LinterOptions
+ * @typedef {SharedOptions & { [option: string]: EXPECTED_ANY }} CheckOptions
  */
 
 /**
  * @typedef {object} PluginOptions
  * @property {string=} context a string indicating the root of your files
  * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
- * @property {LinterEntry[]} linters the linters to run
+ * @property {CheckEntry[]} checks the checks to run
  */
 
 /** @typedef {SharedOptions & PluginOptions} Options */
 
 /**
- * @typedef {object} EnabledLinter
- * @property {string} name linter name
- * @property {LinterAdapter} adapter linter adapter
- * @property {LinterOptions} options options resolved for this linter
+ * @typedef {object} EnabledCheck
+ * @property {string} name check name
+ * @property {CheckAdapter} adapter the adapter running it
+ * @property {CheckOptions} options options resolved for this check
  */
 
 /**
  * @typedef {object} NormalizedOptions
  * @property {string=} context a string indicating the root of your files
  * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
- * @property {EnabledLinter[]} linters the linters to run
+ * @property {EnabledCheck[]} checks the checks to run
  */
 
 const SHARED_DEFAULTS = {
@@ -93,22 +93,22 @@ const schema = {
   properties: {
     ...pluginProperties,
     ...sharedSchema.properties,
-    linters: { ...pluginProperties.linters, items: entrySchema },
+    checks: { ...pluginProperties.checks, items: entrySchema },
   },
-  required: ["linters"],
+  required: ["checks"],
 };
 
 /**
- * A `use` is either the name of a built-in linter or an adapter of its own, so
- * a linter can ship outside this package.
- * @param {string | LinterAdapterInput} use the linter to resolve
- * @returns {LinterAdapter} the adapter to run
+ * A `use` is either the name of a built-in check or an adapter of its own, so
+ * a check can ship outside this package.
+ * @param {string | CheckAdapterInput} use the check to resolve
+ * @returns {CheckAdapter} the adapter to run
  */
 function toAdapter(use) {
   if (typeof use !== "string") {
     if (!use || typeof use.create !== "function" || !use.name) {
       throw new Error(
-        "Lint Webpack Plugin: `use` needs the name of a built-in linter or a linter adapter with a `name` and a `create` function.",
+        "Diagnostics Webpack Plugin: `use` needs the name of a built-in check or a check adapter with a `name` and a `create` function.",
       );
     }
 
@@ -122,15 +122,15 @@ function toAdapter(use) {
     };
   }
 
-  const adapter = linters.get(use);
+  const adapter = adapters.get(use);
 
   if (!adapter) {
     throw new Error(
-      `Lint Webpack Plugin: unknown linter '${use}', expected one of ${[
-        ...linters.keys(),
+      `Diagnostics Webpack Plugin: unknown check '${use}', expected one of ${[
+        ...adapters.keys(),
       ]
         .map((name) => `'${name}'`)
-        .join(", ")} or a linter adapter.`,
+        .join(", ")} or a check adapter.`,
     );
   }
 
@@ -138,21 +138,21 @@ function toAdapter(use) {
 }
 
 /**
- * Splits the options shared by every linter from the per-linter entries and
+ * Splits the options shared by every check from the per-check entries and
  * merges each entry over them.
  * @param {Options} pluginOptions plugin options
  * @returns {NormalizedOptions} normalized plugin options
  */
 function getOptions(pluginOptions) {
   validate(/** @type {EXPECTED_ANY} */ (schema), pluginOptions, {
-    name: "Lint Webpack Plugin",
+    name: "Diagnostics Webpack Plugin",
     baseDataPath: "options",
   });
 
   const {
     context,
     lintDirtyModulesOnly,
-    linters: entries,
+    checks: entries,
     ...shared
   } = pluginOptions;
 
@@ -167,12 +167,12 @@ function getOptions(pluginOptions) {
       }),
       entry,
       {
-        name: `Lint Webpack Plugin (${adapter.label})`,
-        baseDataPath: `options.linters[${index}]`,
+        name: `Diagnostics Webpack Plugin (${adapter.label})`,
+        baseDataPath: `options.checks[${index}]`,
       },
     );
 
-    /** @type {LinterOptions} */
+    /** @type {CheckOptions} */
     const options = {
       ...SHARED_DEFAULTS,
       ...adapter.defaults,
@@ -188,7 +188,7 @@ function getOptions(pluginOptions) {
     return { name: adapter.name, adapter, options };
   });
 
-  return { context, lintDirtyModulesOnly, linters: enabled };
+  return { context, lintDirtyModulesOnly, checks: enabled };
 }
 
 export { getOptions, schema };

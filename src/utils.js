@@ -120,20 +120,20 @@ function parseFoldersToGlobs(patterns, extensions = []) {
  * @param {{ [key: string]: EXPECTED_ANY }} options options
  * @param {{ [key: string]: EXPECTED_ANY }} properties schema properties to drop
  * @param {string[]=} keep keys to keep even when the schema describes them
- * @returns {{ [key: string]: EXPECTED_ANY }} options the linter itself understands
+ * @returns {{ [key: string]: EXPECTED_ANY }} options the tool itself understands
  */
 function omitPluginOptions(options, properties, keep = []) {
-  const linterOptions = { ...options };
+  const toolOptions = { ...options };
 
   // No need to guard the for-in because the schema properties are hardcoded.
 
   for (const option in properties) {
     if (!keep.includes(option)) {
-      delete linterOptions[option];
+      delete toolOptions[option];
     }
   }
 
-  return linterOptions;
+  return toolOptions;
 }
 
 /**

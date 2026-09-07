@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import LintPlugin from "../../../src/index.js";
+import DiagnosticsPlugin from "../../../src/index.js";
 
 export default (context, pluginConf = {}, webpackConf = {}) => {
   const testDir = join(import.meta.dirname, "..");
@@ -12,7 +12,7 @@ export default (context, pluginConf = {}, webpackConf = {}) => {
     output: {
       path: join(testDir, "outputs"),
     },
-    plugins: [new LintPlugin(pluginConf)],
+    plugins: [new DiagnosticsPlugin(pluginConf)],
     ...webpackConf,
   };
 };

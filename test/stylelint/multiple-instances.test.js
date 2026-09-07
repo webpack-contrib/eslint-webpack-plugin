@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import LintPlugin from "../../src/index.js";
+import DiagnosticsPlugin from "../../src/index.js";
 
 import pack from "./utils/pack.js";
 
@@ -12,13 +12,13 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({
+          new DiagnosticsPlugin({
             exclude: "error.scss",
-            linters: [{ use: "stylelint" }],
+            checks: [{ use: "stylelint" }],
           }),
-          new LintPlugin({
+          new DiagnosticsPlugin({
             exclude: "error.scss",
-            linters: [{ use: "stylelint" }],
+            checks: [{ use: "stylelint" }],
           }),
         ],
       },
@@ -35,13 +35,13 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({
+          new DiagnosticsPlugin({
             exclude: "good.scss",
-            linters: [{ use: "stylelint" }],
+            checks: [{ use: "stylelint" }],
           }),
-          new LintPlugin({
+          new DiagnosticsPlugin({
             exclude: "error.scss",
-            linters: [{ use: "stylelint" }],
+            checks: [{ use: "stylelint" }],
           }),
         ],
       },
@@ -58,13 +58,13 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new LintPlugin({
+          new DiagnosticsPlugin({
             exclude: "error.scss",
-            linters: [{ use: "stylelint" }],
+            checks: [{ use: "stylelint" }],
           }),
-          new LintPlugin({
+          new DiagnosticsPlugin({
             exclude: "good.scss",
-            linters: [{ use: "stylelint" }],
+            checks: [{ use: "stylelint" }],
           }),
         ],
       },

@@ -1,8 +1,8 @@
 export type EXPECTED_ANY = any;
 export type LintResult = import("./stylelint.js").LintResult;
-export type StylelintOptions = import("./stylelint.js").LinterOptions;
+export type StylelintOptions = import("./stylelint.js").StylelintOptions;
 export type Stylelint = import("./stylelint.js").Stylelint;
-export type Options = import("../options.js").LinterOptions;
+export type Options = import("../options.js").CheckOptions;
 /**
  * Lazily load stylelint on first use.
  * @returns {Promise<Stylelint>} stylelint instance

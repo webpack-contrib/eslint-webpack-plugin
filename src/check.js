@@ -1,45 +1,45 @@
 import { isAbsolute, join } from "node:path";
 
-import LintError from "./LintError.js";
+import DiagnosticError from "./DiagnosticError.js";
 
 /** @typedef {import("webpack").Compilation} Compilation */
-/** @typedef {import("./linters/index.js").LintResult} LintResult */
-/** @typedef {import("./linters/index.js").LinterInstance} LinterInstance */
-/** @typedef {import("./options.js").EnabledLinter} EnabledLinter */
+/** @typedef {import("./checks/index.js").CheckResult} CheckResult */
+/** @typedef {import("./checks/index.js").CheckInstance} CheckInstance */
+/** @typedef {import("./options.js").EnabledCheck} EnabledCheck */
 /** @typedef {{ filePath: string, content: string }} OutputReportContent */
-/** @typedef {{ errors?: LintError, warnings?: LintError, outputReport?: OutputReportContent }} Report */
+/** @typedef {{ errors?: DiagnosticError, warnings?: DiagnosticError, outputReport?: OutputReportContent }} Report */
 /** @typedef {{ lint: (files: string[]) => void, report: () => Promise<Report> }} Runner */
 
 /**
- * @param {Promise<LintResult[]>[]} results results
- * @returns {Promise<LintResult[]>} flattened results
+ * @param {Promise<CheckResult[]>[]} results results
+ * @returns {Promise<CheckResult[]>} flattened results
  */
 async function flatten(results) {
   /**
-   * @param {LintResult[]} acc acc
-   * @param {LintResult[]} list list
-   * @returns {LintResult[]} result
+   * @param {CheckResult[]} acc acc
+   * @param {CheckResult[]} list list
+   * @returns {CheckResult[]} result
    */
   const flat = (acc, list) => [...acc, ...list];
   return (await Promise.all(results)).reduce(flat, []);
 }
 
 /**
- * Creates the linter synchronously so that the compilation hooks are tapped
- * before webpack starts building modules, whatever the linter takes to load.
- * @param {string} key a key unique to the compiler the linter runs for
- * @param {EnabledLinter} linter the linter to run
+ * Creates the check synchronously so that the compilation hooks are tapped
+ * before webpack starts building modules, whatever the tool takes to load.
+ * @param {string} key a key unique to the compiler the check runs for
+ * @param {EnabledCheck} check the check to run
  * @param {Compilation} compilation compilation
  * @returns {Runner} the runner collecting and reporting the results
  */
-function linter(key, { name, adapter, options }, compilation) {
-  /** @type {Promise<LinterInstance | null>} */
+function createCheckRunner(key, { name, adapter, options }, compilation) {
+  /** @type {Promise<CheckInstance | null>} */
   const pending = adapter.create({ key, options, compilation }).catch((err) => {
-    compilation.errors.push(new LintError(name, err.message));
+    compilation.errors.push(new DiagnosticError(name, err.message));
     return null;
   });
 
-  /** @type {Promise<LintResult[]>[]} */
+  /** @type {Promise<CheckResult[]>[]} */
   const rawResults = [];
 
   /**
@@ -50,7 +50,7 @@ function linter(key, { name, adapter, options }, compilation) {
       pending
         .then((instance) => (instance ? instance.lintFiles(files) : []))
         .catch((err) => {
-          compilation.errors.push(new LintError(name, err.message));
+          compilation.errors.push(new DiagnosticError(name, err.message));
           return [];
         }),
     );
@@ -71,7 +71,7 @@ function linter(key, { name, adapter, options }, compilation) {
 
     const results = await instance.getResults(raw);
 
-    // Do not analyze when the linter reported nothing.
+    // Do not analyze when the check reported nothing.
     if (!results || results.length === 0) {
       return {};
     }
@@ -83,11 +83,11 @@ function linter(key, { name, adapter, options }, compilation) {
     const report = {};
 
     if (warnings.length > 0) {
-      report.warnings = new LintError(name, await format(warnings));
+      report.warnings = new DiagnosticError(name, await format(warnings));
     }
 
     if (errors.length > 0) {
-      report.errors = new LintError(name, await format(errors));
+      report.errors = new DiagnosticError(name, await format(errors));
     }
 
     const { outputReport } = options;
@@ -111,4 +111,4 @@ function linter(key, { name, adapter, options }, compilation) {
   return { lint, report };
 }
 
-export default linter;
+export default createCheckRunner;
