@@ -9,7 +9,7 @@ import pack from "./utils/pack";
 const eslint = {
   use: "eslint",
   cache: false,
-  overrideConfigFile: join(__dirname, "eslint.config.mjs"),
+  overrideConfigFile: join(__dirname, "config-for-tests/eslint.config.mjs"),
   ignore: false,
 };
 const stylelint = {

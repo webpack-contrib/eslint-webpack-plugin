@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
+    "rootDir": "./src",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "allowJs": true,
