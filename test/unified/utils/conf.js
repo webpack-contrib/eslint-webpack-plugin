@@ -3,7 +3,7 @@ import { join } from "node:path";
 import LintPlugin from "../../../src";
 
 export default (context, pluginConf = {}, webpackConf = {}) => {
-  const testDir = join(__dirname, "..");
+  const testDir = join(import.meta.dirname, "..");
 
   return {
     context: join(testDir, "fixtures", context),

@@ -7,7 +7,7 @@ import webpack from "webpack";
 import conf from "./utils/conf";
 
 describe("error (cached module)", () => {
-  const cacheLocation = join(__dirname, "cache");
+  const cacheLocation = join(import.meta.dirname, "cache");
 
   beforeEach(() => {
     removeSync(cacheLocation);

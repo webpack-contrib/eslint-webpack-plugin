@@ -1,5 +1,7 @@
 import { join } from "node:path";
 
+import { jest } from "@jest/globals";
+
 import pack from "./utils/pack";
 
 describe("symbols", () => {
@@ -11,7 +13,7 @@ describe("symbols", () => {
     const compiler = pack(
       "symbols",
       {},
-      { context: join(__dirname, "fixtures/[symbols]") },
+      { context: join(import.meta.dirname, "fixtures/[symbols]") },
     );
 
     const stats = await compiler.runAsync();

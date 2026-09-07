@@ -6,7 +6,7 @@ import LintPlugin from "../../../src";
 const PLUGIN_OPTIONS = ["context", "lintDirtyModulesOnly"];
 
 export default (context, pluginConf = {}, webpackConf = {}) => {
-  const testDir = join(__dirname, "..");
+  const testDir = join(import.meta.dirname, "..");
   const plugin = {};
   const stylelint = {
     // Do not cache for tests

@@ -16,7 +16,7 @@ describe("multiple instances", () => {
               {
                 use: "eslint",
                 overrideConfigFile: join(
-                  __dirname,
+                  import.meta.dirname,
                   "./config-for-tests/eslint.config.mjs",
                 ),
                 ignore: false,
@@ -30,7 +30,7 @@ describe("multiple instances", () => {
               {
                 use: "eslint",
                 overrideConfigFile: join(
-                  __dirname,
+                  import.meta.dirname,
                   "./config-for-tests/eslint.config.mjs",
                 ),
                 ignore: false,
@@ -59,7 +59,7 @@ describe("multiple instances", () => {
               {
                 use: "eslint",
                 overrideConfigFile: join(
-                  __dirname,
+                  import.meta.dirname,
                   "./config-for-tests/eslint.config.mjs",
                 ),
                 ignore: false,
@@ -73,7 +73,7 @@ describe("multiple instances", () => {
               {
                 use: "eslint",
                 overrideConfigFile: join(
-                  __dirname,
+                  import.meta.dirname,
                   "./config-for-tests/eslint.config.mjs",
                 ),
                 ignore: false,
@@ -100,7 +100,7 @@ describe("multiple instances", () => {
               {
                 use: "eslint",
                 overrideConfigFile: join(
-                  __dirname,
+                  import.meta.dirname,
                   "./config-for-tests/eslint.config.mjs",
                 ),
                 ignore: false,
@@ -114,7 +114,7 @@ describe("multiple instances", () => {
               {
                 use: "eslint",
                 overrideConfigFile: join(
-                  __dirname,
+                  import.meta.dirname,
                   "./config-for-tests/eslint.config.mjs",
                 ),
                 ignore: false,

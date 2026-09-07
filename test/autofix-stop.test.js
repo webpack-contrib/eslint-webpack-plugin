@@ -4,13 +4,13 @@ import { copySync, removeSync } from "fs-extra";
 import pack from "./utils/pack";
 
 describe("autofix stop", () => {
-  const entry = join(__dirname, "fixtures/nonfixable-clone.js");
+  const entry = join(import.meta.dirname, "fixtures/nonfixable-clone.js");
 
   let changed = false;
   let watcher;
 
   beforeAll(async () => {
-    copySync(join(__dirname, "fixtures/nonfixable.js"), entry);
+    copySync(join(import.meta.dirname, "fixtures/nonfixable.js"), entry);
     const chokidar = (await import("chokidar")).default;
 
     watcher = chokidar.watch(entry);

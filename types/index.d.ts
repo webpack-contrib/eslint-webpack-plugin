@@ -1,11 +1,42 @@
-export = LintWebpackPlugin;
+export default LintWebpackPlugin;
+export type Compilation = import("webpack").Compilation;
+export type Compiler = import("webpack").Compiler;
+export type Module = import("webpack").Module;
+export type NormalModule = import("webpack").NormalModule;
+export type Runner = import("./linter.js").Runner;
+export type LinterAdapter = import("./linters/index.js").LinterAdapter;
+export type EnabledLinter = import("./options.js").EnabledLinter;
+export type LinterOptions = import("./options.js").LinterOptions;
+export type Options = import("./options.js").Options;
+export type ResolvedLinter = {
+  /**
+   * linter name
+   */
+  name: string;
+  /**
+   * linter adapter
+   */
+  adapter: LinterAdapter;
+  /**
+   * options resolved for this linter
+   */
+  options: LinterOptions;
+  /**
+   * the globs of the files to lint
+   */
+  wanted: string[];
+  /**
+   * the globs of the files not to lint
+   */
+  exclude: string[];
+};
 declare class LintWebpackPlugin {
   /**
    * @param {Options} options options
    */
   constructor(options?: Options);
   key: string;
-  options: import("./options").NormalizedOptions;
+  options: import("./options.js").NormalizedOptions;
   /**
    * @param {Compiler} compiler compiler
    * @param {ResolvedLinter[]} linters the linters to run
@@ -42,48 +73,3 @@ declare class LintWebpackPlugin {
    */
   getContext(compiler: Compiler): string;
 }
-declare namespace LintWebpackPlugin {
-  export {
-    Compilation,
-    Compiler,
-    Module,
-    NormalModule,
-    Runner,
-    LinterAdapter,
-    EnabledLinter,
-    LinterOptions,
-    Options,
-    ResolvedLinter,
-  };
-}
-type Compilation = import("webpack").Compilation;
-type Compiler = import("webpack").Compiler;
-type Module = import("webpack").Module;
-type NormalModule = import("webpack").NormalModule;
-type Runner = import("./linter").Runner;
-type LinterAdapter = import("./linters").LinterAdapter;
-type EnabledLinter = import("./options").EnabledLinter;
-type LinterOptions = import("./options").LinterOptions;
-type Options = import("./options").Options;
-type ResolvedLinter = {
-  /**
-   * linter name
-   */
-  name: string;
-  /**
-   * linter adapter
-   */
-  adapter: LinterAdapter;
-  /**
-   * options resolved for this linter
-   */
-  options: LinterOptions;
-  /**
-   * the globs of the files to lint
-   */
-  wanted: string[];
-  /**
-   * the globs of the files not to lint
-   */
-  exclude: string[];
-};

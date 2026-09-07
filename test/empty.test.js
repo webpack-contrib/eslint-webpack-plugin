@@ -7,7 +7,7 @@ import LintPlugin from "../src";
 describe("empty", () => {
   it("no error when no files matching", (done) => {
     const compiler = webpack({
-      context: join(__dirname, "fixtures", "empty"),
+      context: join(import.meta.dirname, "fixtures", "empty"),
       mode: "development",
       entry: "../",
       plugins: [new LintPlugin({ linters: [{ use: "eslint" }] })],

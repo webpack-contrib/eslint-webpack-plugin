@@ -9,7 +9,7 @@ import pack from "./utils/pack";
     // eslint-disable-next-line jest/require-top-level-describe, jest/consistent-test-it
     it("should work with eslintrc configuration type", async () => {
       const overrideConfigFile = join(
-        __dirname,
+        import.meta.dirname,
         "fixtures",
         "eslintrc-config.js",
       );

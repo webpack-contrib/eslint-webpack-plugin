@@ -8,7 +8,7 @@ import pack from "./utils/pack";
   () => {
     // eslint-disable-next-line jest/require-top-level-describe, jest/consistent-test-it
     it("fails when .eslintrc is not a proper format", async () => {
-      const overrideConfigFile = join(__dirname, ".badeslintrc");
+      const overrideConfigFile = join(import.meta.dirname, ".badeslintrc");
       const compiler = pack("error", {
         configType: "eslintrc",
         overrideConfigFile,

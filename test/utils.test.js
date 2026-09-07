@@ -1,6 +1,6 @@
-import { parseFiles, parseFoldersToGlobs } from "../src/utils";
+import { jest } from "@jest/globals";
 
-jest.mock("fs", () => ({
+jest.unstable_mockModule("node:fs", () => ({
   statSync(pattern) {
     return {
       isDirectory() {
@@ -9,6 +9,8 @@ jest.mock("fs", () => ({
     };
   },
 }));
+
+const { parseFiles, parseFoldersToGlobs } = await import("../src/utils.js");
 
 describe("utils", () => {
   it("parseFiles should return relative files from context", () => {

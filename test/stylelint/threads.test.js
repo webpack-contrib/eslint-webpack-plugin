@@ -1,4 +1,7 @@
+import { createRequire } from "node:module";
 import { join } from "node:path";
+
+import { jest } from "@jest/globals";
 
 // @ts-expect-error no types
 import normalizePath from "normalize-path";
@@ -6,6 +9,8 @@ import normalizePath from "normalize-path";
 import { getLoadedStylelint } from "../../src/linters/stylelint";
 
 import pack from "./utils/pack";
+
+const require = createRequire(import.meta.url);
 
 describe("Threading", () => {
   it("should don't throw error if file is ok with threads", async () => {
@@ -34,10 +39,10 @@ describe("Threading", () => {
     try {
       const [good, bad] = await Promise.all([
         threaded.lintFiles(
-          normalizePath(join(__dirname, "fixtures/good/test.scss")),
+          normalizePath(join(import.meta.dirname, "fixtures/good/test.scss")),
         ),
         threaded.lintFiles(
-          normalizePath(join(__dirname, "fixtures/error/test.scss")),
+          normalizePath(join(import.meta.dirname, "fixtures/error/test.scss")),
         ),
       ]);
       expect(good[0].errored).toBe(false);
@@ -53,7 +58,10 @@ describe("Threading", () => {
     });
 
     it("worker can start", async () => {
-      const mockStylelintPath = join(__dirname, "mock/stylelint-recorder");
+      const mockStylelintPath = join(
+        import.meta.dirname,
+        "mock/stylelint-recorder",
+      );
 
       // Clear any previous calls
       const mock = require(mockStylelintPath);
@@ -64,7 +72,7 @@ describe("Threading", () => {
       const {
         lintFiles,
         setup,
-      } = require("../../src/linters/stylelint-worker");
+      } = require("../../src/linters/stylelint-worker.cjs");
 
       setup({ stylelintPath: mockStylelintPath });
 

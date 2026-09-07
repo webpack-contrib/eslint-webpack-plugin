@@ -19,8 +19,18 @@
   },
   "license": "MIT",
   "author": "Ricardo Gobbo de Souza <ricardogobbosouza@yahoo.com.br>",
-  "main": "dist/index.js",
-  "types": "types/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/cjs/index.js",
+  "types": "./types/index.d.ts",
   "files": [
     "dist",
     "types"
@@ -30,7 +40,6 @@
     "clean": "del-cli dist types",
     "prebuild": "npm run clean",
     "build:types": "tsc --declaration --emitDeclarationOnly --outDir types && prettier \"types/**/*.ts\" --write",
-    "build:code": "cross-env NODE_ENV=production babel src -d dist --copy-files",
     "build": "npm-run-all -p \"build:**\"",
     "commitlint": "commitlint --from=main",
     "security": "npm audit --omit=dev",
@@ -44,12 +53,14 @@
     "fix": "npm-run-all -l fix:code fix:prettier",
     "test:only": "cross-env NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --testTimeout=60000",
     "test:watch": "npm run test:only -- --watch",
-    "test:coverage": "npm run test:only -- --collectCoverageFrom=\"src/**/*.js\" --coverage",
+    "test:coverage": "npm run test:only -- --collectCoverageFrom=\"src/**/*.{js,cjs}\" --coverage",
     "pretest": "npm run lint",
     "test": "npm run test:coverage",
     "prepare": "npm run build",
     "version": "changeset version",
-    "release": "npm run build && changeset publish"
+    "release": "npm run build && changeset publish",
+    "build:esm": "cross-env NODE_ENV=production babel src -d dist/esm --env-name esm --extensions \".js\" --copy-files --no-copy-ignored && node -e \"require('fs').writeFileSync('dist/esm/package.json','{\\\"type\\\": \\\"module\\\"}\\n')\"",
+    "build:cjs": "cross-env NODE_ENV=production babel src -d dist/cjs --env-name cjs --extensions \".js\" --copy-files --no-copy-ignored && node -e \"const fs=require('fs');fs.writeFileSync('dist/cjs/package.json','{\\\"type\\\": \\\"commonjs\\\"}\\n');fs.appendFileSync('dist/cjs/index.js','module.exports = exports.default;\\nmodule.exports.default = exports.default;\\n')\""
   },
   "dependencies": {
     "@types/eslint": "^9.6.1",
@@ -67,10 +78,12 @@
     "@changesets/get-github-info": "^0.8.0",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
+    "@jest/globals": "^30.5.1",
     "@types/fs-extra": "^11.0.4",
     "@types/micromatch": "^4.0.10",
     "@types/node": "^26.4.1",
     "@types/normalize-path": "^3.0.2",
+    "babel-plugin-transform-import-meta": "^2.3.3",
     "chokidar": "^5.0.0",
     "cross-env": "^10.1.0",
     "cspell": "^10.2.2",
