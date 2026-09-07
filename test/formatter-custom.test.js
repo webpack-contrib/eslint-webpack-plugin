@@ -1,4 +1,7 @@
+import { createRequire } from "node:module";
 import pack from "./utils/pack";
+
+const require = createRequire(import.meta.url);
 
 describe("formatter eslint", () => {
   it("should use custom formatter as function", async () => {

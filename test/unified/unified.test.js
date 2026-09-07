@@ -1,5 +1,7 @@
 import { join } from "node:path";
 
+import { jest } from "@jest/globals";
+
 import { existsSync, readFileSync } from "fs-extra";
 
 import LintPlugin from "../../src";
@@ -9,13 +11,16 @@ import pack from "./utils/pack";
 const eslint = {
   use: "eslint",
   cache: false,
-  overrideConfigFile: join(__dirname, "config-for-tests/eslint.config.mjs"),
+  overrideConfigFile: join(
+    import.meta.dirname,
+    "config-for-tests/eslint.config.mjs",
+  ),
   ignore: false,
 };
 const stylelint = {
   use: "stylelint",
   cache: false,
-  configFile: join(__dirname, ".stylelintrc"),
+  configFile: join(import.meta.dirname, ".stylelintrc"),
 };
 const linters = [eslint, stylelint];
 
@@ -133,7 +138,7 @@ describe("unified plugin", () => {
   });
 
   it("should join the reports of every linter into one output report", async () => {
-    const filePath = join(__dirname, "outputs", "report.json");
+    const filePath = join(import.meta.dirname, "outputs", "report.json");
     const compiler = pack("both", {
       outputReport: { filePath, formatter: "json" },
       linters,

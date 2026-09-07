@@ -4,7 +4,7 @@ import pack from "./utils/pack";
 
 describe("fail on config", () => {
   it("fails when .stylelintrc is not a proper format", async () => {
-    const configFile = join(__dirname, ".badstylelintrc");
+    const configFile = join(import.meta.dirname, ".badstylelintrc");
     const compiler = pack("error", { configFile });
     const stats = await compiler.runAsync();
     const { errors } = stats.compilation;

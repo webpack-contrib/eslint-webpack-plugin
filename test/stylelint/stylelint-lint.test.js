@@ -1,9 +1,15 @@
+import { createRequire } from "node:module";
 import { join } from "node:path";
 
 import pack from "./utils/pack";
 
+const require = createRequire(import.meta.url);
+
 describe("stylelint lint", () => {
-  const mockStylelintPath = join(__dirname, "mock/stylelint-recorder");
+  const mockStylelintPath = join(
+    import.meta.dirname,
+    "mock/stylelint-recorder",
+  );
 
   beforeEach(() => {
     // Clear recorded calls before each test

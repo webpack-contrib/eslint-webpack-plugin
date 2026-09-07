@@ -1,20 +1,26 @@
-const { cpus } = require("node:os");
+import { createRequire } from "node:module";
+import { cpus } from "node:os";
 
-const { Worker: JestWorker } = require("jest-worker");
+import { Worker as JestWorker } from "jest-worker";
 
-const pluginSchema = require("../options.json");
-const sharedSchema = require("../shared-options.json");
-const {
+import {
   jsonStringifyReplacerSortKeys,
   omitPluginOptions,
   parseFiles,
-} = require("../utils");
+} from "../utils.js";
+
+// JSON is read through CommonJS: import attributes are still ahead of the tooling
+const nodeRequire = createRequire(import.meta.url);
+const pluginSchema = nodeRequire("../options.json");
+const sharedSchema = nodeRequire("../shared-options.json");
+const schema = nodeRequire("./stylelint.json");
+
+// The worker entry stays CommonJS so every runner can load it in a worker thread
 const {
   getStylelint: getStylelintInstance,
   lintFiles,
   setup,
-} = require("./stylelint-worker");
-const schema = require("./stylelint.json");
+} = nodeRequire("./stylelint-worker.cjs");
 
 /** @typedef {import("stylelint").Formatter} Formatter */
 /** @typedef {import("stylelint").FormatterType} FormatterType */
@@ -23,10 +29,10 @@ const schema = require("./stylelint.json");
 /** @typedef {import("stylelint").LinterResult} LinterResult */
 /** @typedef {import("stylelint").RuleMeta} RuleMeta */
 /** @typedef {import("webpack").Compiler} Compiler */
-/** @typedef {import("../linters").FormatterOption} FormatterOption */
-/** @typedef {import("../linters").LinterContext} LinterContext */
-/** @typedef {import("../linters").LinterInstance} LinterInstance */
-/** @typedef {import("../options").LinterOptions} Options */
+/** @typedef {import("../linters/index.js").FormatterOption} FormatterOption */
+/** @typedef {import("../linters/index.js").LinterContext} LinterContext */
+/** @typedef {import("../linters/index.js").LinterInstance} LinterInstance */
+/** @typedef {import("../options.js").LinterOptions} Options */
 /** @typedef {{ lint: (options: LinterOptions) => Promise<LinterResult>, formatters: { [key: string]: Formatter } }} Stylelint */
 /** @typedef {(files: string | string[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{ getStylelint: () => Promise<Stylelint>, lintFiles: LintTask, cleanup: () => Promise<void>, threads: number }} Loaded */
@@ -100,7 +106,7 @@ function loadStylelint(options) {
  * @returns {Loaded} loaded stylelint
  */
 function loadStylelintThreaded(cacheKey, poolSize, options) {
-  const source = require.resolve("./stylelint-worker");
+  const source = nodeRequire.resolve("./stylelint-worker.cjs");
   const local = loadStylelint(options);
 
   let worker = /** @type {Worker | null} */ (
@@ -290,7 +296,9 @@ async function create({ key, options, compilation }) {
   };
 }
 
-module.exports = {
+export { getLoadedStylelint, getStylelintOptions };
+
+export default {
   name: "stylelint",
   label: "Stylelint",
   filesSource: "glob",

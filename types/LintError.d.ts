@@ -1,4 +1,4 @@
-export = LintError;
+export default LintError;
 declare class LintError extends Error {
   /**
    * @param {string} linter the name of the linter that produced the messages

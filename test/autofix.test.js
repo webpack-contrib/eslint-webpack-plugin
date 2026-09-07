@@ -5,10 +5,10 @@ import { copySync, readFileSync, removeSync } from "fs-extra";
 import pack from "./utils/pack";
 
 describe("autofix stop", () => {
-  const entry = join(__dirname, "fixtures/fixable-clone.js");
+  const entry = join(import.meta.dirname, "fixtures/fixable-clone.js");
 
   beforeAll(() => {
-    copySync(join(__dirname, "fixtures/fixable.js"), entry);
+    copySync(join(import.meta.dirname, "fixtures/fixable.js"), entry);
   });
 
   afterAll(() => {

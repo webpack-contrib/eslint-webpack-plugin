@@ -1,4 +1,21 @@
-export = linter;
+export default linter;
+export type Compilation = import("webpack").Compilation;
+export type LintResult = import("./linters/index.js").LintResult;
+export type LinterInstance = import("./linters/index.js").LinterInstance;
+export type EnabledLinter = import("./options.js").EnabledLinter;
+export type OutputReportContent = {
+  filePath: string;
+  content: string;
+};
+export type Report = {
+  errors?: LintError;
+  warnings?: LintError;
+  outputReport?: OutputReportContent;
+};
+export type Runner = {
+  lint: (files: string[]) => void;
+  report: () => Promise<Report>;
+};
 /**
  * Creates the linter synchronously so that the compilation hooks are tapped
  * before webpack starts building modules, whatever the linter takes to load.
@@ -12,32 +29,4 @@ declare function linter(
   { name, adapter, options }: EnabledLinter,
   compilation: Compilation,
 ): Runner;
-declare namespace linter {
-  export {
-    Compilation,
-    LintResult,
-    LinterInstance,
-    EnabledLinter,
-    OutputReportContent,
-    Report,
-    Runner,
-  };
-}
-type Compilation = import("webpack").Compilation;
-type LintResult = import("./linters").LintResult;
-type LinterInstance = import("./linters").LinterInstance;
-type EnabledLinter = import("./options").EnabledLinter;
-type OutputReportContent = {
-  filePath: string;
-  content: string;
-};
-type Report = {
-  errors?: LintError;
-  warnings?: LintError;
-  outputReport?: OutputReportContent;
-};
-type Runner = {
-  lint: (files: string[]) => void;
-  report: () => Promise<Report>;
-};
-import LintError = require("./LintError");
+import LintError from "./LintError.js";

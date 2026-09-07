@@ -1,10 +1,15 @@
 // eslint-disable-next-line jsdoc/reject-any-type
 /** @typedef {any} EXPECTED_ANY */
 
-const { statSync } = require("node:fs");
-const { dirname, resolve } = require("node:path");
+import { statSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, isAbsolute, resolve } from "node:path";
 
-const normalizePath = require("normalize-path");
+import { pathToFileURL } from "node:url";
+
+import normalizePath from "normalize-path";
+
+const nodeRequire = createRequire(import.meta.url);
 
 /** @typedef {import("webpack").Compiler} Compiler */
 
@@ -47,6 +52,25 @@ function arrify(value) {
   }
 
   return /** @type {ArrifyResult<T>} */ ([value]);
+}
+
+/**
+ * A package name is imported as it is, so a test can still mock it. A path may
+ * name a directory or a CommonJS entry, neither of which ESM resolves, so
+ * CommonJS resolution finds the file first.
+ * @param {string} specifier a module specifier or path
+ * @returns {Promise<EXPECTED_ANY>} the imported module
+ */
+async function importFrom(specifier) {
+  if (!specifier.startsWith(".") && !isAbsolute(specifier)) {
+    return import(specifier);
+  }
+
+  try {
+    return await import(pathToFileURL(nodeRequire.resolve(specifier)).href);
+  } catch {
+    return import(specifier);
+  }
 }
 
 /**
@@ -162,8 +186,9 @@ function writeOutputFile(compiler, name, content) {
   );
 }
 
-module.exports = {
+export {
   arrify,
+  importFrom,
   jsonStringifyReplacerSortKeys,
   omitPluginOptions,
   parseFiles,

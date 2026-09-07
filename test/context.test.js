@@ -4,7 +4,9 @@ import pack from "./utils/pack";
 
 describe("context", () => {
   it("absolute", async () => {
-    const compiler = pack("good", { context: join(__dirname, "fixtures") });
+    const compiler = pack("good", {
+      context: join(import.meta.dirname, "fixtures"),
+    });
 
     const stats = await compiler.runAsync();
     expect(stats.hasWarnings()).toBe(false);

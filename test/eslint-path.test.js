@@ -4,7 +4,7 @@ import pack from "./utils/pack";
 
 describe("eslint path", () => {
   it("should use another instance of eslint via eslintPath config", async () => {
-    const eslintPath = join(__dirname, "mock/eslint");
+    const eslintPath = join(import.meta.dirname, "mock/eslint");
     const compiler = pack("good", { eslintPath });
 
     const stats = await compiler.runAsync();

@@ -3,7 +3,11 @@ import pack from "./utils/pack";
 
 describe("succeed on flat-configuration", () => {
   it("should work with flat configuration type", async () => {
-    const overrideConfigFile = join(__dirname, "fixtures", "flat-config.js");
+    const overrideConfigFile = join(
+      import.meta.dirname,
+      "fixtures",
+      "flat-config.js",
+    );
     const compiler = pack("full-of-problems", {
       configType: "flat",
       overrideConfigFile,

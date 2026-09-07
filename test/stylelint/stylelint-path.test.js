@@ -4,7 +4,7 @@ import pack from "./utils/pack";
 
 describe("stylelint path", () => {
   it("should use another instance of stylelint via stylelintPath config", async () => {
-    const stylelintPath = join(__dirname, "mock/stylelint");
+    const stylelintPath = join(import.meta.dirname, "mock/stylelint");
     const compiler = pack("stylelint-path", { stylelintPath });
     const stats = await compiler.runAsync();
     expect(stats.hasWarnings()).toBe(false);

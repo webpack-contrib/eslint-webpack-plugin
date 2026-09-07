@@ -50,9 +50,9 @@ npm install eslint stylelint --save-dev
 Then add the plugin to your webpack configuration and enable a linter for each language you want checked:
 
 ```js
-const LintPlugin = require("lint-webpack-plugin");
+import LintPlugin from "lint-webpack-plugin";
 
-module.exports = {
+export default {
   // ...
   plugins: [
     new LintPlugin({
@@ -64,6 +64,12 @@ module.exports = {
   ],
   // ...
 };
+```
+
+The package ships an ECMAScript build next to a CommonJS one, so a CommonJS configuration works just as well:
+
+```js
+const LintPlugin = require("lint-webpack-plugin");
 ```
 
 ## Options

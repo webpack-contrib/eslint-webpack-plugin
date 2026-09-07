@@ -1,26 +1,29 @@
-const { isAbsolute, join } = require("node:path");
+import { isAbsolute, join } from "node:path";
 
-const globby = require("globby");
-const { isMatch } = require("micromatch");
+import globby from "globby";
+import micromatch from "micromatch";
 
-const linter = require("./linter");
-const { getOptions } = require("./options");
-const {
+import linter from "./linter.js";
+import { getOptions } from "./options.js";
+import {
   arrify,
   parseFiles,
   parseFoldersToGlobs,
   writeOutputFile,
-} = require("./utils");
+} from "./utils.js";
+
+// `micromatch` is CommonJS, whose named exports ESM cannot always see
+const { isMatch } = micromatch;
 
 /** @typedef {import("webpack").Compilation} Compilation */
 /** @typedef {import("webpack").Compiler} Compiler */
 /** @typedef {import("webpack").Module} Module */
 /** @typedef {import("webpack").NormalModule} NormalModule */
-/** @typedef {import("./linter").Runner} Runner */
-/** @typedef {import("./linters").LinterAdapter} LinterAdapter */
-/** @typedef {import("./options").EnabledLinter} EnabledLinter */
-/** @typedef {import("./options").LinterOptions} LinterOptions */
-/** @typedef {import("./options").Options} Options */
+/** @typedef {import("./linter.js").Runner} Runner */
+/** @typedef {import("./linters/index.js").LinterAdapter} LinterAdapter */
+/** @typedef {import("./options.js").EnabledLinter} EnabledLinter */
+/** @typedef {import("./options.js").LinterOptions} LinterOptions */
+/** @typedef {import("./options.js").Options} Options */
 
 /**
  * @typedef {object} ResolvedLinter
@@ -289,4 +292,4 @@ class LintWebpackPlugin {
   }
 }
 
-module.exports = LintWebpackPlugin;
+export default LintWebpackPlugin;

@@ -4,8 +4,8 @@ import { removeSync, writeFileSync } from "fs-extra";
 
 import pack from "./utils/pack";
 
-const target = join(__dirname, "fixtures", "watch", "entry.scss");
-const target2 = join(__dirname, "fixtures", "watch", "leaf.scss");
+const target = join(import.meta.dirname, "fixtures", "watch", "entry.scss");
+const target2 = join(import.meta.dirname, "fixtures", "watch", "leaf.scss");
 
 describe("watch", () => {
   let watch;

@@ -1,12 +1,12 @@
 // eslint-disable-next-line jsdoc/reject-any-type
 /** @typedef {any} EXPECTED_ANY */
 
-const eslint = require("./eslint");
-const stylelint = require("./stylelint");
+import eslint from "./eslint.js";
+import stylelint from "./stylelint.js";
 
 /** @typedef {import("webpack").Compilation} Compilation */
 /** @typedef {import("webpack").Compiler} Compiler */
-/** @typedef {import("../options").LinterOptions} LinterOptions */
+/** @typedef {import("../options.js").LinterOptions} LinterOptions */
 
 /**
  * A result produced by a linter, only the adapter that created it knows its shape.
@@ -65,4 +65,4 @@ const linters = new Map([
   [stylelint.name, /** @type {LinterAdapter} */ (stylelint)],
 ]);
 
-module.exports = linters;
+export default linters;

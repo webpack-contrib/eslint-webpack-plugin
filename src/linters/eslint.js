@@ -1,16 +1,21 @@
-const pluginSchema = require("../options.json");
-const sharedSchema = require("../shared-options.json");
-const { omitPluginOptions } = require("../utils");
-const schema = require("./eslint.json");
+import { createRequire } from "node:module";
+
+import { importFrom, omitPluginOptions } from "../utils.js";
+
+// JSON is read through CommonJS: import attributes are still ahead of the tooling
+const schemaRequire = createRequire(import.meta.url);
+const pluginSchema = schemaRequire("../options.json");
+const sharedSchema = schemaRequire("../shared-options.json");
+const schema = schemaRequire("./eslint.json");
 
 /** @typedef {import("eslint").ESLint} ESLint */
 /** @typedef {import("eslint").ESLint.Formatter} Formatter */
 /** @typedef {import("eslint").ESLint.LintResult} LintResult */
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
-/** @typedef {import("../linters").FormatterOption} FormatterOption */
-/** @typedef {import("../linters").LinterContext} LinterContext */
-/** @typedef {import("../linters").LinterInstance} LinterInstance */
-/** @typedef {import("../options").LinterOptions} Options */
+/** @typedef {import("../linters/index.js").FormatterOption} FormatterOption */
+/** @typedef {import("../linters/index.js").LinterContext} LinterContext */
+/** @typedef {import("../linters/index.js").LinterInstance} LinterInstance */
+/** @typedef {import("../options.js").LinterOptions} Options */
 /** @typedef {{ new (arg0: ESLintOptions): ESLint, outputFixes: (arg0: LintResult[]) => Promise<void> }} ESLintClass */
 
 // `fix` and `extensions` are meaningful to ESLint itself, the rest of the
@@ -102,7 +107,7 @@ async function create({ options }) {
   const eslintOptions = getESLintOptions(options);
   const fix = Boolean(eslintOptions.fix);
 
-  const eslintModule = require(options.eslintPath || "eslint");
+  const eslintModule = await importFrom(options.eslintPath || "eslint");
 
   /** @type {ESLintClass} */
   const ESLint = await eslintModule.loadESLint({
@@ -164,7 +169,9 @@ async function create({ options }) {
   };
 }
 
-module.exports = {
+export { getESLintOptions };
+
+export default {
   name: "eslint",
   label: "ESLint",
   filesSource: "modules",

@@ -17,7 +17,7 @@ describe("output report", () => {
   });
 
   it("should output report with a custom formatter", async () => {
-    const filePath = join(__dirname, "outputs", "report.json");
+    const filePath = join(import.meta.dirname, "outputs", "report.json");
     const compiler = pack("error", {
       outputReport: {
         filePath,

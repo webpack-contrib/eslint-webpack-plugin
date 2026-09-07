@@ -5,8 +5,8 @@ import { removeSync } from "fs-extra";
 
 import pack from "./utils/pack";
 
-const target = join(__dirname, "fixtures", "watch-entry.js");
-const target2 = join(__dirname, "fixtures", "watch-leaf.js");
+const target = join(import.meta.dirname, "fixtures", "watch-entry.js");
+const target2 = join(import.meta.dirname, "fixtures", "watch-leaf.js");
 const targetExpectedPattern = expect.stringMatching(
   target.replaceAll("\\", "\\\\"),
 );

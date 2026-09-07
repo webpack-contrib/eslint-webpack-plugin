@@ -33,7 +33,7 @@ describe("formatter write", () => {
 
   it("should write results to absolute file with a same formatter", (done) => {
     const outputFilename = "outputReport-absolute.txt";
-    const outputFilepath = join(__dirname, "outputs", outputFilename);
+    const outputFilepath = join(import.meta.dirname, "outputs", outputFilename);
     const config = conf("error", {
       outputReport: {
         filePath: outputFilepath,

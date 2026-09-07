@@ -1,15 +1,20 @@
+import { createRequire } from "node:module";
+
 // eslint-disable-next-line jsdoc/reject-any-type
 /** @typedef {any} EXPECTED_ANY */
 
-const { validate } = require("schema-utils");
+import { validate } from "schema-utils";
 
-const linters = require("./linters");
-const pluginSchema = require("./options.json");
-const sharedSchema = require("./shared-options.json");
+import linters from "./linters/index.js";
 
-/** @typedef {import("./linters").FormatterOption} FormatterOption */
-/** @typedef {import("./linters").LinterAdapter} LinterAdapter */
-/** @typedef {import("./linters").LinterAdapterInput} LinterAdapterInput */
+// JSON is read through CommonJS: import attributes are still ahead of the tooling
+const schemaRequire = createRequire(import.meta.url);
+const pluginSchema = schemaRequire("./options.json");
+const sharedSchema = schemaRequire("./shared-options.json");
+
+/** @typedef {import("./linters/index.js").FormatterOption} FormatterOption */
+/** @typedef {import("./linters/index.js").LinterAdapter} LinterAdapter */
+/** @typedef {import("./linters/index.js").LinterAdapterInput} LinterAdapterInput */
 
 /**
  * @typedef {object} OutputReport
@@ -186,7 +191,4 @@ function getOptions(pluginOptions) {
   return { context, lintDirtyModulesOnly, linters: enabled };
 }
 
-module.exports = {
-  getOptions,
-  schema,
-};
+export { getOptions, schema };

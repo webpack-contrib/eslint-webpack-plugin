@@ -1,24 +1,4 @@
-declare namespace _exports {
-  export {
-    Formatter,
-    FormatterType,
-    LintResult,
-    LinterOptions,
-    LinterResult,
-    RuleMeta,
-    Compiler,
-    FormatterOption,
-    LinterContext,
-    LinterInstance,
-    Options,
-    Stylelint,
-    LintTask,
-    Loaded,
-    Worker,
-    LintResultMap,
-  };
-}
-declare namespace _exports {
+declare namespace _default {
   export let name: string;
   export let label: string;
   export let filesSource: string;
@@ -33,52 +13,36 @@ declare namespace _exports {
   export function defaultExclude(compiler: Compiler): string[];
   export { create };
 }
-export = _exports;
-type Formatter = import("stylelint").Formatter;
-type FormatterType = import("stylelint").FormatterType;
-type LintResult = import("stylelint").LintResult;
-type LinterOptions = import("stylelint").LinterOptions;
-type LinterResult = import("stylelint").LinterResult;
-type RuleMeta = import("stylelint").RuleMeta;
-type Compiler = import("webpack").Compiler;
-type FormatterOption = import("../linters").FormatterOption;
-type LinterContext = import("../linters").LinterContext;
-type LinterInstance = import("../linters").LinterInstance;
-type Options = import("../options").LinterOptions;
-type Stylelint = {
+export default _default;
+export type Formatter = import("stylelint").Formatter;
+export type FormatterType = import("stylelint").FormatterType;
+export type LintResult = import("stylelint").LintResult;
+export type LinterOptions = import("stylelint").LinterOptions;
+export type LinterResult = import("stylelint").LinterResult;
+export type RuleMeta = import("stylelint").RuleMeta;
+export type Compiler = import("webpack").Compiler;
+export type FormatterOption = import("../linters/index.js").FormatterOption;
+export type LinterContext = import("../linters/index.js").LinterContext;
+export type LinterInstance = import("../linters/index.js").LinterInstance;
+export type Options = import("../options.js").LinterOptions;
+export type Stylelint = {
   lint: (options: LinterOptions) => Promise<LinterResult>;
   formatters: {
     [key: string]: Formatter;
   };
 };
-type LintTask = (files: string | string[]) => Promise<LintResult[]>;
-type Loaded = {
+export type LintTask = (files: string | string[]) => Promise<LintResult[]>;
+export type Loaded = {
   getStylelint: () => Promise<Stylelint>;
   lintFiles: LintTask;
   cleanup: () => Promise<void>;
   threads: number;
 };
-type Worker = JestWorker & {
+export type Worker = JestWorker & {
   lintFiles: LintTask;
 };
-type LintResultMap = {
+export type LintResultMap = {
   [file: string]: LintResult;
-};
-declare const schema: {
-  type: string;
-  additionalProperties: boolean;
-  properties: {
-    stylelintPath: {
-      description: string;
-      type: string;
-    };
-    threads: {
-      description: string;
-      anyOf: {
-        type: string;
-      }[];
-    };
-  };
 };
 /**
  * Stylelint is loaded once per key and options, so a watch rebuild reuses the
@@ -87,7 +51,7 @@ declare const schema: {
  * @param {Options} options options
  * @returns {Loaded} loaded stylelint
  */
-declare function getLoadedStylelint(
+export function getLoadedStylelint(
   key: string | undefined,
   options: Options,
 ): Loaded;
@@ -95,7 +59,8 @@ declare function getLoadedStylelint(
  * @param {Options} options options
  * @returns {Partial<LinterOptions>} stylelint options
  */
-declare function getStylelintOptions(options: Options): Partial<LinterOptions>;
+export function getStylelintOptions(options: Options): Partial<LinterOptions>;
+declare const schema: any;
 /**
  * @param {LinterContext} context linter context
  * @returns {Promise<LinterInstance>} stylelint linter

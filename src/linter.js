@@ -1,11 +1,11 @@
-const { isAbsolute, join } = require("node:path");
+import { isAbsolute, join } from "node:path";
 
-const LintError = require("./LintError");
+import LintError from "./LintError.js";
 
 /** @typedef {import("webpack").Compilation} Compilation */
-/** @typedef {import("./linters").LintResult} LintResult */
-/** @typedef {import("./linters").LinterInstance} LinterInstance */
-/** @typedef {import("./options").EnabledLinter} EnabledLinter */
+/** @typedef {import("./linters/index.js").LintResult} LintResult */
+/** @typedef {import("./linters/index.js").LinterInstance} LinterInstance */
+/** @typedef {import("./options.js").EnabledLinter} EnabledLinter */
 /** @typedef {{ filePath: string, content: string }} OutputReportContent */
 /** @typedef {{ errors?: LintError, warnings?: LintError, outputReport?: OutputReportContent }} Report */
 /** @typedef {{ lint: (files: string[]) => void, report: () => Promise<Report> }} Runner */
@@ -111,4 +111,4 @@ function linter(key, { name, adapter, options }, compilation) {
   return { lint, report };
 }
 
-module.exports = linter;
+export default linter;
