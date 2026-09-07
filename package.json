@@ -57,7 +57,7 @@
     "test:coverage": "cross-env NODE_ENV=test node --test --test-timeout=60000 --experimental-test-coverage --test-coverage-include=\"src/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=lcov.info \"test/**/*.test.js\"",
     "pretest": "npm run lint",
     "test": "npm run test:coverage",
-    "prepare": "npm run build",
+    "prepare": "husky && npm run build",
     "version": "changeset version",
     "release": "npm run build && changeset publish",
     "build:esm": "cross-env NODE_ENV=production babel src -d dist/esm --env-name esm --extensions \".js\" --copy-files --no-copy-ignored && node -e \"require('fs').writeFileSync('dist/esm/package.json','{\\\"type\\\": \\\"module\\\"}\\n')\"",
