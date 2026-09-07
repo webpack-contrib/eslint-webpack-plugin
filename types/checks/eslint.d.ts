@@ -25,6 +25,7 @@ export type Options = import("../options.js").CheckOptions;
 export type ESLintClass = {
   new (arg0: ESLintOptions): ESLint;
   outputFixes: (arg0: LintResult[]) => Promise<void>;
+  version: string;
 };
 /**
  * @param {Options} options plugin options

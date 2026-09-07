@@ -1,12 +1,13 @@
 import { createRequire } from "node:module";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 
 import { importFrom, omitPluginOptions } from "../utils.js";
 
 // JSON is read through CommonJS: import attributes are still ahead of the tooling
-const schemaRequire = createRequire(import.meta.url);
-const pluginSchema = schemaRequire("../options.json");
-const sharedSchema = schemaRequire("../shared-options.json");
-const schema = schemaRequire("./eslint.json");
+const nodeRequire = createRequire(import.meta.url);
+const pluginSchema = nodeRequire("../options.json");
+const sharedSchema = nodeRequire("../shared-options.json");
+const schema = nodeRequire("./eslint.json");
 
 /** @typedef {import("eslint").ESLint} ESLint */
 /** @typedef {import("eslint").ESLint.Formatter} Formatter */
@@ -16,7 +17,10 @@ const schema = schemaRequire("./eslint.json");
 /** @typedef {import("../checks/index.js").CheckContext} CheckContext */
 /** @typedef {import("../checks/index.js").CheckInstance} CheckInstance */
 /** @typedef {import("../options.js").CheckOptions} Options */
-/** @typedef {{ new (arg0: ESLintOptions): ESLint, outputFixes: (arg0: LintResult[]) => Promise<void> }} ESLintClass */
+/** @typedef {{ new (arg0: ESLintOptions): ESLint, outputFixes: (arg0: LintResult[]) => Promise<void>, version: string }} ESLintClass */
+
+// ESLint 9 hardcodes this in its CLI; only ESLint 10 exposes it on the service.
+const DEFAULT_SUPPRESSIONS_FILE = "eslint-suppressions.json";
 
 // `fix` and `extensions` are meaningful to ESLint itself, the rest of the
 // plugin schema is not.
@@ -49,6 +53,47 @@ async function removeIgnoredWarnings(eslint, results) {
   return /** @type {LintResult[]} */ (
     (await Promise.all(filterPromises)).filter((result) => result !== false)
   );
+}
+
+/**
+ * ESLint 10 applies suppressions itself; 9 ships the same service but wires it
+ * into its CLI alone, so the plugin drives it the way ESLint 10 would.
+ * @param {string} specifier the `eslintPath`, or `eslint`
+ * @param {ESLintOptions} eslintOptions the options ESLint was given
+ * @returns {(results: LintResult[]) => Promise<LintResult[]>} drops suppressed messages
+ */
+function createSuppressionsFilter(specifier, eslintOptions) {
+  const manifest =
+    isAbsolute(specifier) || specifier.startsWith(".")
+      ? join(specifier, "package.json")
+      : `${specifier}/package.json`;
+
+  let SuppressionsService;
+
+  try {
+    // `exports` hides the service, so it is read by path rather than specifier.
+    ({ SuppressionsService } = nodeRequire(
+      join(
+        dirname(nodeRequire.resolve(manifest)),
+        "lib/services/suppressions-service.js",
+      ),
+    ));
+  } catch (error) {
+    throw new Error(
+      "`applySuppressions` needs ESLint 9.24 or later, and the ESLint in use does not ship suppressions.",
+      { cause: error },
+    );
+  }
+
+  const cwd = eslintOptions.cwd || process.cwd();
+  const filePath = resolve(
+    cwd,
+    eslintOptions.suppressionsLocation || DEFAULT_SUPPRESSIONS_FILE,
+  );
+  const suppressions = new SuppressionsService({ cwd, filePath });
+
+  return async (results) =>
+    suppressions.applySuppressions(results, await suppressions.load()).results;
 }
 
 /**
@@ -106,13 +151,26 @@ function getESLintOptions(options) {
 async function create({ options }) {
   const eslintOptions = getESLintOptions(options);
   const fix = Boolean(eslintOptions.fix);
+  const specifier = options.eslintPath || "eslint";
 
-  const eslintModule = await importFrom(options.eslintPath || "eslint");
+  const eslintModule = await importFrom(specifier);
 
   /** @type {ESLintClass} */
   const ESLint = await eslintModule.loadESLint({
     useFlatConfig: options.configType === "flat",
   });
+
+  /** @type {((results: LintResult[]) => Promise<LintResult[]>) | undefined} */
+  let applySuppressions;
+
+  if (
+    eslintOptions.applySuppressions &&
+    Number.parseInt(ESLint.version, 10) < 10
+  ) {
+    applySuppressions = createSuppressionsFilter(specifier, eslintOptions);
+    delete eslintOptions.applySuppressions;
+    delete eslintOptions.suppressionsLocation;
+  }
 
   const eslint = new ESLint(eslintOptions);
 
@@ -127,8 +185,13 @@ async function create({ options }) {
 
       return results;
     },
-    getResults: (results) =>
-      removeIgnoredWarnings(eslint, /** @type {LintResult[]} */ (results)),
+    async getResults(results) {
+      const suppressed = applySuppressions
+        ? await applySuppressions(/** @type {LintResult[]} */ (results))
+        : /** @type {LintResult[]} */ (results);
+
+      return removeIgnoredWarnings(eslint, suppressed);
+    },
     splitResults(results) {
       /** @type {LintResult[]} */
       const errors = [];
