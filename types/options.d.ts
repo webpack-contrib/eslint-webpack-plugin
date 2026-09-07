@@ -1,6 +1,7 @@
-export type ESLintOptions = import("eslint").ESLint.Options;
-export type LintResult = import("eslint").ESLint.LintResult;
-export type FormatterFunction = (results: LintResult[]) => string;
+export type EXPECTED_ANY = any;
+export type FormatterOption = import("./linters").FormatterOption;
+export type LinterAdapter = import("./linters").LinterAdapter;
+export type LinterAdapterInput = import("./linters").LinterAdapterInput;
 export type OutputReport = {
   /**
    * a file path
@@ -9,13 +10,17 @@ export type OutputReport = {
   /**
    * a formatter
    */
-  formatter?: (string | FormatterFunction) | undefined;
+  formatter?: FormatterOption | undefined;
 };
-export type PluginOptions = {
+export type SharedOptions = {
   /**
-   * a string indicating the root of your files
+   * enable the linter cache to decrease execution time
    */
-  context?: string | undefined;
+  cache?: boolean | undefined;
+  /**
+   * specify the path to the cache location
+   */
+  cacheLocation?: string | undefined;
   /**
    * the errors found will always be emitted
    */
@@ -37,7 +42,7 @@ export type PluginOptions = {
    */
   failOnError?: boolean | undefined;
   /**
-   * will cause the module build to fail if there are any warning
+   * will cause the module build to fail if there are any warnings
    */
   failOnWarning?: boolean | undefined;
   /**
@@ -51,72 +56,329 @@ export type PluginOptions = {
   /**
    * specify the formatter you would like to use to format your results
    */
-  formatter?: (string | FormatterFunction) | undefined;
-  /**
-   * lint only changed files, skip linting on start
-   */
-  lintDirtyModulesOnly?: boolean | undefined;
-  /**
-   * will process and report errors only and ignore warnings
-   */
-  quiet?: boolean | undefined;
-  /**
-   * path to `eslint` instance that will be used for linting
-   */
-  eslintPath?: string | undefined;
+  formatter?: FormatterOption | undefined;
   /**
    * writes the output of the errors to a file - for example, a `json` file for use for reporting
    */
   outputReport?: OutputReport | undefined;
   /**
-   * Specify the resource query to exclude
+   * will process and report errors only and ignore warnings
    */
-  resourceQueryExclude?: (RegExp | RegExp[]) | undefined;
+  quiet?: boolean | undefined;
   /**
-   * config type
+   * specify the resource query to exclude
    */
-  configType?: string | undefined;
+  resourceQueryExclude?: (RegExp | RegExp[] | string | string[]) | undefined;
 };
-export type Options = PluginOptions & ESLintOptions;
+export type LinterEntry = SharedOptions & {
+  use: string | LinterAdapterInput;
+  [option: string]: EXPECTED_ANY;
+};
+export type LinterOptions = SharedOptions & {
+  [option: string]: EXPECTED_ANY;
+};
+export type PluginOptions = {
+  /**
+   * a string indicating the root of your files
+   */
+  context?: string | undefined;
+  /**
+   * lint only changed files, skip linting on start
+   */
+  lintDirtyModulesOnly?: boolean | undefined;
+  /**
+   * the linters to run
+   */
+  linters: LinterEntry[];
+};
+export type Options = SharedOptions & PluginOptions;
+export type EnabledLinter = {
+  /**
+   * linter name
+   */
+  name: string;
+  /**
+   * linter adapter
+   */
+  adapter: LinterAdapter;
+  /**
+   * options resolved for this linter
+   */
+  options: LinterOptions;
+};
+export type NormalizedOptions = {
+  /**
+   * a string indicating the root of your files
+   */
+  context?: string | undefined;
+  /**
+   * lint only changed files, skip linting on start
+   */
+  lintDirtyModulesOnly?: boolean | undefined;
+  /**
+   * the linters to run
+   */
+  linters: EnabledLinter[];
+};
 /**
- * @param {Options} loaderOptions loader options
- * @returns {ESLintOptions} eslint options
- */
-export function getESLintOptions(loaderOptions: Options): ESLintOptions;
-/** @typedef {import("eslint").ESLint.Options} ESLintOptions */
-/** @typedef {import("eslint").ESLint.LintResult} LintResult */
-/**
- * @callback FormatterFunction
- * @param {LintResult[]} results results
- * @returns {string} formatted result
- */
-/**
- * @typedef {object} OutputReport
- * @property {string=} filePath a file path
- * @property {string | FormatterFunction=} formatter a formatter
- */
-/**
- * @typedef {object} PluginOptions
- * @property {string=} context a string indicating the root of your files
- * @property {boolean=} emitError the errors found will always be emitted
- * @property {boolean=} emitWarning the warnings found will always be emitted
- * @property {string | string[]=} exclude specify the files and/or directories to exclude
- * @property {string | string[]=} extensions specify the extensions that should be checked
- * @property {boolean=} failOnError will cause the module build to fail if there are any errors
- * @property {boolean=} failOnWarning will cause the module build to fail if there are any warning
- * @property {string | string[]=} files specify directories, files, or globs
- * @property {boolean=} fix apply fixes
- * @property {string | FormatterFunction=} formatter specify the formatter you would like to use to format your results
- * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
- * @property {boolean=} quiet will process and report errors only and ignore warnings
- * @property {string=} eslintPath path to `eslint` instance that will be used for linting
- * @property {OutputReport=} outputReport writes the output of the errors to a file - for example, a `json` file for use for reporting
- * @property {RegExp | RegExp[]=} resourceQueryExclude Specify the resource query to exclude
- * @property {string=} configType config type
- */
-/** @typedef {PluginOptions & ESLintOptions} Options */
-/**
+ * Splits the options shared by every linter from the per-linter entries and
+ * merges each entry over them.
  * @param {Options} pluginOptions plugin options
- * @returns {PluginOptions} normalized plugin options
+ * @returns {NormalizedOptions} normalized plugin options
  */
-export function getOptions(pluginOptions: Options): PluginOptions;
+export function getOptions(pluginOptions: Options): NormalizedOptions;
+export namespace schema {
+  let type: string;
+  let additionalProperties: boolean;
+  let properties: {
+    linters: {
+      items: {
+        type: string;
+        additionalProperties: boolean;
+        properties: {
+          cache: {
+            description: string;
+            type: string;
+          };
+          cacheLocation: {
+            description: string;
+            type: string;
+          };
+          emitError: {
+            description: string;
+            type: string;
+          };
+          emitWarning: {
+            description: string;
+            type: string;
+          };
+          exclude: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+          extensions: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+          failOnError: {
+            description: string;
+            type: string;
+          };
+          failOnWarning: {
+            description: string;
+            type: string;
+          };
+          files: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+          fix: {
+            description: string;
+            type: string;
+          };
+          formatter: {
+            description: string;
+            anyOf: (
+              | {
+                  type: string;
+                  instanceof?: undefined;
+                }
+              | {
+                  instanceof: string;
+                  type?: undefined;
+                }
+            )[];
+          };
+          outputReport: {
+            description: string;
+            anyOf: (
+              | {
+                  type: string;
+                  additionalProperties?: undefined;
+                  properties?: undefined;
+                }
+              | {
+                  type: string;
+                  additionalProperties: boolean;
+                  properties: {
+                    filePath: {
+                      description: string;
+                      anyOf: {
+                        type: string;
+                      }[];
+                    };
+                    formatter: {
+                      description: string;
+                      anyOf: (
+                        | {
+                            type: string;
+                            instanceof?: undefined;
+                          }
+                        | {
+                            instanceof: string;
+                            type?: undefined;
+                          }
+                      )[];
+                    };
+                  };
+                }
+            )[];
+          };
+          quiet: {
+            description: string;
+            type: string;
+          };
+          resourceQueryExclude: {
+            description: string;
+            anyOf: (
+              | {
+                  instanceof: string;
+                  type?: undefined;
+                }
+              | {
+                  type: string;
+                  instanceof?: undefined;
+                }
+            )[];
+          };
+          use: {
+            description: string;
+            anyOf: {
+              type: string;
+            }[];
+          };
+        };
+        required: string[];
+      };
+      description: string;
+      type: string;
+      minItems: number;
+    };
+    cache: {
+      description: string;
+      type: string;
+    };
+    cacheLocation: {
+      description: string;
+      type: string;
+    };
+    emitError: {
+      description: string;
+      type: string;
+    };
+    emitWarning: {
+      description: string;
+      type: string;
+    };
+    exclude: {
+      description: string;
+      anyOf: {
+        type: string;
+      }[];
+    };
+    extensions: {
+      description: string;
+      anyOf: {
+        type: string;
+      }[];
+    };
+    failOnError: {
+      description: string;
+      type: string;
+    };
+    failOnWarning: {
+      description: string;
+      type: string;
+    };
+    files: {
+      description: string;
+      anyOf: {
+        type: string;
+      }[];
+    };
+    fix: {
+      description: string;
+      type: string;
+    };
+    formatter: {
+      description: string;
+      anyOf: (
+        | {
+            type: string;
+            instanceof?: undefined;
+          }
+        | {
+            instanceof: string;
+            type?: undefined;
+          }
+      )[];
+    };
+    outputReport: {
+      description: string;
+      anyOf: (
+        | {
+            type: string;
+            additionalProperties?: undefined;
+            properties?: undefined;
+          }
+        | {
+            type: string;
+            additionalProperties: boolean;
+            properties: {
+              filePath: {
+                description: string;
+                anyOf: {
+                  type: string;
+                }[];
+              };
+              formatter: {
+                description: string;
+                anyOf: (
+                  | {
+                      type: string;
+                      instanceof?: undefined;
+                    }
+                  | {
+                      instanceof: string;
+                      type?: undefined;
+                    }
+                )[];
+              };
+            };
+          }
+      )[];
+    };
+    quiet: {
+      description: string;
+      type: string;
+    };
+    resourceQueryExclude: {
+      description: string;
+      anyOf: (
+        | {
+            instanceof: string;
+            type?: undefined;
+          }
+        | {
+            type: string;
+            instanceof?: undefined;
+          }
+      )[];
+    };
+    context: {
+      description: string;
+      type: string;
+    };
+    lintDirtyModulesOnly: {
+      description: string;
+      type: string;
+    };
+  };
+  let required: string[];
+}

@@ -1,0 +1,7 @@
+{
+  "customSyntax": "postcss-scss",
+  "rules": {
+    "color-hex-length": ["long", { "severity": "warning" }],
+    "color-named": "never"
+  }
+}

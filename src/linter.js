@@ -1,24 +1,18 @@
-const { dirname, isAbsolute, join } = require("node:path");
+const { isAbsolute, join } = require("node:path");
 
-const ESLintError = require("./ESLintError");
-const { getESLint } = require("./getESLint");
+const LintError = require("./LintError");
 
-/** @typedef {import("eslint").ESLint} ESLint */
-/** @typedef {import("eslint").ESLint.Formatter} Formatter */
-/** @typedef {import("eslint").ESLint.LintResult} LintResult */
-/** @typedef {import("webpack").Compiler} Compiler */
 /** @typedef {import("webpack").Compilation} Compilation */
-/** @typedef {import("./options").Options} Options */
-/** @typedef {import("./options").FormatterFunction} FormatterFunction */
-/** @typedef {(compilation: Compilation) => Promise<void>} GenerateReport */
-/** @typedef {{ errors?: ESLintError, warnings?: ESLintError, generateReportAsset?: GenerateReport }} Report */
-/** @typedef {() => Promise<Report>} Reporter */
-/** @typedef {(files: string | string[]) => void} Linter */
-/** @typedef {{ [files: string]: LintResult }} LintResultMap */
+/** @typedef {import("./linters").LintResult} LintResult */
+/** @typedef {import("./linters").LinterInstance} LinterInstance */
+/** @typedef {import("./options").EnabledLinter} EnabledLinter */
+/** @typedef {{ filePath: string, content: string }} OutputReportContent */
+/** @typedef {{ errors?: LintError, warnings?: LintError, outputReport?: OutputReportContent }} Report */
+/** @typedef {{ lint: (files: string[]) => void, report: () => Promise<Report> }} Runner */
 
 /**
  * @param {Promise<LintResult[]>[]} results results
- * @returns {Promise<LintResult[]>} flatted results
+ * @returns {Promise<LintResult[]>} flattened results
  */
 async function flatten(results) {
   /**
@@ -31,163 +25,34 @@ async function flatten(results) {
 }
 
 /**
- * @param {ESLint} eslint eslint
- * @param {LintResult[]} results results
- * @returns {Promise<LintResult[]>} result without warnings
- */
-async function removeIgnoredWarnings(eslint, results) {
-  const filterPromises = results.map(async (result) => {
-    // Short circuit the call to isPathIgnored.
-    //   fatal is false for ignored file warnings.
-    //   ruleId is unset for internal ESLint errors.
-    //   line is unset for warnings not involving file contents.
-    const { messages, warningCount, errorCount, filePath } = result;
-    const [firstMessage] = messages;
-    const hasWarning = warningCount === 1 && errorCount === 0;
-    const ignored =
-      messages.length === 0 ||
-      (hasWarning &&
-        !firstMessage.fatal &&
-        !firstMessage.ruleId &&
-        !firstMessage.line &&
-        (await eslint.isPathIgnored(filePath)));
-    return ignored ? false : result;
-  });
-
-  return (await Promise.all(filterPromises)).filter(
-    (result) => result !== false,
-  );
-}
-
-/**
- * @param {ESLint} eslint eslint
- * @param {string | FormatterFunction=} formatter formatter
- * @returns {Promise<Formatter>} loaded formatter
- */
-async function loadFormatter(eslint, formatter) {
-  if (typeof formatter === "function") {
-    return { format: formatter };
-  }
-
-  if (typeof formatter === "string") {
-    try {
-      return eslint.loadFormatter(formatter);
-    } catch {
-      // Load the default formatter.
-    }
-  }
-
-  return eslint.loadFormatter();
-}
-
-/**
- * @param {Formatter} formatter formatter
- * @param {{ errors: LintResult[], warnings: LintResult[] }} results results
- * @returns {Promise<{ errors?: ESLintError, warnings?: ESLintError }>} errors and warnings
- */
-async function formatResults(formatter, results) {
-  let errors;
-  let warnings;
-  if (results.warnings.length > 0) {
-    warnings = new ESLintError(await formatter.format(results.warnings));
-  }
-
-  if (results.errors.length > 0) {
-    errors = new ESLintError(await formatter.format(results.errors));
-  }
-
-  return {
-    errors,
-    warnings,
-  };
-}
-
-/**
- * @param {LintResult} file file
- * @returns {boolean} true when has errors, otherwise false
- */
-function fileHasErrors(file) {
-  return file.errorCount > 0;
-}
-
-/**
- * @param {LintResult} file file
- * @returns {boolean} true when has warnings, otherwise false
- */
-function fileHasWarnings(file) {
-  return file.warningCount > 0;
-}
-
-/**
- * @param {Options} options options results
- * @param {LintResult[]} results results
- * @returns {{ errors: LintResult[], warnings: LintResult[] }} parsed errors and warnings
- */
-function parseResults(options, results) {
-  /** @type {LintResult[]} */
-  const errors = [];
-
-  /** @type {LintResult[]} */
-  const warnings = [];
-
-  for (const file of results) {
-    if (fileHasErrors(file)) {
-      const messages = file.messages.filter(
-        (message) => options.emitError && message.severity === 2,
-      );
-
-      if (messages.length > 0) {
-        errors.push({ ...file, messages });
-      }
-    }
-
-    if (fileHasWarnings(file)) {
-      const messages = file.messages.filter(
-        (message) => options.emitWarning && message.severity === 1,
-      );
-
-      if (messages.length > 0) {
-        warnings.push({ ...file, messages });
-      }
-    }
-  }
-
-  return {
-    errors,
-    warnings,
-  };
-}
-
-/**
- * @param {Options} options options
+ * Creates the linter synchronously so that the compilation hooks are tapped
+ * before webpack starts building modules, whatever the linter takes to load.
+ * @param {string} key a key unique to the compiler the linter runs for
+ * @param {EnabledLinter} linter the linter to run
  * @param {Compilation} compilation compilation
- * @returns {Promise<{ lint: Linter, report: Reporter }>} linter with additional functions
+ * @returns {Runner} the runner collecting and reporting the results
  */
-async function linter(options, compilation) {
-  /** @type {ESLint} */
-  let eslint;
-
-  /** @type {(files: string | string[]) => Promise<LintResult[]>} */
-  let lintFiles;
+function linter(key, { name, adapter, options }, compilation) {
+  /** @type {Promise<LinterInstance | null>} */
+  const pending = adapter.create({ key, options, compilation }).catch((err) => {
+    compilation.errors.push(new LintError(name, err.message));
+    return null;
+  });
 
   /** @type {Promise<LintResult[]>[]} */
   const rawResults = [];
 
-  try {
-    ({ eslint, lintFiles } = await getESLint(options));
-  } catch (err) {
-    throw new ESLintError(err.message);
-  }
-
   /**
-   * @param {string | string[]} files files
+   * @param {string[]} files files
    */
   function lint(files) {
     rawResults.push(
-      lintFiles(files).catch((err) => {
-        compilation.errors.push(new ESLintError(err.message));
-        return [];
-      }),
+      pending
+        .then((instance) => (instance ? instance.lintFiles(files) : []))
+        .catch((err) => {
+          compilation.errors.push(new LintError(name, err.message));
+          return [];
+        }),
     );
   }
 
@@ -195,85 +60,55 @@ async function linter(options, compilation) {
    * @returns {Promise<Report>} report
    */
   async function report() {
-    // Filter out ignored files.
-    const results = await removeIgnoredWarnings(
-      eslint,
-      // Get the current results, resetting the rawResults to empty
-      await flatten(rawResults.splice(0)),
-    );
+    const instance = await pending;
 
-    // do not analyze if there are no results or eslint config
-    if (!results || results.length < 1) {
+    if (!instance) return {};
+
+    // Get the current results, resetting the raw results to empty.
+    const raw = await flatten(rawResults.splice(0));
+
+    await instance.cleanup();
+
+    const results = await instance.getResults(raw);
+
+    // Do not analyze when the linter reported nothing.
+    if (!results || results.length === 0) {
       return {};
     }
 
-    const formatter = await loadFormatter(eslint, options.formatter);
-    const { errors, warnings } = await formatResults(
-      formatter,
-      parseResults(options, results),
-    );
+    const format = await instance.getFormatter(options.formatter);
+    const { errors, warnings } = instance.splitResults(results);
 
-    /**
-     * @param {Compilation} compilation compilation
-     * @returns {Promise<void>}
-     */
-    async function generateReportAsset({ compiler }) {
-      const { outputReport } = options;
-      /**
-       * @param {string} name name
-       * @param {string | Buffer} content content
-       * @returns {Promise<void>}
-       */
-      const save = (name, content) =>
-        /** @type {Promise<void>} */
-        (
-          new Promise((finish, bail) => {
-            if (!compiler.outputFileSystem) return;
+    /** @type {Report} */
+    const report = {};
 
-            const { mkdir, writeFile } = compiler.outputFileSystem;
-
-            mkdir(dirname(name), { recursive: true }, (err) => {
-              /* istanbul ignore if */
-              if (err) {
-                bail(err);
-              } else {
-                writeFile(name, content, (/** @type {unknown} */ err2) => {
-                  /* istanbul ignore if */
-                  if (err2) bail(err2);
-                  else finish();
-                });
-              }
-            });
-          })
-        );
-
-      if (!outputReport || !outputReport.filePath) {
-        return;
-      }
-
-      const content = await (outputReport.formatter
-        ? (await loadFormatter(eslint, outputReport.formatter)).format(results)
-        : formatter.format(results));
-
-      let { filePath } = outputReport;
-      if (!isAbsolute(filePath)) {
-        filePath = join(compiler.outputPath, filePath);
-      }
-
-      await save(filePath, content);
+    if (warnings.length > 0) {
+      report.warnings = new LintError(name, await format(warnings));
     }
 
-    return {
-      errors,
-      warnings,
-      generateReportAsset,
-    };
+    if (errors.length > 0) {
+      report.errors = new LintError(name, await format(errors));
+    }
+
+    const { outputReport } = options;
+
+    if (outputReport && outputReport.filePath) {
+      const content = await (outputReport.formatter
+        ? (await instance.getFormatter(outputReport.formatter))(results)
+        : format(results));
+
+      report.outputReport = {
+        filePath: isAbsolute(outputReport.filePath)
+          ? outputReport.filePath
+          : join(compilation.compiler.outputPath, outputReport.filePath),
+        content,
+      };
+    }
+
+    return report;
   }
 
-  return {
-    lint,
-    report,
-  };
+  return { lint, report };
 }
 
 module.exports = linter;

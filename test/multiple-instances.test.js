@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import ESLintPlugin from "../src";
+import LintPlugin from "../src";
 import pack from "./utils/pack";
 
 describe("multiple instances", () => {
@@ -9,23 +9,33 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new ESLintPlugin({
+          new LintPlugin({
             failOnError: true,
-            overrideConfigFile: join(
-              __dirname,
-              "./config-for-tests/eslint.config.mjs",
-            ),
-            ignore: false,
             exclude: "error.js",
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
-          new ESLintPlugin({
+          new LintPlugin({
             failOnError: true,
-            overrideConfigFile: join(
-              __dirname,
-              "./config-for-tests/eslint.config.mjs",
-            ),
-            ignore: false,
             exclude: "error.js",
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
         ],
       },
@@ -42,23 +52,33 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new ESLintPlugin({
+          new LintPlugin({
             failOnError: true,
-            overrideConfigFile: join(
-              __dirname,
-              "./config-for-tests/eslint.config.mjs",
-            ),
-            ignore: false,
             exclude: "good.js",
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
-          new ESLintPlugin({
+          new LintPlugin({
             failOnError: true,
-            overrideConfigFile: join(
-              __dirname,
-              "./config-for-tests/eslint.config.mjs",
-            ),
-            ignore: false,
             exclude: "error.js",
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
         ],
       },
@@ -73,23 +93,33 @@ describe("multiple instances", () => {
       {},
       {
         plugins: [
-          new ESLintPlugin({
+          new LintPlugin({
             failOnError: true,
-            overrideConfigFile: join(
-              __dirname,
-              "./config-for-tests/eslint.config.mjs",
-            ),
-            ignore: false,
             exclude: "error.js",
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
-          new ESLintPlugin({
+          new LintPlugin({
             failOnError: true,
-            overrideConfigFile: join(
-              __dirname,
-              "./config-for-tests/eslint.config.mjs",
-            ),
-            ignore: false,
             exclude: "good.js",
+            linters: [
+              {
+                use: "eslint",
+                overrideConfigFile: join(
+                  __dirname,
+                  "./config-for-tests/eslint.config.mjs",
+                ),
+                ignore: false,
+              },
+            ],
           }),
         ],
       },

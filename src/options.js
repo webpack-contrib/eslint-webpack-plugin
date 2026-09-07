@@ -1,96 +1,192 @@
+// eslint-disable-next-line jsdoc/reject-any-type
+/** @typedef {any} EXPECTED_ANY */
+
 const { validate } = require("schema-utils");
 
-const schema = require("./options.json");
+const linters = require("./linters");
+const pluginSchema = require("./options.json");
+const sharedSchema = require("./shared-options.json");
 
-/** @typedef {import("eslint").ESLint.Options} ESLintOptions */
-/** @typedef {import("eslint").ESLint.LintResult} LintResult */
-
-/**
- * @callback FormatterFunction
- * @param {LintResult[]} results results
- * @returns {string} formatted result
- */
+/** @typedef {import("./linters").FormatterOption} FormatterOption */
+/** @typedef {import("./linters").LinterAdapter} LinterAdapter */
+/** @typedef {import("./linters").LinterAdapterInput} LinterAdapterInput */
 
 /**
  * @typedef {object} OutputReport
  * @property {string=} filePath a file path
- * @property {string | FormatterFunction=} formatter a formatter
+ * @property {FormatterOption=} formatter a formatter
  */
 
 /**
- * @typedef {object} PluginOptions
- * @property {string=} context a string indicating the root of your files
+ * @typedef {object} SharedOptions
+ * @property {boolean=} cache enable the linter cache to decrease execution time
+ * @property {string=} cacheLocation specify the path to the cache location
  * @property {boolean=} emitError the errors found will always be emitted
  * @property {boolean=} emitWarning the warnings found will always be emitted
  * @property {string | string[]=} exclude specify the files and/or directories to exclude
  * @property {string | string[]=} extensions specify the extensions that should be checked
  * @property {boolean=} failOnError will cause the module build to fail if there are any errors
- * @property {boolean=} failOnWarning will cause the module build to fail if there are any warning
+ * @property {boolean=} failOnWarning will cause the module build to fail if there are any warnings
  * @property {string | string[]=} files specify directories, files, or globs
  * @property {boolean=} fix apply fixes
- * @property {string | FormatterFunction=} formatter specify the formatter you would like to use to format your results
- * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
- * @property {boolean=} quiet will process and report errors only and ignore warnings
- * @property {string=} eslintPath path to `eslint` instance that will be used for linting
+ * @property {FormatterOption=} formatter specify the formatter you would like to use to format your results
  * @property {OutputReport=} outputReport writes the output of the errors to a file - for example, a `json` file for use for reporting
- * @property {RegExp | RegExp[]=} resourceQueryExclude Specify the resource query to exclude
- * @property {string=} configType config type
+ * @property {boolean=} quiet will process and report errors only and ignore warnings
+ * @property {RegExp | RegExp[] | string | string[]=} resourceQueryExclude specify the resource query to exclude
  */
-
-/** @typedef {PluginOptions & ESLintOptions} Options */
 
 /**
+ * @typedef {SharedOptions & { use: string | LinterAdapterInput, [option: string]: EXPECTED_ANY }} LinterEntry
+ */
+
+/**
+ * @typedef {SharedOptions & { [option: string]: EXPECTED_ANY }} LinterOptions
+ */
+
+/**
+ * @typedef {object} PluginOptions
+ * @property {string=} context a string indicating the root of your files
+ * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
+ * @property {LinterEntry[]} linters the linters to run
+ */
+
+/** @typedef {SharedOptions & PluginOptions} Options */
+
+/**
+ * @typedef {object} EnabledLinter
+ * @property {string} name linter name
+ * @property {LinterAdapter} adapter linter adapter
+ * @property {LinterOptions} options options resolved for this linter
+ */
+
+/**
+ * @typedef {object} NormalizedOptions
+ * @property {string=} context a string indicating the root of your files
+ * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
+ * @property {EnabledLinter[]} linters the linters to run
+ */
+
+const SHARED_DEFAULTS = {
+  emitError: true,
+  emitWarning: true,
+};
+
+const DEFAULT_FOLDER_TO_EXCLUDE = "**/node_modules/**";
+
+const { use: useProperty, ...pluginProperties } = pluginSchema.properties;
+
+const entrySchema = {
+  type: "object",
+  additionalProperties: true,
+  properties: { use: useProperty, ...sharedSchema.properties },
+  required: ["use"],
+};
+
+const schema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    ...pluginProperties,
+    ...sharedSchema.properties,
+    linters: { ...pluginProperties.linters, items: entrySchema },
+  },
+  required: ["linters"],
+};
+
+/**
+ * A `use` is either the name of a built-in linter or an adapter of its own, so
+ * a linter can ship outside this package.
+ * @param {string | LinterAdapterInput} use the linter to resolve
+ * @returns {LinterAdapter} the adapter to run
+ */
+function toAdapter(use) {
+  if (typeof use !== "string") {
+    if (!use || typeof use.create !== "function" || !use.name) {
+      throw new Error(
+        "Lint Webpack Plugin: `use` needs the name of a built-in linter or a linter adapter with a `name` and a `create` function.",
+      );
+    }
+
+    return {
+      label: use.name,
+      filesSource: "modules",
+      schema: { properties: {} },
+      defaults: {},
+      defaultExclude: () => DEFAULT_FOLDER_TO_EXCLUDE,
+      ...use,
+    };
+  }
+
+  const adapter = linters.get(use);
+
+  if (!adapter) {
+    throw new Error(
+      `Lint Webpack Plugin: unknown linter '${use}', expected one of ${[
+        ...linters.keys(),
+      ]
+        .map((name) => `'${name}'`)
+        .join(", ")} or a linter adapter.`,
+    );
+  }
+
+  return adapter;
+}
+
+/**
+ * Splits the options shared by every linter from the per-linter entries and
+ * merges each entry over them.
  * @param {Options} pluginOptions plugin options
- * @returns {PluginOptions} normalized plugin options
+ * @returns {NormalizedOptions} normalized plugin options
  */
 function getOptions(pluginOptions) {
-  const options = {
-    cache: true,
-    cacheLocation: "node_modules/.cache/eslint-webpack-plugin/.eslintcache",
-    configType: "flat",
-    extensions: "js",
-    emitError: true,
-    emitWarning: true,
-    resourceQueryExclude: [],
-    ...pluginOptions,
-    ...(pluginOptions.quiet ? { emitError: true, emitWarning: false } : {}),
-  };
-
-  // @ts-expect-error need better types
-  validate(schema, options, {
-    name: "ESLint Webpack Plugin",
+  validate(/** @type {EXPECTED_ANY} */ (schema), pluginOptions, {
+    name: "Lint Webpack Plugin",
     baseDataPath: "options",
   });
 
-  return options;
-}
+  const {
+    context,
+    lintDirtyModulesOnly,
+    linters: entries,
+    ...shared
+  } = pluginOptions;
 
-/**
- * @param {Options} loaderOptions loader options
- * @returns {ESLintOptions} eslint options
- */
-function getESLintOptions(loaderOptions) {
-  const eslintOptions = { ...loaderOptions };
+  const enabled = entries.map((entry, index) => {
+    const { use, ...own } = entry;
+    const adapter = toAdapter(use);
 
-  // Keep the fix option because it is common to both the loader and ESLint.
-  const { fix, extensions, ...eslintOnlyOptions } = schema.properties;
+    validate(
+      /** @type {EXPECTED_ANY} */ ({
+        ...entrySchema,
+        properties: { ...entrySchema.properties, ...adapter.schema.properties },
+      }),
+      entry,
+      {
+        name: `Lint Webpack Plugin (${adapter.label})`,
+        baseDataPath: `options.linters[${index}]`,
+      },
+    );
 
-  // No need to guard the for-in because schema.properties has hardcoded keys.
+    /** @type {LinterOptions} */
+    const options = {
+      ...SHARED_DEFAULTS,
+      ...adapter.defaults,
+      ...shared,
+      ...own,
+    };
 
-  for (const option in eslintOnlyOptions) {
-    // @ts-expect-error need better types
-    delete eslintOptions[option];
-  }
+    if (options.quiet) {
+      options.emitError = true;
+      options.emitWarning = false;
+    }
 
-  // Some options aren't available in flat mode
-  if (loaderOptions.configType === "flat") {
-    delete eslintOptions.extensions;
-  }
+    return { name: adapter.name, adapter, options };
+  });
 
-  return eslintOptions;
+  return { context, lintDirtyModulesOnly, linters: enabled };
 }
 
 module.exports = {
-  getESLintOptions,
   getOptions,
+  schema,
 };

@@ -1,8 +1,29 @@
 import { join } from "node:path";
-import ESLintPlugin from "../../src";
+
+import LintPlugin from "../../src";
+
+// Options the plugin only accepts next to the linter groups, not inside one.
+const PLUGIN_OPTIONS = ["context", "lintDirtyModulesOnly"];
 
 export default (entry, pluginConf = {}, webpackConf = {}) => {
   const testDir = join(__dirname, "..");
+  const plugin = {};
+  const eslint = {
+    // Do not cache for tests
+    cache: false,
+    overrideConfigFile: join(testDir, "./config-for-tests/eslint.config.mjs"),
+    // this disables the use of .eslintignore, since it contains the fixtures
+    // folder to skip it on the global linting, but here we want the opposite
+    ignore: false,
+  };
+
+  for (const [option, value] of Object.entries(pluginConf)) {
+    if (PLUGIN_OPTIONS.includes(option)) {
+      plugin[option] = value;
+    } else {
+      eslint[option] = value;
+    }
+  }
 
   return {
     entry: `./${entry}-entry.js`,
@@ -12,18 +33,7 @@ export default (entry, pluginConf = {}, webpackConf = {}) => {
       path: join(testDir, "outputs"),
     },
     plugins: [
-      new ESLintPlugin({
-        // Do not cache for tests
-        cache: false,
-        overrideConfigFile: join(
-          testDir,
-          "./config-for-tests/eslint.config.mjs",
-        ),
-        // this disables the use of .eslintignore, since it contains the fixtures
-        // folder to skip it on the global linting, but here we want the opposite
-        ignore: false,
-        ...pluginConf,
-      }),
+      new LintPlugin({ ...plugin, linters: [{ use: "eslint", ...eslint }] }),
     ],
     ...webpackConf,
   };

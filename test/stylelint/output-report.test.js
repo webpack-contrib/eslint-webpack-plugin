@@ -1,0 +1,35 @@
+import { join } from "node:path";
+
+import { existsSync, readFileSync } from "fs-extra";
+
+import pack from "./utils/pack";
+
+describe("output report", () => {
+  it("should output report a default formatter", async () => {
+    const filePath = "report.txt";
+    const compiler = pack("error", {
+      outputReport: { filePath },
+    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(true);
+    expect(existsSync(join(compiler.outputPath, filePath))).toBe(true);
+  });
+
+  it("should output report with a custom formatter", async () => {
+    const filePath = join(__dirname, "outputs", "report.json");
+    const compiler = pack("error", {
+      outputReport: {
+        filePath,
+        formatter: "json",
+      },
+    });
+    const stats = await compiler.runAsync();
+    expect(stats.hasWarnings()).toBe(false);
+    expect(stats.hasErrors()).toBe(true);
+    expect(existsSync(filePath)).toBe(true);
+    expect(JSON.parse(readFileSync(filePath, "utf8"))).toMatchObject([
+      { source: expect.stringContaining("test.scss") },
+    ]);
+  });
+});
