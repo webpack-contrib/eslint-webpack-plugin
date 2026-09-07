@@ -82,6 +82,8 @@ The plugin options have three layers:
 | [Shared](#shared-options) | Top level or in a `checks` entry | Which files are linted and how problems are reported. An entry overrides what it sets. |
 | Check                     | In a `checks` entry              | Options only that tool understands, plus everything its own Node.js API accepts.       |
 
+The options are checked against their schema from webpack's own [`validate`](https://webpack.js.org/configuration/other-options/#validate) hook, so a mistake is reported when webpack validates the rest of your configuration, and `validate: false` turns the check off along with webpack's.
+
 Every check to run is an entry in `checks`, named by its `use`. The list may name the same tool more than once, so one instance can inspect two file sets under different configurations.
 
 ```js

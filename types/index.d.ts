@@ -36,6 +36,7 @@ declare class DiagnosticsWebpackPlugin {
    */
   constructor(options?: Options);
   key: string;
+  given: import("./options.js").Options;
   options: import("./options.js").NormalizedOptions;
   /**
    * @param {Compiler} compiler compiler
