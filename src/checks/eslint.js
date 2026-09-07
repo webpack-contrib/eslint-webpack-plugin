@@ -12,10 +12,10 @@ const schema = schemaRequire("./eslint.json");
 /** @typedef {import("eslint").ESLint.Formatter} Formatter */
 /** @typedef {import("eslint").ESLint.LintResult} LintResult */
 /** @typedef {import("eslint").ESLint.Options} ESLintOptions */
-/** @typedef {import("../linters/index.js").FormatterOption} FormatterOption */
-/** @typedef {import("../linters/index.js").LinterContext} LinterContext */
-/** @typedef {import("../linters/index.js").LinterInstance} LinterInstance */
-/** @typedef {import("../options.js").LinterOptions} Options */
+/** @typedef {import("../checks/index.js").FormatterOption} FormatterOption */
+/** @typedef {import("../checks/index.js").CheckContext} CheckContext */
+/** @typedef {import("../checks/index.js").CheckInstance} CheckInstance */
+/** @typedef {import("../options.js").CheckOptions} Options */
 /** @typedef {{ new (arg0: ESLintOptions): ESLint, outputFixes: (arg0: LintResult[]) => Promise<void> }} ESLintClass */
 
 // `fix` and `extensions` are meaningful to ESLint itself, the rest of the
@@ -100,8 +100,8 @@ function getESLintOptions(options) {
 }
 
 /**
- * @param {LinterContext} context linter context
- * @returns {Promise<LinterInstance>} eslint linter
+ * @param {CheckContext} context check context
+ * @returns {Promise<CheckInstance>} eslint check
  */
 async function create({ options }) {
   const eslintOptions = getESLintOptions(options);
@@ -178,7 +178,8 @@ export default {
   schema,
   defaults: {
     cache: true,
-    cacheLocation: "node_modules/.cache/lint-webpack-plugin/.eslintcache",
+    cacheLocation:
+      "node_modules/.cache/diagnostics-webpack-plugin/.eslintcache",
     configType: "flat",
     extensions: "js",
   },

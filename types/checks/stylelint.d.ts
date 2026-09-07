@@ -17,16 +17,16 @@ export default _default;
 export type Formatter = import("stylelint").Formatter;
 export type FormatterType = import("stylelint").FormatterType;
 export type LintResult = import("stylelint").LintResult;
-export type LinterOptions = import("stylelint").LinterOptions;
+export type StylelintOptions = import("stylelint").LinterOptions;
 export type LinterResult = import("stylelint").LinterResult;
 export type RuleMeta = import("stylelint").RuleMeta;
 export type Compiler = import("webpack").Compiler;
-export type FormatterOption = import("../linters/index.js").FormatterOption;
-export type LinterContext = import("../linters/index.js").LinterContext;
-export type LinterInstance = import("../linters/index.js").LinterInstance;
-export type Options = import("../options.js").LinterOptions;
+export type FormatterOption = import("../checks/index.js").FormatterOption;
+export type CheckContext = import("../checks/index.js").CheckContext;
+export type CheckInstance = import("../checks/index.js").CheckInstance;
+export type Options = import("../options.js").CheckOptions;
 export type Stylelint = {
-  lint: (options: LinterOptions) => Promise<LinterResult>;
+  lint: (options: StylelintOptions) => Promise<LinterResult>;
   formatters: {
     [key: string]: Formatter;
   };
@@ -57,17 +57,19 @@ export function getLoadedStylelint(
 ): Loaded;
 /**
  * @param {Options} options options
- * @returns {Partial<LinterOptions>} stylelint options
+ * @returns {Partial<StylelintOptions>} stylelint options
  */
-export function getStylelintOptions(options: Options): Partial<LinterOptions>;
+export function getStylelintOptions(
+  options: Options,
+): Partial<StylelintOptions>;
 declare const schema: any;
 /**
- * @param {LinterContext} context linter context
- * @returns {Promise<LinterInstance>} stylelint linter
+ * @param {CheckContext} context check context
+ * @returns {Promise<CheckInstance>} stylelint check
  */
 declare function create({
   key,
   options,
   compilation,
-}: LinterContext): Promise<LinterInstance>;
+}: CheckContext): Promise<CheckInstance>;
 import { Worker as JestWorker } from "jest-worker";

@@ -1,8 +1,8 @@
 import { join } from "node:path";
 
-import LintPlugin from "../../../src/index.js";
+import DiagnosticsPlugin from "../../../src/index.js";
 
-// Options the plugin only accepts next to the linter groups, not inside one.
+// Options the plugin only accepts next to the check entries, not inside one.
 const PLUGIN_OPTIONS = ["context", "lintDirtyModulesOnly"];
 
 export default (context, pluginConf = {}, webpackConf = {}) => {
@@ -30,9 +30,9 @@ export default (context, pluginConf = {}, webpackConf = {}) => {
       path: join(testDir, "outputs"),
     },
     plugins: [
-      new LintPlugin({
+      new DiagnosticsPlugin({
         ...plugin,
-        linters: [{ use: "stylelint", ...stylelint }],
+        checks: [{ use: "stylelint", ...stylelint }],
       }),
     ],
     ...webpackConf,

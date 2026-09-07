@@ -1,8 +1,7 @@
 export type EXPECTED_ANY = any;
-export type FormatterOption = import("./linters/index.js").FormatterOption;
-export type LinterAdapter = import("./linters/index.js").LinterAdapter;
-export type LinterAdapterInput =
-  import("./linters/index.js").LinterAdapterInput;
+export type FormatterOption = import("./checks/index.js").FormatterOption;
+export type CheckAdapter = import("./checks/index.js").CheckAdapter;
+export type CheckAdapterInput = import("./checks/index.js").CheckAdapterInput;
 export type OutputReport = {
   /**
    * a file path
@@ -15,7 +14,7 @@ export type OutputReport = {
 };
 export type SharedOptions = {
   /**
-   * enable the linter cache to decrease execution time
+   * enable the tool's cache to decrease execution time
    */
   cache?: boolean | undefined;
   /**
@@ -71,11 +70,11 @@ export type SharedOptions = {
    */
   resourceQueryExclude?: (RegExp | RegExp[] | string | string[]) | undefined;
 };
-export type LinterEntry = SharedOptions & {
-  use: string | LinterAdapterInput;
+export type CheckEntry = SharedOptions & {
+  use: string | CheckAdapterInput;
   [option: string]: EXPECTED_ANY;
 };
-export type LinterOptions = SharedOptions & {
+export type CheckOptions = SharedOptions & {
   [option: string]: EXPECTED_ANY;
 };
 export type PluginOptions = {
@@ -88,24 +87,24 @@ export type PluginOptions = {
    */
   lintDirtyModulesOnly?: boolean | undefined;
   /**
-   * the linters to run
+   * the checks to run
    */
-  linters: LinterEntry[];
+  checks: CheckEntry[];
 };
 export type Options = SharedOptions & PluginOptions;
-export type EnabledLinter = {
+export type EnabledCheck = {
   /**
-   * linter name
+   * check name
    */
   name: string;
   /**
-   * linter adapter
+   * the adapter running it
    */
-  adapter: LinterAdapter;
+  adapter: CheckAdapter;
   /**
-   * options resolved for this linter
+   * options resolved for this check
    */
-  options: LinterOptions;
+  options: CheckOptions;
 };
 export type NormalizedOptions = {
   /**
@@ -117,12 +116,12 @@ export type NormalizedOptions = {
    */
   lintDirtyModulesOnly?: boolean | undefined;
   /**
-   * the linters to run
+   * the checks to run
    */
-  linters: EnabledLinter[];
+  checks: EnabledCheck[];
 };
 /**
- * Splits the options shared by every linter from the per-linter entries and
+ * Splits the options shared by every check from the per-check entries and
  * merges each entry over them.
  * @param {Options} pluginOptions plugin options
  * @returns {NormalizedOptions} normalized plugin options

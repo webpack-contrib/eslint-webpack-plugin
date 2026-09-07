@@ -1,18 +1,19 @@
 {
-  "name": "lint-webpack-plugin",
-  "version": "6.0.0",
-  "description": "A unified linting plugin for webpack, currently running ESLint and Stylelint",
+  "name": "diagnostics-webpack-plugin",
+  "version": "0.0.0",
+  "description": "Runs linters, type checkers and other diagnostic tools over your sources during the webpack build",
   "keywords": [
-    "eslint",
-    "stylelint",
+    "diagnostics",
     "lint",
     "linter",
+    "eslint",
+    "stylelint",
     "plugin",
     "webpack"
   ],
-  "homepage": "https://github.com/webpack/lint-webpack-plugin",
-  "bugs": "https://github.com/webpack/lint-webpack-plugin/issues",
-  "repository": "webpack/lint-webpack-plugin",
+  "homepage": "https://github.com/webpack/diagnostics-webpack-plugin",
+  "bugs": "https://github.com/webpack/diagnostics-webpack-plugin/issues",
+  "repository": "webpack/diagnostics-webpack-plugin",
   "funding": {
     "type": "opencollective",
     "url": "https://opencollective.com/webpack"

@@ -35,7 +35,7 @@ describe("stylelint lint", () => {
     assert.strictEqual(call.cache, false);
     assert.strictEqual(
       call.cacheLocation,
-      "node_modules/.cache/lint-webpack-plugin/.stylelintcache",
+      "node_modules/.cache/diagnostics-webpack-plugin/.stylelintcache",
     );
     assert.strictEqual(call.configFile, null);
     assert.strictEqual(call.quietDeprecationWarnings, true);
@@ -58,7 +58,7 @@ describe("stylelint lint", () => {
     assert.strictEqual(call.cache, false);
     assert.strictEqual(
       call.cacheLocation,
-      "node_modules/.cache/lint-webpack-plugin/.stylelintcache",
+      "node_modules/.cache/diagnostics-webpack-plugin/.stylelintcache",
     );
     assert.strictEqual(call.configFile, null);
     assert.strictEqual(call.quietDeprecationWarnings, true);

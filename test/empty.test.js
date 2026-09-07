@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 
 import webpack from "webpack";
 
-import LintPlugin from "../src/index.js";
+import DiagnosticsPlugin from "../src/index.js";
 
 describe("empty", () => {
   it("no error when no files matching", (t, done) => {
@@ -12,7 +12,7 @@ describe("empty", () => {
       context: join(import.meta.dirname, "fixtures", "empty"),
       mode: "development",
       entry: "../",
-      plugins: [new LintPlugin({ linters: [{ use: "eslint" }] })],
+      plugins: [new DiagnosticsPlugin({ checks: [{ use: "eslint" }] })],
     });
 
     compiler.run((err, stats) => {

@@ -6,7 +6,7 @@ import { beforeEach, describe, it } from "node:test";
 // @ts-expect-error no types
 import normalizePath from "normalize-path";
 
-import { getLoadedStylelint } from "../../src/linters/stylelint.js";
+import { getLoadedStylelint } from "../../src/checks/stylelint.js";
 
 import pack from "./utils/pack.js";
 
@@ -57,7 +57,7 @@ describe("Threading", () => {
       // The worker holds its stylelint path in module state, so drop the copy
       // a previous test set up.
       delete require.cache[
-        require.resolve("../../src/linters/stylelint-worker.cjs")
+        require.resolve("../../src/checks/stylelint-worker.cjs")
       ];
     });
 
@@ -75,7 +75,7 @@ describe("Threading", () => {
       const {
         lintFiles,
         setup,
-      } = require("../../src/linters/stylelint-worker.cjs");
+      } = require("../../src/checks/stylelint-worker.cjs");
 
       setup({ stylelintPath: mockStylelintPath });
 

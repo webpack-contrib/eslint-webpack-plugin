@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import LintPlugin from "../../src/index.js";
+import DiagnosticsPlugin from "../../src/index.js";
 
 import pack from "./utils/pack.js";
 
@@ -11,7 +11,7 @@ describe("empty", () => {
       "empty",
       {},
       {
-        plugins: [new LintPlugin({ linters: [{ use: "stylelint" }] })],
+        plugins: [new DiagnosticsPlugin({ checks: [{ use: "stylelint" }] })],
       },
     );
     const stats = await compiler.runAsync();

@@ -25,15 +25,15 @@ const {
 /** @typedef {import("stylelint").Formatter} Formatter */
 /** @typedef {import("stylelint").FormatterType} FormatterType */
 /** @typedef {import("stylelint").LintResult} LintResult */
-/** @typedef {import("stylelint").LinterOptions} LinterOptions */
+/** @typedef {import("stylelint").LinterOptions} StylelintOptions */
 /** @typedef {import("stylelint").LinterResult} LinterResult */
 /** @typedef {import("stylelint").RuleMeta} RuleMeta */
 /** @typedef {import("webpack").Compiler} Compiler */
-/** @typedef {import("../linters/index.js").FormatterOption} FormatterOption */
-/** @typedef {import("../linters/index.js").LinterContext} LinterContext */
-/** @typedef {import("../linters/index.js").LinterInstance} LinterInstance */
-/** @typedef {import("../options.js").LinterOptions} Options */
-/** @typedef {{ lint: (options: LinterOptions) => Promise<LinterResult>, formatters: { [key: string]: Formatter } }} Stylelint */
+/** @typedef {import("../checks/index.js").FormatterOption} FormatterOption */
+/** @typedef {import("../checks/index.js").CheckContext} CheckContext */
+/** @typedef {import("../checks/index.js").CheckInstance} CheckInstance */
+/** @typedef {import("../options.js").CheckOptions} Options */
+/** @typedef {{ lint: (options: StylelintOptions) => Promise<LinterResult>, formatters: { [key: string]: Formatter } }} Stylelint */
 /** @typedef {(files: string | string[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{ getStylelint: () => Promise<Stylelint>, lintFiles: LintTask, cleanup: () => Promise<void>, threads: number }} Loaded */
 /** @typedef {JestWorker & { lintFiles: LintTask }} Worker */
@@ -68,10 +68,10 @@ function getResultStorage(compiler) {
 
 /**
  * @param {Options} options options
- * @returns {Partial<LinterOptions>} stylelint options
+ * @returns {Partial<StylelintOptions>} stylelint options
  */
 function getStylelintOptions(options) {
-  return /** @type {Partial<LinterOptions>} */ (
+  return /** @type {Partial<StylelintOptions>} */ (
     omitPluginOptions(
       options,
       {
@@ -206,8 +206,8 @@ function getLoadedStylelint(key, options) {
 }
 
 /**
- * @param {LinterContext} context linter context
- * @returns {Promise<LinterInstance>} stylelint linter
+ * @param {CheckContext} context check context
+ * @returns {Promise<CheckInstance>} stylelint check
  */
 async function create({ key, options, compilation }) {
   const loaded = getLoadedStylelint(key, options);
@@ -305,7 +305,8 @@ export default {
   schema,
   defaults: {
     cache: true,
-    cacheLocation: "node_modules/.cache/lint-webpack-plugin/.stylelintcache",
+    cacheLocation:
+      "node_modules/.cache/diagnostics-webpack-plugin/.stylelintcache",
     extensions: ["css", "scss", "sass"],
   },
   getLoadedStylelint,

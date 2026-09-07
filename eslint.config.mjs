@@ -16,7 +16,7 @@ export default defineConfig([
   {
     // `eslint-config-webpack` relaxes these for tests only when jest is a
     // dependency, and the suite runs on `node:test` instead.
-    name: "lint-webpack-plugin/tests",
+    name: "diagnostics-webpack-plugin/tests",
     files: ["test/**/*.js"],
     rules: {
       camelcase: "off",

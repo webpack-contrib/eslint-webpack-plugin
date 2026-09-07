@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   release:
-    if: github.repository == 'webpack/lint-webpack-plugin'
+    if: github.repository == 'webpack/diagnostics-webpack-plugin'
     name: Release
     runs-on: ubuntu-latest
     outputs:

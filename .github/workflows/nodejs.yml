@@ -1,4 +1,4 @@
-name: lint-webpack-plugin
+name: diagnostics-webpack-plugin
 
 on:
   push:
@@ -93,8 +93,8 @@ jobs:
           files: ./lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  test-linters:
-    name: Test - linters - Eslint ${{ matrix.eslint-version }}, Stylelint ${{ matrix.stylelint-version }}
+  test-checks:
+    name: Test - checks - Eslint ${{ matrix.eslint-version }}, Stylelint ${{ matrix.stylelint-version }}
 
     strategy:
       matrix:
@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
 
     concurrency:
-      group: test-linters-${{ matrix.eslint-version }}-${{ matrix.stylelint-version }}-${{ github.ref }}
+      group: test-checks-${{ matrix.eslint-version }}-${{ matrix.stylelint-version }}-${{ github.ref }}
       cancel-in-progress: true
 
     steps:

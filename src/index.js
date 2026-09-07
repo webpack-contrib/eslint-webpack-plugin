@@ -3,7 +3,7 @@ import { isAbsolute, join } from "node:path";
 import globby from "globby";
 import micromatch from "micromatch";
 
-import linter from "./linter.js";
+import createCheckRunner from "./check.js";
 import { getOptions } from "./options.js";
 import {
   arrify,
@@ -19,22 +19,22 @@ const { isMatch } = micromatch;
 /** @typedef {import("webpack").Compiler} Compiler */
 /** @typedef {import("webpack").Module} Module */
 /** @typedef {import("webpack").NormalModule} NormalModule */
-/** @typedef {import("./linter.js").Runner} Runner */
-/** @typedef {import("./linters/index.js").LinterAdapter} LinterAdapter */
-/** @typedef {import("./options.js").EnabledLinter} EnabledLinter */
-/** @typedef {import("./options.js").LinterOptions} LinterOptions */
+/** @typedef {import("./check.js").Runner} Runner */
+/** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
+/** @typedef {import("./options.js").EnabledCheck} EnabledCheck */
+/** @typedef {import("./options.js").CheckOptions} CheckOptions */
 /** @typedef {import("./options.js").Options} Options */
 
 /**
- * @typedef {object} ResolvedLinter
- * @property {string} name linter name
- * @property {LinterAdapter} adapter linter adapter
- * @property {LinterOptions} options options resolved for this linter
+ * @typedef {object} ResolvedCheck
+ * @property {string} name check name
+ * @property {CheckAdapter} adapter the adapter running it
+ * @property {CheckOptions} options options resolved for this check
  * @property {string[]} wanted the globs of the files to lint
  * @property {string[]} exclude the globs of the files not to lint
  */
 
-const LINT_PLUGIN = "LintWebpackPlugin";
+const LINT_PLUGIN = "DiagnosticsWebpackPlugin";
 
 let compilerId = 0;
 
@@ -56,7 +56,7 @@ function collectFromFileSystem(compiler, wanted, exclude) {
   );
 }
 
-class LintWebpackPlugin {
+class DiagnosticsWebpackPlugin {
   /**
    * @param {Options} options options
    */
@@ -76,15 +76,15 @@ class LintWebpackPlugin {
     this.key = compiler.name || `${this.key}_${(compilerId += 1)}`;
 
     const context = this.getContext(compiler);
-    const linters = this.options.linters.map((linter) =>
-      this.resolveLinter(compiler, context, linter),
+    const checks = this.options.checks.map((check) =>
+      this.resolveCheck(compiler, context, check),
     );
 
     // If `lintDirtyModulesOnly` is disabled,
-    // execute the linter on the build
+    // execute the checks on the build
     if (!this.options.lintDirtyModulesOnly) {
       compiler.hooks.run.tapPromise(this.key, (compiler) =>
-        this.run(compiler, linters),
+        this.run(compiler, checks),
       );
     }
 
@@ -92,7 +92,7 @@ class LintWebpackPlugin {
 
     compiler.hooks.watchRun.tapPromise(this.key, (compiler) => {
       if (!hasCompilerRunByDirtyModule) {
-        return this.run(compiler, linters);
+        return this.run(compiler, checks);
       }
 
       hasCompilerRunByDirtyModule = false;
@@ -104,13 +104,13 @@ class LintWebpackPlugin {
   /**
    * @param {Compiler} compiler compiler
    * @param {string} context context
-   * @param {EnabledLinter} linter the linter to resolve the globs of
-   * @returns {ResolvedLinter} the linter with its globs resolved
+   * @param {EnabledCheck} check the check to resolve the globs of
+   * @returns {ResolvedCheck} the check with its globs resolved
    */
-  resolveLinter(compiler, context, { name, adapter, options }) {
+  resolveCheck(compiler, context, { name, adapter, options }) {
     const resourceQueries = arrify(options.resourceQueryExclude || []);
 
-    /** @type {LinterOptions} */
+    /** @type {CheckOptions} */
     const resolved = {
       ...options,
       context,
@@ -141,9 +141,9 @@ class LintWebpackPlugin {
 
   /**
    * @param {Compiler} compiler compiler
-   * @param {ResolvedLinter[]} linters the linters to run
+   * @param {ResolvedCheck[]} checks the checks to run
    */
-  async run(compiler, linters) {
+  async run(compiler, checks) {
     // Do not re-hook
     const isCompilerHooked = compiler.hooks.compilation.taps.find(
       ({ name }) => name === this.key,
@@ -155,16 +155,16 @@ class LintWebpackPlugin {
       // Globbing the file system does not depend on the module graph, so a
       // child compilation would only lint what its parent already did.
       const enabled = compilation.compiler.isChild()
-        ? linters.filter(({ adapter }) => adapter.filesSource === "modules")
-        : linters;
+        ? checks.filter(({ adapter }) => adapter.filesSource === "modules")
+        : checks;
 
       if (enabled.length === 0) return;
 
-      const runners = enabled.map((linter) => ({
-        ...linter,
+      const runners = enabled.map((check) => ({
+        ...check,
         /** @type {string[]} */
         files: [],
-        runner: this.createRunner(linter, compilation),
+        runner: this.createRunner(check, compilation),
       }));
 
       const fromModules = runners.filter(
@@ -268,12 +268,12 @@ class LintWebpackPlugin {
   }
 
   /**
-   * @param {ResolvedLinter} linter the linter to create a runner for
+   * @param {ResolvedCheck} check the check to create a runner for
    * @param {Compilation} compilation compilation
    * @returns {Runner} runner
    */
   createRunner({ name, adapter, options }, compilation) {
-    return linter(this.key, { name, adapter, options }, compilation);
+    return createCheckRunner(this.key, { name, adapter, options }, compilation);
   }
 
   /**
@@ -292,4 +292,4 @@ class LintWebpackPlugin {
   }
 }
 
-export default LintWebpackPlugin;
+export default DiagnosticsWebpackPlugin;
