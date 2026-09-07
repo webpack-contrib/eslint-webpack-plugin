@@ -1,7 +1,9 @@
+import assert from "node:assert/strict";
+import { cpSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { copySync, removeSync } from "fs-extra";
+import { after, before, describe, it } from "node:test";
 
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 describe("autofix stop", () => {
   const entry = join(import.meta.dirname, "fixtures/nonfixable-clone.js");
@@ -9,8 +11,8 @@ describe("autofix stop", () => {
   let changed = false;
   let watcher;
 
-  beforeAll(async () => {
-    copySync(join(import.meta.dirname, "fixtures/nonfixable.js"), entry);
+  before(async () => {
+    cpSync(join(import.meta.dirname, "fixtures/nonfixable.js"), entry);
     const chokidar = (await import("chokidar")).default;
 
     watcher = chokidar.watch(entry);
@@ -19,15 +21,15 @@ describe("autofix stop", () => {
     });
   });
 
-  afterAll(() => {
+  after(() => {
     watcher.close();
-    removeSync(entry);
+    rmSync(entry, { force: true, recursive: true });
   });
 
   it("should not change file if there are no fixable errors/warnings", async () => {
     const compiler = pack("nonfixable-clone", { fix: true });
 
     await compiler.runAsync();
-    expect(changed).toBe(false);
+    assert.strictEqual(changed, false);
   });
 });

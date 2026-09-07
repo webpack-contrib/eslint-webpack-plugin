@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import LintPlugin from "../../../src";
+import LintPlugin from "../../../src/index.js";
 
 export default (context, pluginConf = {}, webpackConf = {}) => {
   const testDir = join(import.meta.dirname, "..");

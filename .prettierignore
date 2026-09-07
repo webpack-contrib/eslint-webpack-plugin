@@ -1,5 +1,6 @@
 /coverage
 /dist
+/lcov.info
 /node_modules
 /test/fixtures
 /test/outputs

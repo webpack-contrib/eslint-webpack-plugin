@@ -6,6 +6,7 @@ yarn-debug.log*
 
 /coverage
 /dist
+/lcov.info
 /local
 /reports
 /node_modules

@@ -1,8 +1,9 @@
+import assert from "node:assert/strict";
+import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { afterEach, describe, it } from "node:test";
 
-import { removeSync, writeFileSync } from "fs-extra";
-
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 const target = join(
   import.meta.dirname,
@@ -16,10 +17,10 @@ describe("lint dirty modules only", () => {
     if (watch) {
       watch.close();
     }
-    removeSync(target);
+    rmSync(target, { force: true, recursive: true });
   });
 
-  it("skips linting on initial run", (done) => {
+  it("skips linting on initial run", (t, done) => {
     writeFileSync(target, "body { }\n");
 
     // eslint-disable-next-line no-use-before-define
@@ -30,20 +31,20 @@ describe("lint dirty modules only", () => {
     watch = compiler.watch({}, (err, stats) => next(err, stats));
 
     function secondPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
+      assert.strictEqual(errors.length, 1);
       const [{ message }] = errors;
-      expect(message).toEqual(expect.stringMatching("color-named"));
+      assert.match(message, /color-named/u);
       done();
     }
 
     function firstPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), false);
 
       next = secondPass;
 

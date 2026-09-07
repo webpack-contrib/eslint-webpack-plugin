@@ -1,6 +1,10 @@
+import assert from "node:assert/strict";
 import { join } from "node:path";
-import LintPlugin from "../src";
-import pack from "./utils/pack";
+import { describe, it } from "node:test";
+
+import LintPlugin from "../src/index.js";
+
+import pack from "./utils/pack.js";
 
 describe("multiple instances", () => {
   it("should don't fail", async () => {
@@ -42,8 +46,8 @@ describe("multiple instances", () => {
     );
 
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(false);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), false);
   });
 
   it("should fail on first instance", async () => {
@@ -84,7 +88,7 @@ describe("multiple instances", () => {
       },
     );
 
-    await expect(compiler.runAsync()).rejects.toThrow("error.js");
+    await assert.rejects(compiler.runAsync(), /error\.js/u);
   });
 
   it("should fail on second instance", async () => {
@@ -125,6 +129,6 @@ describe("multiple instances", () => {
       },
     );
 
-    await expect(compiler.runAsync()).rejects.toThrow("error.js");
+    await assert.rejects(compiler.runAsync(), /error\.js/u);
   });
 });

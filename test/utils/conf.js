@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import LintPlugin from "../../src";
+import LintPlugin from "../../src/index.js";
 
 // Options the plugin only accepts next to the linter groups, not inside one.
 const PLUGIN_OPTIONS = ["context", "lintDirtyModulesOnly"];

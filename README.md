@@ -13,7 +13,7 @@
 
 # lint-webpack-plugin
 
-> This plugin only supports webpack 5.
+> This plugin only supports webpack 5 and Node.js `>= 22.12.0`.
 
 This plugin runs linters and diagnostic tools over your sources during the webpack build and reports what they find as webpack errors and warnings.
 

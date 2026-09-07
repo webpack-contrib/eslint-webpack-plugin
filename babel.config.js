@@ -3,7 +3,7 @@ const MIN_BABEL_VERSION = 7;
 export default (api) => {
   api.assertVersion(MIN_BABEL_VERSION);
 
-  // Only the CommonJS build rewrites modules; the ESM build and jest keep them
+  // Only the CommonJS build rewrites modules; the ESM build keeps them
   const toCommonJs = api.env() === "cjs";
 
   return {
@@ -12,7 +12,7 @@ export default (api) => {
         "@babel/preset-env",
         {
           targets: {
-            node: "20.9.0",
+            node: "22.12.0",
           },
           modules: toCommonJs ? "commonjs" : false,
           // Keep `import()` dynamic, a `stylelintPath` is only known at runtime

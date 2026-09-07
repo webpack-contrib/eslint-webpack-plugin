@@ -1,6 +1,8 @@
+import assert from "node:assert/strict";
 import { join } from "node:path";
+import { describe, it } from "node:test";
 
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 describe("fail on config", () => {
   it("fails when .stylelintrc is not a proper format", async () => {
@@ -8,8 +10,8 @@ describe("fail on config", () => {
     const compiler = pack("error", { configFile });
     const stats = await compiler.runAsync();
     const { errors } = stats.compilation;
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(true);
-    expect(errors).toHaveLength(1);
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.strictEqual(errors.length, 1);
   });
 });

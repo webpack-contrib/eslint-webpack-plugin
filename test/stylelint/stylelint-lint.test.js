@@ -1,7 +1,9 @@
+import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { join } from "node:path";
+import { beforeEach, describe, it } from "node:test";
 
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 const require = createRequire(import.meta.url);
 
@@ -24,18 +26,21 @@ describe("stylelint lint", () => {
       stylelintPath: mockStylelintPath,
     });
     const stats = await compiler.runAsync();
-    expect(stats.hasErrors()).toBe(false);
+    assert.strictEqual(stats.hasErrors(), false);
 
     const mock = require(mockStylelintPath);
 
-    const files = [expect.stringMatching("test.scss")];
-    expect(mock._calls[0]).toMatchObject({
-      cache: false,
-      cacheLocation: "node_modules/.cache/lint-webpack-plugin/.stylelintcache",
-      configFile: null,
-      files,
-      quietDeprecationWarnings: true,
-    });
+    const [call] = mock._calls;
+
+    assert.strictEqual(call.cache, false);
+    assert.strictEqual(
+      call.cacheLocation,
+      "node_modules/.cache/lint-webpack-plugin/.stylelintcache",
+    );
+    assert.strictEqual(call.configFile, null);
+    assert.strictEqual(call.quietDeprecationWarnings, true);
+    assert.strictEqual(call.files.length, 1);
+    assert.match(call.files[0], /test\.scss$/u);
   });
 
   it("should lint two files", async () => {
@@ -44,20 +49,21 @@ describe("stylelint lint", () => {
       stylelintPath: mockStylelintPath,
     });
     const stats = await compiler.runAsync();
-    expect(stats.hasErrors()).toBe(false);
+    assert.strictEqual(stats.hasErrors(), false);
 
     const mock = require(mockStylelintPath);
 
-    const files = [
-      expect.stringMatching(/test[12]\.scss$/),
-      expect.stringMatching(/test[12]\.scss$/),
-    ];
-    expect(mock._calls[0]).toMatchObject({
-      cache: false,
-      cacheLocation: "node_modules/.cache/lint-webpack-plugin/.stylelintcache",
-      configFile: null,
-      files,
-      quietDeprecationWarnings: true,
-    });
+    const [call] = mock._calls;
+
+    assert.strictEqual(call.cache, false);
+    assert.strictEqual(
+      call.cacheLocation,
+      "node_modules/.cache/lint-webpack-plugin/.stylelintcache",
+    );
+    assert.strictEqual(call.configFile, null);
+    assert.strictEqual(call.quietDeprecationWarnings, true);
+    assert.strictEqual(call.files.length, 2);
+    assert.match(call.files[0], /test[12]\.scss$/u);
+    assert.match(call.files[1], /test[12]\.scss$/u);
   });
 });

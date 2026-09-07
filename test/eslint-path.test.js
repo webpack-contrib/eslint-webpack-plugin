@@ -1,6 +1,8 @@
+import assert from "node:assert/strict";
 import { join } from "node:path";
+import { describe, it } from "node:test";
 
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 describe("eslint path", () => {
   it("should use another instance of eslint via eslintPath config", async () => {
@@ -8,8 +10,8 @@ describe("eslint path", () => {
     const compiler = pack("good", { eslintPath });
 
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(stats.hasErrors()).toBe(true);
-    expect(stats.compilation.errors[0].message).toContain("Fake error");
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.ok(stats.compilation.errors[0].message.includes("Fake error"));
   });
 });

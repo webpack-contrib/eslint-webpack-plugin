@@ -1,5 +1,8 @@
+import assert from "node:assert/strict";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import workerThreads from "node:worker_threads";
-import pack from "./utils/pack";
+
+import pack from "./utils/pack.js";
 
 describe("Multithread", () => {
   let workerCount;
@@ -25,8 +28,8 @@ describe("Multithread", () => {
 
     const stats = await compiler.runAsync();
 
-    expect(stats.hasErrors()).toBe(false);
-    expect(workerCount).toBeGreaterThanOrEqual(2);
+    assert.strictEqual(stats.hasErrors(), false);
+    assert.ok(workerCount >= 2);
   });
 
   it("should not spawn worker threads with concurrency=off", async () => {
@@ -34,7 +37,7 @@ describe("Multithread", () => {
 
     const stats = await compiler.runAsync();
 
-    expect(stats.hasErrors()).toBe(false);
-    expect(workerCount).toBe(0);
+    assert.strictEqual(stats.hasErrors(), false);
+    assert.strictEqual(workerCount, 0);
   });
 });

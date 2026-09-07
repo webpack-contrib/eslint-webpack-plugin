@@ -39,7 +39,7 @@
     "start": "npm run build -- -w",
     "clean": "del-cli dist types",
     "prebuild": "npm run clean",
-    "build:types": "tsc --declaration --emitDeclarationOnly --outDir types && prettier \"types/**/*.ts\" --write",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir types && prettier \"types/**/*.{ts,cts,mts}\" --write",
     "build": "npm-run-all -p \"build:**\"",
     "commitlint": "commitlint --from=main",
     "security": "npm audit --omit=dev",
@@ -51,9 +51,9 @@
     "fix:code": "npm run lint:code -- --fix",
     "fix:prettier": "npm run lint:prettier -- --write",
     "fix": "npm-run-all -l fix:code fix:prettier",
-    "test:only": "cross-env NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --testTimeout=60000",
+    "test:only": "cross-env NODE_ENV=test node --test --test-timeout=60000 --test-reporter=spec --test-reporter-destination=stdout \"test/**/*.test.js\"",
     "test:watch": "npm run test:only -- --watch",
-    "test:coverage": "npm run test:only -- --collectCoverageFrom=\"src/**/*.{js,cjs}\" --coverage",
+    "test:coverage": "cross-env NODE_ENV=test node --test --test-timeout=60000 --experimental-test-coverage --test-coverage-include=\"src/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=lcov.info \"test/**/*.test.js\"",
     "pretest": "npm run lint",
     "test": "npm run test:coverage",
     "prepare": "npm run build",
@@ -78,8 +78,6 @@
     "@changesets/get-github-info": "^0.8.0",
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
-    "@jest/globals": "^30.5.1",
-    "@types/fs-extra": "^11.0.4",
     "@types/micromatch": "^4.0.10",
     "@types/node": "^26.4.1",
     "@types/normalize-path": "^3.0.2",
@@ -92,10 +90,8 @@
     "eslint": "^10.10.0",
     "eslint-config-webpack": "^4.9.6",
     "file-loader": "^6.2.0",
-    "fs-extra": "^11.4.0",
     "globals": "^17.12.0",
     "husky": "^9.1.7",
-    "jest": "^30.5.1",
     "lint-staged": "^17.5.0",
     "npm-run-all": "^4.1.5",
     "postcss-scss": "^4.0.9",
@@ -118,6 +114,6 @@
     }
   },
   "engines": {
-    "node": ">= 20.9.0"
+    "node": ">= 22.12.0"
   }
 }

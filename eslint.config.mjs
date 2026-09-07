@@ -13,4 +13,23 @@ export default defineConfig([
   {
     extends: [configs["recommended-dirty"]],
   },
+  {
+    // `eslint-config-webpack` relaxes these for tests only when jest is a
+    // dependency, and the suite runs on `node:test` instead.
+    name: "lint-webpack-plugin/tests",
+    files: ["test/**/*.js"],
+    rules: {
+      camelcase: "off",
+      "id-length": "off",
+      "jsdoc/require-jsdoc": "off",
+      "n/no-unpublished-import": "off",
+      "n/no-unpublished-require": "off",
+      "n/no-unsupported-features/es-builtins": "off",
+      "n/no-unsupported-features/es-syntax": "off",
+      "n/no-unsupported-features/node-builtins": "off",
+      "no-console": "off",
+      "no-control-regex": "off",
+      "no-eval": "off",
+    },
+  },
 ]);

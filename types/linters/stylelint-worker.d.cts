@@ -17,4 +17,7 @@ export function lintFiles(files: string | string[]): Promise<LintResult[]>;
  * @param {Options} options the worker options
  * @param {Partial<StylelintOptions>} stylelintOptions the stylelint options
  */
-export function setup(options: Options, stylelintOptions: Partial<StylelintOptions>): void;
+export function setup(
+  options: Options,
+  stylelintOptions: Partial<StylelintOptions>,
+): void;

@@ -1,23 +1,24 @@
+import assert from "node:assert/strict";
+import { rmSync } from "node:fs";
 import { join } from "node:path";
-
-import { removeSync } from "fs-extra";
+import { after, beforeEach, describe, it } from "node:test";
 
 import webpack from "webpack";
 
-import conf from "./utils/conf";
+import conf from "./utils/conf.js";
 
 describe("error (cached module)", () => {
   const cacheLocation = join(import.meta.dirname, "cache");
 
   beforeEach(() => {
-    removeSync(cacheLocation);
+    rmSync(cacheLocation, { force: true, recursive: true });
   });
 
-  afterAll(() => {
-    removeSync(cacheLocation);
+  after(() => {
+    rmSync(cacheLocation, { force: true, recursive: true });
   });
 
-  it("should return error even if module is cached", (done) => {
+  it("should return error even if module is cached", (t, done) => {
     const config = conf("error");
     config.cache = {
       type: "filesystem",
@@ -30,16 +31,16 @@ describe("error (cached module)", () => {
     const c1 = webpack(config);
 
     c1.run((err1, stats1) => {
-      expect(err1).toBeNull();
-      expect(stats1.hasWarnings()).toBe(false);
-      expect(stats1.hasErrors()).toBe(true);
+      assert.strictEqual(err1, null);
+      assert.strictEqual(stats1.hasWarnings(), false);
+      assert.strictEqual(stats1.hasErrors(), true);
 
       c1.close(() => {
         const c2 = webpack(config);
         c2.run((err2, stats2) => {
-          expect(err2).toBeNull();
-          expect(stats2.hasWarnings()).toBe(false);
-          expect(stats2.hasErrors()).toBe(true);
+          assert.strictEqual(err2, null);
+          assert.strictEqual(stats2.hasWarnings(), false);
+          assert.strictEqual(stats2.hasErrors(), true);
 
           done();
         });

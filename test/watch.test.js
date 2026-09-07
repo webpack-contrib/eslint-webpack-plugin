@@ -1,15 +1,13 @@
-import { writeFileSync } from "node:fs";
+import assert from "node:assert/strict";
+import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { afterEach, describe, it } from "node:test";
 
-import { removeSync } from "fs-extra";
-
-import pack from "./utils/pack";
+import pack from "./utils/pack.js";
 
 const target = join(import.meta.dirname, "fixtures", "watch-entry.js");
 const target2 = join(import.meta.dirname, "fixtures", "watch-leaf.js");
-const targetExpectedPattern = expect.stringMatching(
-  target.replaceAll("\\", "\\\\"),
-);
+const targetPattern = new RegExp(target.replaceAll("\\", "\\\\"), "u");
 
 describe("watch", () => {
   let watch;
@@ -18,22 +16,22 @@ describe("watch", () => {
     if (watch) {
       watch.close();
     }
-    removeSync(target);
-    removeSync(target2);
+    rmSync(target, { force: true, recursive: true });
+    rmSync(target2, { force: true, recursive: true });
   });
 
-  it("should watch", (done) => {
+  it("should watch", (t, done) => {
     const compiler = pack("good");
 
     watch = compiler.watch({}, (err, stats) => {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), false);
       done();
     });
   });
 
-  it("should watch with unique messages", (done) => {
+  it("should watch with unique messages", (t, done) => {
     writeFileSync(target, "var foo = stuff\n");
 
     // eslint-disable-next-line no-use-before-define
@@ -42,24 +40,24 @@ describe("watch", () => {
     watch = compiler.watch({}, (err, stats) => next(err, stats));
 
     function finish(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(false);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), false);
       done();
     }
 
     function thirdPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
+      assert.strictEqual(errors.length, 1);
       const [{ message }] = errors;
-      expect(message).toEqual(targetExpectedPattern);
-      expect(message).toEqual(expect.stringMatching("no-unused-vars"));
+      assert.match(message, targetPattern);
+      assert.match(message, /no-unused-vars/u);
       // `prefer-const` fails here
-      expect(message).toEqual(expect.stringMatching("prefer-const"));
-      expect(message).toEqual(expect.stringMatching("\\(4 errors,"));
+      assert.match(message, /prefer-const/u);
+      assert.match(message, /\(4 errors,/u);
 
       next = finish;
 
@@ -70,17 +68,17 @@ describe("watch", () => {
     }
 
     function secondPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
+      assert.strictEqual(errors.length, 1);
       const [{ message }] = errors;
-      expect(message).toEqual(targetExpectedPattern);
-      expect(message).toEqual(expect.stringMatching("no-unused-vars"));
+      assert.match(message, targetPattern);
+      assert.match(message, /no-unused-vars/u);
       // `prefer-const` passes here
-      expect(message).toEqual(expect.stringMatching("prefer-const"));
-      expect(message).toEqual(expect.stringMatching("\\(4 errors,"));
+      assert.match(message, /prefer-const/u);
+      assert.match(message, /\(4 errors,/u);
 
       next = thirdPass;
 
@@ -91,14 +89,14 @@ describe("watch", () => {
     }
 
     function firstPass(err, stats) {
-      expect(err).toBeNull();
-      expect(stats.hasWarnings()).toBe(false);
-      expect(stats.hasErrors()).toBe(true);
+      assert.strictEqual(err, null);
+      assert.strictEqual(stats.hasWarnings(), false);
+      assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
-      expect(errors).toHaveLength(1);
+      assert.strictEqual(errors.length, 1);
       const [{ message }] = errors;
-      expect(message).toEqual(targetExpectedPattern);
-      expect(message).toEqual(expect.stringMatching("\\(3 errors,"));
+      assert.match(message, targetPattern);
+      assert.match(message, /\(3 errors,/u);
 
       next = secondPass;
 

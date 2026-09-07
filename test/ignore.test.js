@@ -1,5 +1,9 @@
-import LintError from "../src/LintError";
-import pack from "./utils/pack";
+import assert from "node:assert/strict";
+import { describe, it } from "node:test";
+
+import LintError from "../src/LintError.js";
+
+import pack from "./utils/pack.js";
 
 describe("eslintignore", () => {
   it("should ignores files present in .eslintignore", async () => {
@@ -9,9 +13,10 @@ describe("eslintignore", () => {
     });
 
     const stats = await compiler.runAsync();
-    expect(stats.hasWarnings()).toBe(false);
-    expect(
+    assert.strictEqual(stats.hasWarnings(), false);
+    assert.deepStrictEqual(
       stats.compilation.errors.filter((x) => x instanceof LintError),
-    ).toEqual([]);
+      [],
+    );
   });
 });

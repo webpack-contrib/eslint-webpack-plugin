@@ -55,19 +55,18 @@ jobs:
         run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
   test:
-    name: Test - ${{ matrix.os }} - Node v${{ matrix.node-version }}, Webpack ${{ matrix.webpack-version }}, Eslint ${{ matrix.eslint-version }}
+    name: Test - ${{ matrix.os }} - Node v${{ matrix.node-version }}, Webpack ${{ matrix.webpack-version }}
 
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [20.x, 22.x, 24.x]
-        eslint-version: [9.x, 10.x]
+        node-version: [22.x, 24.x]
         webpack-version: [latest]
 
     runs-on: ${{ matrix.os }}
 
     concurrency:
-      group: test-${{ matrix.os }}-v${{ matrix.node-version }}-${{ matrix.eslint-version }}-${{ matrix.webpack-version }}-${{ github.ref }}
+      group: test-${{ matrix.os }}-v${{ matrix.node-version }}-${{ matrix.webpack-version }}-${{ github.ref }}
       cancel-in-progress: true
 
     steps:
@@ -85,15 +84,13 @@ jobs:
       - name: Install webpack ${{ matrix.webpack-version }}
         run: npm i webpack@${{ matrix.webpack-version }}
 
-      - name: Install eslint ${{ matrix.eslint-version }}
-        run: npm i eslint@${{ matrix.eslint-version }}
-
       - name: Run tests for webpack version ${{ matrix.webpack-version }}
-        run: npm run test:coverage -- --ci
+        run: npm run test:coverage
 
       - name: Submit coverage data to codecov
         uses: codecov/codecov-action@v6
         with:
+          files: ./lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
 
   test-linters:
@@ -129,4 +126,4 @@ jobs:
         run: npm i stylelint@${{ matrix.stylelint-version }}
 
       - name: Run tests
-        run: npm run test:only -- --ci
+        run: npm run test:only
