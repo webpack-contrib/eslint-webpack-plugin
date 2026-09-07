@@ -1,5 +1,9 @@
 # Changelog
 
+> The entries below belong to `eslint-webpack-plugin`, which this package
+> was renamed from. It is published as `diagnostics-webpack-plugin` from
+> 1.0.0 on, so its versions start over.
+
 ## [6.0.0](https://github.com/webpack/eslint-webpack-plugin/compare/v5.0.3...v6.0.0) (2026-04-03)
 
 
