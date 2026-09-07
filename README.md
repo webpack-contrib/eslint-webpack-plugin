@@ -91,7 +91,7 @@ new DiagnosticsPlugin({
   // Plugin options
   context: "src",
   // Shared options, every check uses them unless it says otherwise
-  failOnError: true,
+  failOn: "error",
   exclude: ["node_modules", "vendor"],
   // The checks to run, each with the options only it understands
   checks: [
@@ -235,55 +235,31 @@ See the [ESLint formatters](https://eslint.org/docs/user-guide/formatters/) and 
 
 ### Errors and warnings
 
-Every check reports its errors as webpack errors and its warnings as webpack warnings. `emitError` and `emitWarning` choose what is reported at all, and `failOnError` and `failOnWarning` choose whether the build is failed over it.
+Every check reports its errors as webpack errors and its warnings as webpack warnings. `emit` chooses how much of that is reported at all, and `failOn` how much of it fails the build. Each names the least severe result it takes in, so `"warning"` covers the errors above it and `false` covers nothing.
 
-#### `emitError`
-
-- Type:
-
-```ts
-type emitError = boolean;
-```
-
-- Default: `true`
-
-The errors found will always be emitted, to disable set to `false`.
-
-#### `emitWarning`
+#### `emit`
 
 - Type:
 
 ```ts
-type emitWarning = boolean;
+type emit = "error" | "warning" | false;
 ```
 
-- Default: `true`
+- Default: `"warning"`
 
-The warnings found will always be emitted, to disable set to `false`.
+The least severe result that is reported: `"warning"` reports warnings and errors, `"error"` reports errors alone, and `false` reports nothing.
 
-#### `failOnError`
+#### `failOn`
 
 - Type:
 
 ```ts
-type failOnError = boolean;
+type failOn = "error" | "warning" | false;
 ```
 
-- Default: `true`, `false` in `development` mode
+- Default: `"error"`, `false` in `development` mode
 
-Will cause the module build to fail if any errors are found, to disable set to `false`.
-
-#### `failOnWarning`
-
-- Type:
-
-```ts
-type failOnWarning = boolean;
-```
-
-- Default: `false`
-
-Will cause the module build to fail if any warnings are found, if set to `true`.
+The least severe result that fails the build: `"warning"` fails on warnings and errors, `"error"` fails on errors alone, and `false` fails on nothing. A result `emit` does not report cannot fail the build either.
 
 #### `quiet`
 
@@ -295,7 +271,7 @@ type quiet = boolean;
 
 - Default: `false`
 
-Will process and report errors only and ignore warnings, if set to `true`.
+Will process and report errors only and ignore warnings, if set to `true`. The same as [`emit`](#emit) set to `"error"`.
 
 #### `outputReport`
 
@@ -483,7 +459,18 @@ Move the options you were passing into a `checks` entry:
  };
 ```
 
-The shared options — `context`, `files`, `exclude`, `failOnError` and the rest of [Errors and warnings](#errors-and-warnings) — may stay at the top level instead. Everything else behaves as it did, and the default `cacheLocation` moved to `node_modules/.cache/diagnostics-webpack-plugin/.eslintcache`.
+`emitError` and `emitWarning` are one [`emit`](#emit) option now, and `failOnError` and `failOnWarning` one [`failOn`](#failon):
+
+| Was                                         | Is                  |
+| :------------------------------------------ | :------------------ |
+| `emitWarning: false`                        | `emit: "error"`     |
+| `emitError: false` and `emitWarning: false` | `emit: false`       |
+| `failOnError: true`                         | `failOn: "error"`   |
+| `failOnWarning: true`                       | `failOn: "warning"` |
+
+`emitError: false` on its own has no counterpart: reporting the warnings of a check while hiding its errors was never useful.
+
+The shared options — `context`, `files`, `exclude`, `failOn` and the rest of [Errors and warnings](#errors-and-warnings) — may stay at the top level instead. Everything else behaves as it did, and the default `cacheLocation` moved to `node_modules/.cache/diagnostics-webpack-plugin/.eslintcache`.
 
 ### From `stylelint-webpack-plugin`
 
@@ -506,8 +493,8 @@ Move the options you were passing into a `checks` entry:
 Three things changed beyond the option shape:
 
 - **Stylelint 17 or later is required.** `stylelint-webpack-plugin` accepted `13` through `17`; the merged plugin drops the older majors rather than carrying their compatibility branches forward. Stylelint 17 itself needs Node `>= 20.19`.
-- **Errors and warnings are no longer swapped.** Errors are reported as webpack errors and warnings as webpack warnings, whatever `failOnError` and `failOnWarning` say; those two now decide whether the build is failed, not how a problem is reported. Previously `failOnError: false` turned errors into warnings, and `failOnWarning: true` turned warnings into errors.
-- **`failOnError` defaults to `false` in `development` mode**, matching the rest of the plugin, rather than being `true` everywhere.
+- **Errors and warnings are no longer swapped.** Errors are reported as webpack errors and warnings as webpack warnings, whatever [`failOn`](#failon) says; it decides whether the build is failed, not how a problem is reported. Previously `failOnError: false` turned errors into warnings, and `failOnWarning: true` turned warnings into errors.
+- **Failing the build is off in `development` mode**, matching the rest of the plugin, rather than `failOnError` being `true` everywhere.
 
 The default `cacheLocation` moved to `node_modules/.cache/diagnostics-webpack-plugin/.stylelintcache`.
 
@@ -522,7 +509,7 @@ The two plugins become one instance, and options they had in common are written 
 -    new StylelintPlugin({ context: "src", failOnError: true, extensions: ["css"] }),
 +    new DiagnosticsPlugin({
 +      context: "src",
-+      failOnError: true,
++      failOn: "error",
 +      checks: [
 +        { use: "eslint", extensions: ["js"] },
 +        { use: "stylelint", extensions: ["css"] },

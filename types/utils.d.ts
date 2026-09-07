@@ -8,6 +8,8 @@ export type ArrifyResult<T> = T extends null | undefined
       : T extends Iterable<infer T_1>
         ? T_1[]
         : [T];
+export type Severity = import("./options.js").Severity;
+export type SeverityLevel = import("./options.js").SeverityLevel;
 export type EXPECTED_ANY = any;
 /** @typedef {import("webpack").Compiler} Compiler */
 /**
@@ -28,6 +30,19 @@ export type EXPECTED_ANY = any;
  * @returns {ArrifyResult<T>} array of values
  */
 export function arrify<T>(value: T): ArrifyResult<T>;
+/** @typedef {import("./options.js").Severity} Severity */
+/** @typedef {import("./options.js").SeverityLevel} SeverityLevel */
+/**
+ * `emit` and `failOn` each name the least severe result they take in, so
+ * `"warning"` covers the errors above it and `false` covers nothing.
+ * @param {SeverityLevel} level the level an option is set to
+ * @param {Severity} severity the severity to test against it
+ * @returns {boolean} whether the level covers the severity
+ */
+export function coversSeverity(
+  level: SeverityLevel,
+  severity: Severity,
+): boolean;
 /**
  * A package name is imported as it is, so a test can still mock it. A path may
  * name a directory, which `import.meta.resolve` returns unchanged for

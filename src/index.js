@@ -7,6 +7,7 @@ import createCheckRunner from "./check.js";
 import { getOptions, validateOptions } from "./options.js";
 import {
   arrify,
+  coversSeverity,
   parseFiles,
   parseFoldersToGlobs,
   writeOutputFile,
@@ -23,13 +24,14 @@ const { isMatch } = micromatch;
 /** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
 /** @typedef {import("./options.js").EnabledCheck} EnabledCheck */
 /** @typedef {import("./options.js").CheckOptions} CheckOptions */
+/** @typedef {import("./options.js").ResolvedCheckOptions} ResolvedCheckOptions */
 /** @typedef {import("./options.js").Options} Options */
 
 /**
  * @typedef {object} ResolvedCheck
  * @property {string} name check name
  * @property {CheckAdapter} adapter the adapter running it
- * @property {CheckOptions} options options resolved for this check
+ * @property {ResolvedCheckOptions} options options resolved for this check
  * @property {string[]} wanted the globs of the files to lint
  * @property {string[]} exclude the globs of the files not to lint
  */
@@ -134,12 +136,13 @@ class DiagnosticsWebpackPlugin {
   resolveCheck(compiler, context, { name, adapter, options }) {
     const resourceQueries = arrify(options.resourceQueryExclude || []);
 
-    /** @type {CheckOptions} */
+    /** @type {ResolvedCheckOptions} */
     const resolved = {
       ...options,
       context,
-      failOnError:
-        options.failOnError ?? compiler.options.mode !== "development",
+      failOn:
+        options.failOn ??
+        (compiler.options.mode === "development" ? false : "error"),
       exclude: options.exclude
         ? parseFiles(options.exclude, context)
         : adapter.defaultExclude(compiler),
@@ -271,9 +274,9 @@ class DiagnosticsWebpackPlugin {
             }
 
             if (!failure) {
-              if (warnings && options.failOnWarning) {
+              if (warnings && coversSeverity(options.failOn, "warning")) {
                 failure = warnings;
-              } else if (errors && options.failOnError) {
+              } else if (errors && coversSeverity(options.failOn, "error")) {
                 failure = errors;
               }
             }

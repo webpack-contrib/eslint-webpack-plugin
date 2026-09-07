@@ -10,33 +10,46 @@
       "description": "Specify the path to the cache location, it can be a file or a directory.",
       "type": "string"
     },
-    "emitError": {
-      "description": "The errors found will always be emitted, to disable set to `false`.",
-      "type": "boolean"
-    },
-    "emitWarning": {
-      "description": "The warnings found will always be emitted, to disable set to `false`.",
-      "type": "boolean"
+    "emit": {
+      "description": "The least severe result that is reported: `\"warning\"` reports warnings and errors, `\"error\"` reports errors alone, `false` reports nothing.",
+      "enum": ["error", "warning", false]
     },
     "exclude": {
       "description": "Specify the files and/or directories to exclude. Must be relative to `options.context`.",
-      "anyOf": [{ "type": "string" }, { "type": "array" }]
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array"
+        }
+      ]
     },
     "extensions": {
       "description": "Specify extensions that should be checked.",
-      "anyOf": [{ "type": "string" }, { "type": "array" }]
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array"
+        }
+      ]
     },
-    "failOnError": {
-      "description": "Will cause the module build to fail if there are any errors, to disable set to `false`.",
-      "type": "boolean"
-    },
-    "failOnWarning": {
-      "description": "Will cause the module build to fail if there are any warnings, if set to `true`.",
-      "type": "boolean"
+    "failOn": {
+      "description": "The least severe result that fails the build: `\"warning\"` fails on warnings and errors, `\"error\"` fails on errors alone, `false` fails on nothing.",
+      "enum": ["error", "warning", false]
     },
     "files": {
       "description": "Specify the files and/or directories to traverse. Must be relative to `options.context`.",
-      "anyOf": [{ "type": "string" }, { "type": "array" }]
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array"
+        }
+      ]
     },
     "fix": {
       "description": "Will enable the autofix feature of the tool.",
@@ -45,9 +58,15 @@
     "formatter": {
       "description": "Specify the formatter that you would like to use to format your results.",
       "anyOf": [
-        { "type": "string" },
-        { "instanceof": "Function" },
-        { "instanceof": "Promise" }
+        {
+          "type": "string"
+        },
+        {
+          "instanceof": "Function"
+        },
+        {
+          "instanceof": "Promise"
+        }
       ]
     },
     "outputReport": {
@@ -62,14 +81,24 @@
           "properties": {
             "filePath": {
               "description": "The `filePath` is relative to the webpack config: `output.path`.",
-              "anyOf": [{ "type": "string" }]
+              "anyOf": [
+                {
+                  "type": "string"
+                }
+              ]
             },
             "formatter": {
               "description": "You can pass in a different formatter for the output file, if none is passed in the default/configured formatter will be used.",
               "anyOf": [
-                { "type": "string" },
-                { "instanceof": "Function" },
-                { "instanceof": "Promise" }
+                {
+                  "type": "string"
+                },
+                {
+                  "instanceof": "Function"
+                },
+                {
+                  "instanceof": "Promise"
+                }
               ]
             }
           }
@@ -82,7 +111,14 @@
     },
     "resourceQueryExclude": {
       "description": "Specify the resource query to exclude.",
-      "anyOf": [{ "instanceof": "RegExp" }, { "type": "array" }]
+      "anyOf": [
+        {
+          "instanceof": "RegExp"
+        },
+        {
+          "type": "array"
+        }
+      ]
     }
   }
 }

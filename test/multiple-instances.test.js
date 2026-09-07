@@ -14,7 +14,7 @@ describe("multiple instances", () => {
       {
         plugins: [
           new DiagnosticsPlugin({
-            failOnError: true,
+            failOn: "error",
             exclude: "error.js",
             checks: [
               {
@@ -28,7 +28,7 @@ describe("multiple instances", () => {
             ],
           }),
           new DiagnosticsPlugin({
-            failOnError: true,
+            failOn: "error",
             exclude: "error.js",
             checks: [
               {
@@ -57,7 +57,7 @@ describe("multiple instances", () => {
       {
         plugins: [
           new DiagnosticsPlugin({
-            failOnError: true,
+            failOn: "error",
             exclude: "good.js",
             checks: [
               {
@@ -71,7 +71,7 @@ describe("multiple instances", () => {
             ],
           }),
           new DiagnosticsPlugin({
-            failOnError: true,
+            failOn: "error",
             exclude: "error.js",
             checks: [
               {
@@ -98,7 +98,7 @@ describe("multiple instances", () => {
       {
         plugins: [
           new DiagnosticsPlugin({
-            failOnError: true,
+            failOn: "error",
             exclude: "error.js",
             checks: [
               {
@@ -112,7 +112,7 @@ describe("multiple instances", () => {
             ],
           }),
           new DiagnosticsPlugin({
-            failOnError: true,
+            failOn: "error",
             exclude: "good.js",
             checks: [
               {

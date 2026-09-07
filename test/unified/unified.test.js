@@ -116,8 +116,8 @@ describe("unified plugin", () => {
 
   it("should let a check override a shared option", async () => {
     const compiler = pack("both", {
-      emitError: false,
-      checks: [eslint, { ...stylelint, emitError: true }],
+      emit: false,
+      checks: [eslint, { ...stylelint, emit: "error" }],
     });
     const stats = await compiler.runAsync();
     const [error] = stats.compilation.errors;
@@ -167,8 +167,8 @@ describe("unified plugin", () => {
     );
   });
 
-  it("should fail the build when a shared failOnError is set", async () => {
-    const compiler = pack("both", { failOnError: true, checks });
+  it("should fail the build when a shared failOn is set", async () => {
+    const compiler = pack("both", { failOn: "error", checks });
 
     await assert.rejects(compiler.runAsync(), /bad\.js/u);
   });
