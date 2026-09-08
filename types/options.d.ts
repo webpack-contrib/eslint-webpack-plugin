@@ -1,6 +1,13 @@
 export type EXPECTED_ANY = any;
 export type Compiler = import("webpack").Compiler;
-export type ReportAs = "error" | "warning" | false;
+export type Severity = "error" | "warning" | false;
+export type Results = "errors" | "warnings";
+export type ReportAs =
+  | Severity
+  | {
+      errors?: Severity;
+      warnings?: Severity;
+    };
 export type FormatterOption = import("./checks/index.js").FormatterOption;
 export type CheckAdapter = import("./checks/index.js").CheckAdapter;
 export type CheckAdapterInput = import("./checks/index.js").CheckAdapterInput;
@@ -51,10 +58,6 @@ export type SharedOptions = {
    * writes the output of the errors to a file - for example, a `json` file for use for reporting
    */
   outputReport?: OutputReport | undefined;
-  /**
-   * will process and report errors only and ignore warnings
-   */
-  quiet?: boolean | undefined;
   /**
    * specify the resource query to exclude
    */
@@ -121,6 +124,17 @@ export type NormalizedOptions = {
  * @returns {NormalizedOptions} normalized plugin options
  */
 export function getOptions(pluginOptions: Options): NormalizedOptions;
+/**
+ * A severity covers a check's errors and its warnings alike unless an object
+ * sets them apart, and one it leaves out keeps its own.
+ * @param {ReportAs | undefined} reportAs the option as it was given
+ * @param {Results} results which of a check's results to answer for
+ * @returns {Severity} what they are reported as
+ */
+export function reportedAs(
+  reportAs: ReportAs | undefined,
+  results: Results,
+): Severity;
 /**
  * Runs from `compiler.hooks.validate`, so webpack's own `validate: false`
  * turns it off the way it does for webpack's plugins.

@@ -1,6 +1,7 @@
 import { isAbsolute, join } from "node:path";
 
 import DiagnosticError from "./DiagnosticError.js";
+import { reportedAs } from "./options.js";
 
 /** @typedef {import("webpack").Compilation} Compilation */
 /** @typedef {import("./checks/index.js").CheckResult} CheckResult */
@@ -82,16 +83,14 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
     /** @type {Report} */
     const report = {};
 
-    // `quiet` drops the warnings and `reportAs: false` everything, but an
-    // `outputReport` is still written from all of the results below.
-    if (options.reportAs !== false) {
-      if (warnings.length > 0 && !options.quiet) {
-        report.warnings = new DiagnosticError(name, await format(warnings));
-      }
+    // What `reportAs` drops is not formatted at all, but an `outputReport` is
+    // still written from all of the results below.
+    if (warnings.length > 0 && reportedAs(options.reportAs, "warnings")) {
+      report.warnings = new DiagnosticError(name, await format(warnings));
+    }
 
-      if (errors.length > 0) {
-        report.errors = new DiagnosticError(name, await format(errors));
-      }
+    if (errors.length > 0 && reportedAs(options.reportAs, "errors")) {
+      report.errors = new DiagnosticError(name, await format(errors));
     }
 
     const { outputReport } = options;

@@ -235,48 +235,37 @@ See the [ESLint formatters](https://eslint.org/docs/user-guide/formatters/) and 
 
 ### Errors and warnings
 
-Every check reports its errors as webpack errors and its warnings as webpack warnings, which is what fails the build. `reportAs` overrides that, and `quiet` drops the warnings.
+Every check reports its errors as webpack errors and its warnings as webpack warnings, which is what fails the build. `reportAs` overrides that.
 
 #### `reportAs`
 
 - Type:
 
 ```ts
-type reportAs = "error" | "warning" | false;
+type reportAs = Severity | { errors?: Severity; warnings?: Severity };
+type Severity = "error" | "warning" | false;
 ```
 
 - Default: unset — each result stays at the severity the check gave it
 
-What a check reports its results as. Left unset, an error is a webpack error and a warning a webpack warning; naming one severity reports every result as that one, and `false` reports nothing.
+What a check reports its results as. One value covers its errors and its warnings alike; an object sets them apart, and a severity the object leaves out keeps its own:
 
-| Value       | Effect                                                    |
-| :---------- | :-------------------------------------------------------- |
-| unset       | Errors fail the build, warnings do not.                   |
-| `"error"`   | Everything fails the build, warnings included.            |
-| `"warning"` | Nothing fails the build; errors are reported as warnings. |
-| `false`     | Nothing is reported. An `outputReport` is still written.  |
-
-Together with [`quiet`](#quiet), which drops the warnings before any of this, that covers reporting and failing in one option:
+| Value                   | Effect                                                     |
+| :---------------------- | :--------------------------------------------------------- |
+| unset                   | Errors fail the build, warnings do not.                    |
+| `"error"`               | Everything fails the build, warnings included.             |
+| `"warning"`             | Nothing fails the build; errors are reported as warnings.  |
+| `false`                 | Nothing is reported. An `outputReport` is still written.   |
+| `{ warnings: false }`   | The errors alone, still failing the build.                 |
+| `{ warnings: "error" }` | Warnings fail the build too, and errors keep failing it.   |
+| `{ errors: "warning" }` | Errors stop failing the build, and warnings stay warnings. |
 
 ```js
 new DiagnosticsPlugin({
-  reportAs: "warning", // report everything without failing the build
-  quiet: true, // and leave the warnings out of it
+  reportAs: { warnings: false }, // the errors alone
   checks: [{ use: "eslint" }],
 });
 ```
-
-#### `quiet`
-
-- Type:
-
-```ts
-type quiet = boolean;
-```
-
-- Default: `false`
-
-Will process and report errors only and ignore warnings, if set to `true`. It drops the warnings before [`reportAs`](#reportas) decides what the rest is reported as.
 
 #### `outputReport`
 
@@ -421,7 +410,7 @@ new DiagnosticsPlugin({
 });
 ```
 
-Such an adapter is an object with a `name`, and a `create` returning the five functions the plugin drives it through — what to lint, what came back, which results are errors and which warnings, how to format them, and what to release afterwards. It splits its results by their own severity and nothing else; [`reportAs`](#reportas) and [`quiet`](#quiet) are applied to what it returns:
+Such an adapter is an object with a `name`, and a `create` returning the five functions the plugin drives it through — what to lint, what came back, which results are errors and which warnings, how to format them, and what to release afterwards. It splits its results by their own severity and nothing else; [`reportAs`](#reportas) is applied to what it returns:
 
 ```js
 module.exports = {
@@ -466,15 +455,16 @@ Move the options you were passing into a `checks` entry:
 
 `emitError`, `emitWarning`, `failOnError` and `failOnWarning` are one [`reportAs`](#reportas) option now, because reporting a result as a webpack error is what fails the build — there is nothing left for a second option to say:
 
-| Was                                         | Is                    |
-| :------------------------------------------ | :-------------------- |
-| `emitWarning: false`                        | `quiet: true`         |
-| `emitError: false` and `emitWarning: false` | `reportAs: false`     |
-| `failOnError: true`                         | the default           |
-| `failOnError: false`                        | `reportAs: "warning"` |
-| `failOnWarning: true`                       | `reportAs: "error"`   |
+| Was                                         | Is                                |
+| :------------------------------------------ | :-------------------------------- |
+| `quiet: true`, `emitWarning: false`         | `reportAs: { warnings: false }`   |
+| `emitError: false`                          | `reportAs: { errors: false }`     |
+| `emitError: false` and `emitWarning: false` | `reportAs: false`                 |
+| `failOnError: true`                         | the default                       |
+| `failOnError: false`                        | `reportAs: "warning"`             |
+| `failOnWarning: true`                       | `reportAs: { warnings: "error" }` |
 
-The build is no longer aborted from inside the plugin: a result reported as a webpack error fails the build the way every other webpack error does, and the assets are still written. `emitError: false` on its own has no counterpart — reporting the warnings of a check while hiding its errors was never useful.
+The build is no longer aborted from inside the plugin: a result reported as a webpack error fails the build the way every other webpack error does, and the assets are still written.
 
 The shared options — `context`, `files`, `exclude`, `reportAs` and the rest of [Errors and warnings](#errors-and-warnings) — may stay at the top level instead. Everything else behaves as it did, and the default `cacheLocation` moved to `node_modules/.cache/diagnostics-webpack-plugin/.eslintcache`.
 

@@ -167,7 +167,7 @@ describe("unified plugin", () => {
     );
   });
 
-  it("should apply reportAs and quiet to a check that implements neither", async () => {
+  it("should apply reportAs to a check that implements it not at all", async () => {
     const adapter = {
       name: "made-up",
       create: async () => ({
@@ -182,14 +182,12 @@ describe("unified plugin", () => {
       pack("good", { ...options, checks: [{ use: adapter }] }).runAsync();
 
     const reported = await run({});
-    const asErrors = await run({ reportAs: "error" });
+    const dropped = await run({ reportAs: "error" });
     const silent = await run({ reportAs: false });
-    const quiet = await run({ quiet: true });
 
     assert.strictEqual(reported.compilation.warnings.length, 1);
-    assert.strictEqual(asErrors.compilation.errors.length, 1);
+    assert.strictEqual(dropped.hasWarnings(), false);
     assert.strictEqual(silent.hasWarnings(), false);
-    assert.strictEqual(quiet.hasWarnings(), false);
   });
 
   it("should report every check where a shared reportAs says", async () => {

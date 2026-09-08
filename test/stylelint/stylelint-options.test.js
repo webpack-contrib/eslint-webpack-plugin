@@ -20,7 +20,6 @@ describe("eslint options", () => {
       formatter: "json",
       files: ["file.scss"],
       reportAs: false,
-      quiet: false,
       outputReport: true,
     };
     assert.deepStrictEqual(getStylelintOptions(options), {
