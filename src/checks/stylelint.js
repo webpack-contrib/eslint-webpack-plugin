@@ -65,26 +65,6 @@ const KEPT_OPTIONS = ["cache", "cacheLocation", "files", "fix", "formatter"];
 /** @type {{ [key: string]: Loaded }} */
 const cache = {};
 
-/** @type {WeakMap<Compiler, LintResultMap>} */
-const resultStorage = new WeakMap();
-
-/**
- * Stylelint only lints the files webpack reports as modified, so results of
- * files left untouched by a watch rebuild are carried over from the last run.
- * @param {Compiler} compiler compiler
- * @returns {LintResultMap} lint result map
- */
-function getResultStorage(compiler) {
-  let storage = resultStorage.get(compiler);
-
-  if (!storage) {
-    storage = {};
-    resultStorage.set(compiler, storage);
-  }
-
-  return storage;
-}
-
 /**
  * @param {Options} options options
  * @returns {Partial<StylelintOptions>} stylelint options
@@ -228,9 +208,8 @@ function getLoadedStylelint(key, options) {
  * @param {CheckContext} context check context
  * @returns {Promise<CheckInstance>} stylelint check
  */
-async function create({ key, options, compilation }) {
+async function create({ key, options }) {
   const loaded = getLoadedStylelint(key, options);
-  const storage = getResultStorage(compilation.compiler);
 
   /** @type {LintResult[]} */
   let lastResults = [];
@@ -238,10 +217,6 @@ async function create({ key, options, compilation }) {
   return {
     async lintFiles(files) {
       const resolved = parseFiles(files, String(options.context));
-
-      for (const file of resolved) {
-        delete storage[file];
-      }
 
       // One task per file keeps every worker of the pool busy.
       if (loaded.threads > 1) {
@@ -255,13 +230,9 @@ async function create({ key, options, compilation }) {
       return loaded.lintFiles(resolved);
     },
     async getResults(results) {
-      for (const result of /** @type {LintResult[]} */ (results)) {
-        if (result.ignored) continue;
-
-        storage[String(result.source)] = result;
-      }
-
-      lastResults = Object.values(storage);
+      lastResults = /** @type {LintResult[]} */ (results).filter(
+        (result) => !result.ignored,
+      );
 
       return lastResults;
     },
@@ -332,6 +303,8 @@ export default {
   },
   getLoadedStylelint,
   getStylelintOptions,
+  resultPath: (/** @type {EXPECTED_ANY} */ result) =>
+    /** @type {LintResult} */ (result).source || undefined,
   /**
    * @param {Compiler} compiler compiler
    * @returns {string[]} default excluded globs

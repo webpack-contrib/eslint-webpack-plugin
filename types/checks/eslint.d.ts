@@ -10,6 +10,7 @@ declare namespace _default {
     let extensions: string;
   }
   export function defaultExclude(): string;
+  export function resultPath(result: EXPECTED_ANY): string;
   export { create };
   export { getESLintOptions };
 }

@@ -45,6 +45,10 @@ export type CheckInstance = {
     warnings: CheckResult[];
   };
   /**
+   * the file a result came from, without which a rebuild re-lints everything
+   */
+  resultPath?: ((result: CheckResult) => string | undefined) | undefined;
+  /**
    * loads a formatter, falling back to the tool's default one
    */
   getFormatter: (formatter?: FormatterOption) => Promise<Format>;
@@ -132,6 +136,10 @@ export type CheckAdapter = {
    * creates a check for one compilation
    */
   create: (context: CheckContext) => Promise<CheckInstance>;
+  /**
+   * the file a result came from, without which a rebuild re-lints everything
+   */
+  resultPath?: ((result: CheckResult) => string | undefined) | undefined;
 };
 /** @typedef {import("webpack").Compilation} Compilation */
 /** @typedef {import("webpack").Compiler} Compiler */
@@ -155,6 +163,7 @@ export type CheckAdapter = {
  * @property {(files: string[]) => Promise<CheckResult[]>} lintFiles lints the given files
  * @property {(results: CheckResult[]) => Promise<CheckResult[]>} getResults turns the raw results of every `lintFiles` call into the results to report
  * @property {(results: CheckResult[]) => { errors: CheckResult[], warnings: CheckResult[] }} splitResults splits the results by their own severity, leaving `reportAs` to the plugin
+ * @property {((result: CheckResult) => string | undefined)=} resultPath the file a result came from, without which a rebuild re-lints everything
  * @property {(formatter?: FormatterOption) => Promise<Format>} getFormatter loads a formatter, falling back to the tool's default one
  * @property {() => Promise<void>} cleanup releases whatever the tool holds after a run
  */
@@ -179,6 +188,7 @@ export type CheckAdapter = {
  * @property {{ [key: string]: EXPECTED_ANY }} defaults default options for this check
  * @property {(compiler: Compiler) => string | string[]} defaultExclude the globs excluded when the user specifies none
  * @property {(context: CheckContext) => Promise<CheckInstance>} create creates a check for one compilation
+ * @property {((result: CheckResult) => string | undefined)=} resultPath the file a result came from, without which a rebuild re-lints everything
  */
 /** @type {Map<string, CheckAdapter>} */
 declare const adapters: Map<string, CheckAdapter>;

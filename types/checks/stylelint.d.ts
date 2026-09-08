@@ -10,6 +10,7 @@ declare namespace _default {
   }
   export { getLoadedStylelint };
   export { getStylelintOptions };
+  export function resultPath(result: EXPECTED_ANY): string | undefined;
   export function defaultExclude(compiler: Compiler): string[];
   export { create };
 }
@@ -67,9 +68,5 @@ export function getStylelintOptions(
  * @param {CheckContext} context check context
  * @returns {Promise<CheckInstance>} stylelint check
  */
-declare function create({
-  key,
-  options,
-  compilation,
-}: CheckContext): Promise<CheckInstance>;
+declare function create({ key, options }: CheckContext): Promise<CheckInstance>;
 import { Worker as JestWorker } from "jest-worker";

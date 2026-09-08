@@ -14,8 +14,11 @@ export type Report = {
 };
 export type Runner = {
   lint: (files: string[]) => void;
+  keep: (files: string[]) => void;
+  keepKnown: (removed: ReadonlySet<string>) => void;
   report: () => Promise<Report>;
 };
+export type ResultStore = Map<string, CheckResult | undefined>;
 /**
  * Creates the check synchronously so that the compilation hooks are tapped
  * before webpack starts building modules, whatever the tool takes to load.
