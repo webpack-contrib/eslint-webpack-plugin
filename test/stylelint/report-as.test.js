@@ -13,22 +13,24 @@ describe("report as", () => {
     assert.strictEqual(stats.hasWarnings(), true);
   });
 
-  it("should report everything as errors when set to the errors", async () => {
-    const compiler = pack("full-of-problems", { reportAs: "error" });
+  it("should cover both severities with one value", async () => {
+    const asErrors = await pack("full-of-problems", {
+      reportAs: "error",
+    }).runAsync();
+
+    assert.strictEqual(asErrors.hasErrors(), true);
+    assert.strictEqual(asErrors.hasWarnings(), false);
+  });
+
+  it("should set the severities apart with an object", async () => {
+    const compiler = pack("full-of-problems", {
+      reportAs: { warnings: false },
+    });
 
     const stats = await compiler.runAsync();
 
     assert.strictEqual(stats.hasErrors(), true);
     assert.strictEqual(stats.hasWarnings(), false);
-  });
-
-  it("should report everything as warnings when set to the warnings", async () => {
-    const compiler = pack("full-of-problems", { reportAs: "warning" });
-
-    const stats = await compiler.runAsync();
-
-    assert.strictEqual(stats.hasErrors(), false);
-    assert.strictEqual(stats.hasWarnings(), true);
   });
 
   it("should report nothing when set to false", async () => {

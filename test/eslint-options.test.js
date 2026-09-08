@@ -21,7 +21,6 @@ describe("eslint options", () => {
       formatter: "table",
       fix: true,
       reportAs: false,
-      quiet: false,
       outputReport: true,
     };
     assert.deepStrictEqual(getESLintOptions(options), {

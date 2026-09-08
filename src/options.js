@@ -13,7 +13,9 @@ const nodeRequire = createRequire(import.meta.url);
 const PLUGIN_NAME = "Diagnostics Webpack Plugin";
 
 /** @typedef {import("webpack").Compiler} Compiler */
-/** @typedef {"error" | "warning" | false} ReportAs */
+/** @typedef {"error" | "warning" | false} Severity */
+/** @typedef {"errors" | "warnings"} Results */
+/** @typedef {Severity | { errors?: Severity, warnings?: Severity }} ReportAs */
 /** @typedef {import("./checks/index.js").FormatterOption} FormatterOption */
 /** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
 /** @typedef {import("./checks/index.js").CheckAdapterInput} CheckAdapterInput */
@@ -35,7 +37,6 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @property {boolean=} fix apply fixes
  * @property {FormatterOption=} formatter specify the formatter you would like to use to format your results
  * @property {OutputReport=} outputReport writes the output of the errors to a file - for example, a `json` file for use for reporting
- * @property {boolean=} quiet will process and report errors only and ignore warnings
  * @property {RegExp | RegExp[] | string | string[]=} resourceQueryExclude specify the resource query to exclude
  */
 
@@ -111,6 +112,24 @@ function getSchemas() {
   }
 
   return schemas;
+}
+
+/** @type {Record<Results, Severity>} */
+const REPORT_AS_DEFAULTS = { errors: "error", warnings: "warning" };
+
+/**
+ * A severity covers a check's errors and its warnings alike unless an object
+ * sets them apart, and one it leaves out keeps its own.
+ * @param {ReportAs | undefined} reportAs the option as it was given
+ * @param {Results} results which of a check's results to answer for
+ * @returns {Severity} what they are reported as
+ */
+function reportedAs(reportAs, results) {
+  if (reportAs === undefined) return REPORT_AS_DEFAULTS[results];
+
+  if (reportAs === false || typeof reportAs === "string") return reportAs;
+
+  return reportAs[results] ?? REPORT_AS_DEFAULTS[results];
 }
 
 /**
@@ -231,4 +250,4 @@ function validateOptions(compiler, pluginOptions, checks) {
   }
 }
 
-export { getOptions, validateOptions };
+export { getOptions, reportedAs, validateOptions };

@@ -13,22 +13,27 @@ describe("report as", () => {
     assert.strictEqual(stats.hasWarnings(), true);
   });
 
-  it("should report everything as errors when set to the errors", async () => {
-    const compiler = pack("full-of-problems", { reportAs: "error" });
+  it("should keep the default when written out as undefined", async () => {
+    const compiler = pack("full-of-problems", { reportAs: undefined });
 
     const stats = await compiler.runAsync();
 
     assert.strictEqual(stats.hasErrors(), true);
-    assert.strictEqual(stats.hasWarnings(), false);
+    assert.strictEqual(stats.hasWarnings(), true);
   });
 
-  it("should report everything as warnings when set to the warnings", async () => {
-    const compiler = pack("full-of-problems", { reportAs: "warning" });
+  it("should cover both severities with one value", async () => {
+    const asErrors = await pack("full-of-problems", {
+      reportAs: "error",
+    }).runAsync();
+    const asWarnings = await pack("full-of-problems", {
+      reportAs: "warning",
+    }).runAsync();
 
-    const stats = await compiler.runAsync();
-
-    assert.strictEqual(stats.hasErrors(), false);
-    assert.strictEqual(stats.hasWarnings(), true);
+    assert.strictEqual(asErrors.hasErrors(), true);
+    assert.strictEqual(asErrors.hasWarnings(), false);
+    assert.strictEqual(asWarnings.hasErrors(), false);
+    assert.strictEqual(asWarnings.hasWarnings(), true);
   });
 
   it("should report nothing when set to false", async () => {
@@ -40,45 +45,49 @@ describe("report as", () => {
     assert.strictEqual(stats.hasWarnings(), false);
   });
 
-  it("should keep the default when written out as undefined", async () => {
-    const compiler = pack("full-of-problems", { reportAs: undefined });
+  it("should set the severities apart with an object", async () => {
+    const compiler = pack("full-of-problems", {
+      reportAs: { errors: "warning", warnings: "error" },
+    });
 
     const stats = await compiler.runAsync();
 
+    assert.strictEqual(stats.compilation.errors.length, 1);
+    assert.strictEqual(stats.compilation.warnings.length, 1);
+    assert.match(stats.compilation.errors[0].message, /warning/u);
+  });
+
+  it("should leave a severity the object does not name at its own", async () => {
+    const quiet = await pack("full-of-problems", {
+      reportAs: { warnings: false },
+    }).runAsync();
+    const noErrors = await pack("full-of-problems", {
+      reportAs: { errors: false },
+    }).runAsync();
+
+    assert.strictEqual(quiet.hasErrors(), true);
+    assert.strictEqual(quiet.hasWarnings(), false);
+    assert.strictEqual(noErrors.hasErrors(), false);
+    assert.strictEqual(noErrors.hasWarnings(), true);
+  });
+
+  it("should fail the build on a warning reported as an error", async () => {
+    const stats = await pack("warn", {
+      reportAs: { warnings: "error" },
+    }).runAsync();
+
     assert.strictEqual(stats.hasErrors(), true);
+  });
+
+  it("should not fail the build on an error reported as a warning", async () => {
+    const stats = await pack("error", { reportAs: "warning" }).runAsync();
+
+    assert.strictEqual(stats.hasErrors(), false);
     assert.strictEqual(stats.hasWarnings(), true);
   });
 
-  it("should fail the build on the errors it reports", async () => {
-    const failing = await pack("error", {}).runAsync();
-    const passing = await pack("error", { reportAs: "warning" }).runAsync();
-
-    assert.strictEqual(failing.hasErrors(), true);
-    assert.strictEqual(passing.hasErrors(), false);
-    assert.strictEqual(passing.hasWarnings(), true);
-  });
-
-  it("should fail the build on a warning set to the errors", async () => {
-    const stats = await pack("warn", { reportAs: "error" }).runAsync();
-
-    assert.strictEqual(stats.hasErrors(), true);
-  });
-
-  it("should ignore the warnings when quiet is set", async () => {
-    const stats = await pack("full-of-problems", {
-      reportAs: "error",
-      quiet: true,
-    }).runAsync();
-
-    assert.strictEqual(stats.compilation.errors.length, 1);
-    assert.doesNotMatch(
-      stats.compilation.errors[0].message,
-      /^\s+\d+:\d+\s+warning/mu,
-    );
-  });
-
   it("should let a clean build pass whatever it is set to", async () => {
-    for (const reportAs of ["error", "warning", false]) {
+    for (const reportAs of ["error", "warning", false, { errors: "warning" }]) {
       const stats = await pack("good", { reportAs }).runAsync();
 
       assert.strictEqual(stats.hasErrors(), false);
@@ -86,12 +95,17 @@ describe("report as", () => {
     }
   });
 
-  it("should reject anything but a severity or false", () => {
-    for (const reportAs of [true, "info", [], ["error"], { error: "error" }]) {
+  it("should reject anything but a severity or a map of them", () => {
+    for (const reportAs of [true, "info", [], ["error"], { errors: "info" }]) {
       assert.throws(
         () => pack("full-of-problems", { reportAs }),
-        /reportAs should be one of these:\n *"error" \| "warning" \| false/u,
+        /reportAs(\.errors)? should be one of these/u,
       );
     }
+
+    assert.throws(
+      () => pack("full-of-problems", { reportAs: { info: "error" } }),
+      /reportAs has an unknown property 'info'/u,
+    );
   });
 });

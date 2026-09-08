@@ -4,7 +4,7 @@ import picomatch from "picomatch";
 import { globSync } from "tinyglobby";
 
 import createCheckRunner from "./check.js";
-import { getOptions, validateOptions } from "./options.js";
+import { getOptions, reportedAs, validateOptions } from "./options.js";
 import {
   arrify,
   parseFiles,
@@ -257,24 +257,20 @@ class DiagnosticsWebpackPlugin {
           for (const { options, runner } of runners) {
             const { errors, warnings, outputReport } = await runner.report();
 
-            // `reportAs` names the one place every result goes; left unset, each
-            // stays at the severity the check gave it.
-            if (warnings) {
-              const reported =
-                options.reportAs === "error"
-                  ? compilation.errors
-                  : compilation.warnings;
+            // `reportAs` has already dropped whatever it reports as `false`,
+            // so what is left only needs putting where it belongs.
+            for (const [results, reported] of /** @type {const} */ ([
+              ["errors", errors],
+              ["warnings", warnings],
+            ])) {
+              if (!reported) continue;
 
-              reported.push(warnings);
-            }
+              const severity = reportedAs(options.reportAs, results);
 
-            if (errors) {
-              const reported =
-                options.reportAs === "warning"
-                  ? compilation.warnings
-                  : compilation.errors;
-
-              reported.push(errors);
+              (severity === "error"
+                ? compilation.errors
+                : compilation.warnings
+              ).push(reported);
             }
 
             if (outputReport) {

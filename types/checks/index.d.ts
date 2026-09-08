@@ -38,7 +38,7 @@ export type CheckInstance = {
    */
   getResults: (results: CheckResult[]) => Promise<CheckResult[]>;
   /**
-   * splits the results by their own severity, leaving `reportAs` and `quiet` to the plugin
+   * splits the results by their own severity, leaving `reportAs` to the plugin
    */
   splitResults: (results: CheckResult[]) => {
     errors: CheckResult[];
@@ -154,7 +154,7 @@ export type CheckAdapter = {
  * @typedef {object} CheckInstance
  * @property {(files: string[]) => Promise<CheckResult[]>} lintFiles lints the given files
  * @property {(results: CheckResult[]) => Promise<CheckResult[]>} getResults turns the raw results of every `lintFiles` call into the results to report
- * @property {(results: CheckResult[]) => { errors: CheckResult[], warnings: CheckResult[] }} splitResults splits the results by their own severity, leaving `reportAs` and `quiet` to the plugin
+ * @property {(results: CheckResult[]) => { errors: CheckResult[], warnings: CheckResult[] }} splitResults splits the results by their own severity, leaving `reportAs` to the plugin
  * @property {(formatter?: FormatterOption) => Promise<Format>} getFormatter loads a formatter, falling back to the tool's default one
  * @property {() => Promise<void>} cleanup releases whatever the tool holds after a run
  */
