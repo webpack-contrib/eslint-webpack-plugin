@@ -13,6 +13,7 @@ const nodeRequire = createRequire(import.meta.url);
 const PLUGIN_NAME = "Diagnostics Webpack Plugin";
 
 /** @typedef {import("webpack").Compiler} Compiler */
+/** @typedef {"error" | "warning" | false} ReportAs */
 /** @typedef {import("./checks/index.js").FormatterOption} FormatterOption */
 /** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
 /** @typedef {import("./checks/index.js").CheckAdapterInput} CheckAdapterInput */
@@ -27,12 +28,9 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @typedef {object} SharedOptions
  * @property {boolean=} cache enable the tool's cache to decrease execution time
  * @property {string=} cacheLocation specify the path to the cache location
- * @property {boolean=} emitError the errors found will always be emitted
- * @property {boolean=} emitWarning the warnings found will always be emitted
+ * @property {ReportAs=} reportAs what a check reports its results as
  * @property {string | string[]=} exclude specify the files and/or directories to exclude
  * @property {string | string[]=} extensions specify the extensions that should be checked
- * @property {boolean=} failOnError will cause the module build to fail if there are any errors
- * @property {boolean=} failOnWarning will cause the module build to fail if there are any warnings
  * @property {string | string[]=} files specify directories, files, or globs
  * @property {boolean=} fix apply fixes
  * @property {FormatterOption=} formatter specify the formatter you would like to use to format your results
@@ -46,6 +44,8 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  */
 
 /**
+ * The options of one check, as given and then as the plugin resolves them
+ * against a compiler.
  * @typedef {SharedOptions & { [option: string]: EXPECTED_ANY }} CheckOptions
  */
 
@@ -71,11 +71,6 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
  * @property {EnabledCheck[]} checks the checks to run
  */
-
-const SHARED_DEFAULTS = {
-  emitError: true,
-  emitWarning: true,
-};
 
 const DEFAULT_FOLDER_TO_EXCLUDE = "**/node_modules/**";
 
@@ -176,17 +171,7 @@ function getOptions(pluginOptions) {
     const adapter = toAdapter(use);
 
     /** @type {CheckOptions} */
-    const options = {
-      ...SHARED_DEFAULTS,
-      ...adapter.defaults,
-      ...shared,
-      ...own,
-    };
-
-    if (options.quiet) {
-      options.emitError = true;
-      options.emitWarning = false;
-    }
+    const options = { ...adapter.defaults, ...shared, ...own };
 
     return { name: adapter.name, adapter, options };
   });

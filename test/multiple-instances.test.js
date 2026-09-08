@@ -14,7 +14,6 @@ describe("multiple instances", () => {
       {
         plugins: [
           new DiagnosticsPlugin({
-            failOnError: true,
             exclude: "error.js",
             checks: [
               {
@@ -28,7 +27,6 @@ describe("multiple instances", () => {
             ],
           }),
           new DiagnosticsPlugin({
-            failOnError: true,
             exclude: "error.js",
             checks: [
               {
@@ -57,7 +55,6 @@ describe("multiple instances", () => {
       {
         plugins: [
           new DiagnosticsPlugin({
-            failOnError: true,
             exclude: "good.js",
             checks: [
               {
@@ -71,7 +68,6 @@ describe("multiple instances", () => {
             ],
           }),
           new DiagnosticsPlugin({
-            failOnError: true,
             exclude: "error.js",
             checks: [
               {
@@ -88,7 +84,10 @@ describe("multiple instances", () => {
       },
     );
 
-    await assert.rejects(compiler.runAsync(), /error\.js/u);
+    const stats = await compiler.runAsync();
+
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.match(stats.compilation.errors[0].message, /error\.js/u);
   });
 
   it("should fail on second instance", async () => {
@@ -98,7 +97,6 @@ describe("multiple instances", () => {
       {
         plugins: [
           new DiagnosticsPlugin({
-            failOnError: true,
             exclude: "error.js",
             checks: [
               {
@@ -112,7 +110,6 @@ describe("multiple instances", () => {
             ],
           }),
           new DiagnosticsPlugin({
-            failOnError: true,
             exclude: "good.js",
             checks: [
               {
@@ -129,6 +126,9 @@ describe("multiple instances", () => {
       },
     );
 
-    await assert.rejects(compiler.runAsync(), /error\.js/u);
+    const stats = await compiler.runAsync();
+
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.match(stats.compilation.errors[0].message, /error\.js/u);
   });
 });

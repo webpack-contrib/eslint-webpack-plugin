@@ -116,8 +116,8 @@ describe("unified plugin", () => {
 
   it("should let a check override a shared option", async () => {
     const compiler = pack("both", {
-      emitError: false,
-      checks: [eslint, { ...stylelint, emitError: true }],
+      reportAs: false,
+      checks: [eslint, { ...stylelint, reportAs: "error" }],
     });
     const stats = await compiler.runAsync();
     const [error] = stats.compilation.errors;
@@ -167,10 +167,39 @@ describe("unified plugin", () => {
     );
   });
 
-  it("should fail the build when a shared failOnError is set", async () => {
-    const compiler = pack("both", { failOnError: true, checks });
+  it("should apply reportAs and quiet to a check that implements neither", async () => {
+    const adapter = {
+      name: "made-up",
+      create: async () => ({
+        lintFiles: async () => [{ file: "checked" }],
+        getResults: async (results) => results,
+        splitResults: (results) => ({ errors: [], warnings: results }),
+        getFormatter: async () => async () => "made up problem",
+        cleanup: async () => {},
+      }),
+    };
+    const run = (options) =>
+      pack("good", { ...options, checks: [{ use: adapter }] }).runAsync();
 
-    await assert.rejects(compiler.runAsync(), /bad\.js/u);
+    const reported = await run({});
+    const asErrors = await run({ reportAs: "error" });
+    const silent = await run({ reportAs: false });
+    const quiet = await run({ quiet: true });
+
+    assert.strictEqual(reported.compilation.warnings.length, 1);
+    assert.strictEqual(asErrors.compilation.errors.length, 1);
+    assert.strictEqual(silent.hasWarnings(), false);
+    assert.strictEqual(quiet.hasWarnings(), false);
+  });
+
+  it("should report every check where a shared reportAs says", async () => {
+    const compiler = pack("both", { reportAs: "warning", checks });
+    const stats = await compiler.runAsync();
+    const messages = stats.compilation.warnings.map(({ message }) => message);
+
+    assert.strictEqual(stats.hasErrors(), false);
+    assert.match(messages.join("\n"), /bad\.js/u);
+    assert.match(messages.join("\n"), /bad\.scss/u);
   });
 
   it("should join the reports of every check into one output report", async () => {

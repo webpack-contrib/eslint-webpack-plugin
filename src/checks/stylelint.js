@@ -273,7 +273,7 @@ async function create({ key, options, compilation }) {
 
       for (const file of /** @type {LintResult[]} */ (results)) {
         const fileErrors = file.warnings.filter(
-          (message) => options.emitError && message.severity === "error",
+          (message) => message.severity === "error",
         );
 
         if (fileErrors.length > 0) {
@@ -281,7 +281,7 @@ async function create({ key, options, compilation }) {
         }
 
         const fileWarnings = file.warnings.filter(
-          (message) => options.emitWarning && message.severity === "warning",
+          (message) => message.severity === "warning",
         );
 
         if (fileWarnings.length > 0) {

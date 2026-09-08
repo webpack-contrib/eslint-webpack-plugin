@@ -138,8 +138,6 @@ class DiagnosticsWebpackPlugin {
     const resolved = {
       ...options,
       context,
-      failOnError:
-        options.failOnError ?? compiler.options.mode !== "development",
       exclude: options.exclude
         ? parseFiles(options.exclude, context)
         : adapter.defaultExclude(compiler),
@@ -249,18 +247,28 @@ class DiagnosticsWebpackPlugin {
         async (_, callback) => {
           /** @type {Map<string, string[]>} */
           const outputReports = new Map();
-          /** @type {Error | undefined} */
-          let failure;
 
           for (const { options, runner } of runners) {
             const { errors, warnings, outputReport } = await runner.report();
 
+            // `reportAs` names the one place every result goes; left unset, each
+            // stays at the severity the check gave it.
             if (warnings) {
-              compilation.warnings.push(warnings);
+              const reported =
+                options.reportAs === "error"
+                  ? compilation.errors
+                  : compilation.warnings;
+
+              reported.push(warnings);
             }
 
             if (errors) {
-              compilation.errors.push(errors);
+              const reported =
+                options.reportAs === "warning"
+                  ? compilation.warnings
+                  : compilation.errors;
+
+              reported.push(errors);
             }
 
             if (outputReport) {
@@ -268,14 +276,6 @@ class DiagnosticsWebpackPlugin {
 
               contents.push(outputReport.content);
               outputReports.set(outputReport.filePath, contents);
-            }
-
-            if (!failure) {
-              if (warnings && options.failOnWarning) {
-                failure = warnings;
-              } else if (errors && options.failOnError) {
-                failure = errors;
-              }
             }
           }
 
@@ -285,7 +285,7 @@ class DiagnosticsWebpackPlugin {
             ),
           );
 
-          callback(failure);
+          callback();
         },
       );
     });

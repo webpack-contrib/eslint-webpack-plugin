@@ -82,12 +82,16 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
     /** @type {Report} */
     const report = {};
 
-    if (warnings.length > 0) {
-      report.warnings = new DiagnosticError(name, await format(warnings));
-    }
+    // `quiet` drops the warnings and `reportAs: false` everything, but an
+    // `outputReport` is still written from all of the results below.
+    if (options.reportAs !== false) {
+      if (warnings.length > 0 && !options.quiet) {
+        report.warnings = new DiagnosticError(name, await format(warnings));
+      }
 
-    if (errors.length > 0) {
-      report.errors = new DiagnosticError(name, await format(errors));
+      if (errors.length > 0) {
+        report.errors = new DiagnosticError(name, await format(errors));
+      }
     }
 
     const { outputReport } = options;

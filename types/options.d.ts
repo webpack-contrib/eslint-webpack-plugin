@@ -1,5 +1,6 @@
 export type EXPECTED_ANY = any;
 export type Compiler = import("webpack").Compiler;
+export type ReportAs = "error" | "warning" | false;
 export type FormatterOption = import("./checks/index.js").FormatterOption;
 export type CheckAdapter = import("./checks/index.js").CheckAdapter;
 export type CheckAdapterInput = import("./checks/index.js").CheckAdapterInput;
@@ -23,13 +24,9 @@ export type SharedOptions = {
    */
   cacheLocation?: string | undefined;
   /**
-   * the errors found will always be emitted
+   * what a check reports its results as
    */
-  emitError?: boolean | undefined;
-  /**
-   * the warnings found will always be emitted
-   */
-  emitWarning?: boolean | undefined;
+  reportAs?: ReportAs | undefined;
   /**
    * specify the files and/or directories to exclude
    */
@@ -38,14 +35,6 @@ export type SharedOptions = {
    * specify the extensions that should be checked
    */
   extensions?: (string | string[]) | undefined;
-  /**
-   * will cause the module build to fail if there are any errors
-   */
-  failOnError?: boolean | undefined;
-  /**
-   * will cause the module build to fail if there are any warnings
-   */
-  failOnWarning?: boolean | undefined;
   /**
    * specify directories, files, or globs
    */
@@ -75,6 +64,10 @@ export type CheckEntry = SharedOptions & {
   use: string | CheckAdapterInput;
   [option: string]: EXPECTED_ANY;
 };
+/**
+ * The options of one check, as given and then as the plugin resolves them
+ * against a compiler.
+ */
 export type CheckOptions = SharedOptions & {
   [option: string]: EXPECTED_ANY;
 };

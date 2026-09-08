@@ -7,7 +7,7 @@ describe("eslint options", () => {
   it("should filter plugin options", () => {
     const options = {
       formatter: "json",
-      emitError: false,
+      reportAs: false,
     };
     assert.deepStrictEqual(getStylelintOptions(options), {
       formatter: "json",
@@ -19,10 +19,7 @@ describe("eslint options", () => {
       stylelintPath: "some/place/where/stylelint/lives",
       formatter: "json",
       files: ["file.scss"],
-      emitError: false,
-      emitWarning: false,
-      failOnError: true,
-      failOnWarning: true,
+      reportAs: false,
       quiet: false,
       outputReport: true,
     };
