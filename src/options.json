@@ -6,8 +6,8 @@
       "description": "A string indicating the root of your files.",
       "type": "string"
     },
-    "lintDirtyModulesOnly": {
-      "description": "Lint only changed files, skip lint on start.",
+    "lintOnStart": {
+      "description": "Whether the first compilation lints every file it covers. `false` leaves a watch run reporting only the modules webpack rebuilds; a build has nothing but a first compilation, so it always lints.",
       "type": "boolean"
     },
     "checks": {

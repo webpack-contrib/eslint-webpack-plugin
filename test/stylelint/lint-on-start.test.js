@@ -5,13 +5,9 @@ import { afterEach, describe, it } from "node:test";
 
 import pack from "./utils/pack.js";
 
-const target = join(
-  import.meta.dirname,
-  "fixtures",
-  "lint-dirty-modules-only-entry.js",
-);
+const target = join(import.meta.dirname, "fixtures/lint-on-start/test.scss");
 
-describe("lint dirty modules only", () => {
+describe("lint on start", () => {
   let watch;
 
   afterEach(() => {
@@ -22,12 +18,12 @@ describe("lint dirty modules only", () => {
   });
 
   it("skips linting on initial run", (t, done) => {
-    writeFileSync(target, "const foo = false\n");
+    writeFileSync(target, "body { }\n");
 
     // eslint-disable-next-line no-use-before-define
     let next = firstPass;
-    const compiler = pack("lint-dirty-modules-only", {
-      lintDirtyModulesOnly: true,
+    const compiler = pack("lint-on-start", {
+      lintOnStart: false,
     });
     watch = compiler.watch({}, (err, stats) => next(err, stats));
 
@@ -37,7 +33,8 @@ describe("lint dirty modules only", () => {
       assert.strictEqual(stats.hasErrors(), true);
       const { errors } = stats.compilation;
       assert.strictEqual(errors.length, 1);
-      assert.match(stats.compilation.errors[0].message, /no-unused-vars/u);
+      const [{ message }] = errors;
+      assert.match(message, /color-named/u);
       done();
     }
 
@@ -48,7 +45,18 @@ describe("lint dirty modules only", () => {
 
       next = secondPass;
 
-      writeFileSync(target, "const bar = false;\n");
+      writeFileSync(target, "#stuff { background: black; }\n");
     }
+  });
+
+  it("still lints a build, which is nothing but a start", async () => {
+    writeFileSync(target, "#stuff { background: black; }\n");
+
+    const stats = await pack("lint-on-start", {
+      lintOnStart: false,
+    }).runAsync();
+
+    assert.strictEqual(stats.hasErrors(), true);
+    assert.match(stats.compilation.errors[0].message, /color-named/u);
   });
 });

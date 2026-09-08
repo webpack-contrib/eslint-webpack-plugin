@@ -80,9 +80,9 @@ export type PluginOptions = {
    */
   context?: string | undefined;
   /**
-   * lint only changed files, skip linting on start
+   * whether the first compilation lints everything
    */
-  lintDirtyModulesOnly?: boolean | undefined;
+  lintOnStart?: boolean | undefined;
   /**
    * the checks to run
    */
@@ -109,9 +109,9 @@ export type NormalizedOptions = {
    */
   context?: string | undefined;
   /**
-   * lint only changed files, skip linting on start
+   * whether the first compilation lints everything
    */
-  lintDirtyModulesOnly?: boolean | undefined;
+  lintOnStart: boolean;
   /**
    * the checks to run
    */

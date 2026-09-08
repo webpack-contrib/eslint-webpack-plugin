@@ -115,17 +115,23 @@ type context = string;
 
 Base directory for linting. Every relative `files` and `exclude` pattern is resolved against it.
 
-#### `lintDirtyModulesOnly`
+#### `lintOnStart`
 
 - Type:
 
 ```ts
-type lintDirtyModulesOnly = boolean;
+type lintOnStart = boolean;
 ```
 
-- Default: `false`
+- Default: `true`
 
-Lint only changed files, skipping the initial lint on build start.
+Whether the first compilation lints every file it covers. Leave it alone and a
+build lints everything while a watch run lints everything once and then only
+what webpack rebuilds.
+
+Set it to `false` to start a watch run quiet: nothing is linted until you touch
+a file, and only the modules webpack rebuilds are reported. A build is nothing
+but a first compilation, so it lints either way — the option cannot silence one.
 
 ### Shared options
 
@@ -310,7 +316,7 @@ Run with `{ use: "eslint" }`. It lints the files webpack builds, so only the mod
 
 Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are. `concurrency` is worth knowing about: it spreads a lint across worker threads, and ESLint warns on the runs where doing so costs more than it saves, so measure your own project rather than turning it on by default.
 
-A rebuild lints only the files webpack rebuilt and reports the rest from the previous run, so `lintDirtyModulesOnly` is only worth setting to skip the first lint entirely.
+A rebuild lints only the files webpack rebuilt and reports the rest from the previous run, so [`lintOnStart`](#lintonstart) is only worth setting to start a watch run quiet.
 
 ### `configType`
 
@@ -439,7 +445,7 @@ module.exports = {
 
 Both plugins become one, and every option they had is still here. What changed is where an option is written and how the four that decided severity are spelled.
 
-**Where an option goes.** `context`, `lintDirtyModulesOnly` and `checks` are the plugin's own and stay at the top level. Everything else is shared: write it at the top level to cover every check, or inside a `checks` entry to cover that one. `configType`, `eslintPath`, `stylelintPath` and `threads` belong to a single check and go in its entry.
+**Where an option goes.** `context`, `lintOnStart` and `checks` are the plugin's own and stay at the top level. Everything else is shared: write it at the top level to cover every check, or inside a `checks` entry to cover that one. `configType`, `eslintPath`, `stylelintPath` and `threads` belong to a single check and go in its entry.
 
 **Severity is one option.** `emitError`, `emitWarning`, `failOnError`, `failOnWarning` and `quiet` are [`reportAs`](#reportas), because reporting a result as a webpack error is what fails the build:
 
@@ -490,7 +496,7 @@ Every option `eslint-webpack-plugin` accepted, and where it is now:
 | `files`                | Unchanged, shared.                                                                                               |
 | `fix`                  | Unchanged, shared.                                                                                               |
 | `formatter`            | Unchanged, shared.                                                                                               |
-| `lintDirtyModulesOnly` | Unchanged, top level. It covers every check and cannot be set per check.                                         |
+| `lintDirtyModulesOnly` | [`lintOnStart`](#lintonstart), inverted: `lintDirtyModulesOnly: true` is `lintOnStart: false`. Top level.        |
 | `outputReport`         | Unchanged, shared. It is still written even when `reportAs` is `false`.                                          |
 | `quiet`                | `reportAs: { warnings: false }`.                                                                                 |
 | `resourceQueryExclude` | Unchanged, shared.                                                                                               |
@@ -528,7 +534,7 @@ Every option `stylelint-webpack-plugin` accepted, and where it is now:
 | `failOnWarning`        | [`reportAs`](#reportas), see the table above.                                                             |
 | `files`                | Unchanged, shared.                                                                                        |
 | `formatter`            | Unchanged, shared.                                                                                        |
-| `lintDirtyModulesOnly` | Unchanged, top level. It covers every check and cannot be set per check.                                  |
+| `lintDirtyModulesOnly` | [`lintOnStart`](#lintonstart), inverted: `lintDirtyModulesOnly: true` is `lintOnStart: false`. Top level. |
 | `outputReport`         | Unchanged, shared. It is still written even when `reportAs` is `false`.                                   |
 | `quiet`                | `reportAs: { warnings: false }`.                                                                          |
 | `stylelintPath`        | Unchanged, in the `stylelint` entry.                                                                      |
