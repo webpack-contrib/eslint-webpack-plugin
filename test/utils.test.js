@@ -2,13 +2,28 @@ import assert from "node:assert/strict";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { parseFiles, parseFoldersToGlobs } from "../src/utils.js";
+import { parseFiles, parseFoldersToGlobs, toPosixPath } from "../src/utils.js";
 
 // `parseFoldersToGlobs` stats what it is given, so the fixtures have to exist.
 const directory = join(import.meta.dirname, "fixtures");
 const file = join(import.meta.dirname, "fixtures", "good.js");
 
 describe("utils", () => {
+  it("toPosixPath should turn every separator into a forward slash", () => {
+    assert.strictEqual(toPosixPath("/home/user/a.css"), "/home/user/a.css");
+    assert.strictEqual(
+      toPosixPath(String.raw`C:\Users\me\a.css`),
+      "C:/Users/me/a.css",
+    );
+    // A UNC share and a drive root keep their shape, which is what a path
+    // walked back to `\\server` or `C:` would no longer name.
+    assert.strictEqual(
+      toPosixPath(String.raw`\\server\share\a.css`),
+      "//server/share/a.css",
+    );
+    assert.strictEqual(toPosixPath("C:\\"), "C:/");
+  });
+
   it("parseFiles should return relative files from context", () => {
     const [all, packageA, packageB] = parseFiles(
       ["**/*", "../package-a/src/**/", "../package-b/src/**/"],

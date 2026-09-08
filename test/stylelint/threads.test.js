@@ -3,11 +3,9 @@ import { createRequire } from "node:module";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-// @ts-expect-error no types
-import normalizePath from "normalize-path";
-
 import { lintFiles, setup } from "../../src/checks/stylelint-worker.js";
 import { getLoadedStylelint } from "../../src/checks/stylelint.js";
+import { toPosixPath } from "../../src/utils.js";
 
 import pack from "./utils/pack.js";
 
@@ -40,10 +38,10 @@ describe("Threading", () => {
     try {
       const [good, bad] = await Promise.all([
         threaded.lintFiles(
-          normalizePath(join(import.meta.dirname, "fixtures/good/test.scss")),
+          toPosixPath(join(import.meta.dirname, "fixtures/good/test.scss")),
         ),
         threaded.lintFiles(
-          normalizePath(join(import.meta.dirname, "fixtures/error/test.scss")),
+          toPosixPath(join(import.meta.dirname, "fixtures/error/test.scss")),
         ),
       ]);
       assert.strictEqual(good[0].errored, false);
