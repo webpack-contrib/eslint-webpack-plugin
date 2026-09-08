@@ -1,7 +1,7 @@
 import { isAbsolute, join } from "node:path";
 
-import globby from "globby";
-import micromatch from "micromatch";
+import picomatch from "picomatch";
+import { globSync } from "tinyglobby";
 
 import createCheckRunner from "./check.js";
 import { getOptions, validateOptions } from "./options.js";
@@ -11,9 +11,6 @@ import {
   parseFoldersToGlobs,
   writeOutputFile,
 } from "./utils.js";
-
-// `micromatch` is CommonJS, whose named exports ESM cannot always see
-const { isMatch } = micromatch;
 
 /** @typedef {import("webpack").Compilation} Compilation */
 /** @typedef {import("webpack").Compiler} Compiler */
@@ -32,6 +29,8 @@ const { isMatch } = micromatch;
  * @property {CheckOptions} options options resolved for this check
  * @property {string[]} wanted the globs of the files to lint
  * @property {string[]} exclude the globs of the files not to lint
+ * @property {(file: string) => boolean} isWanted whether a path is one to lint
+ * @property {(file: string) => boolean} isExcluded whether a path is left out
  */
 
 const LINT_PLUGIN = "DiagnosticsWebpackPlugin";
@@ -40,19 +39,16 @@ let compilerId = 0;
 
 /**
  * @param {Compiler} compiler compiler
- * @param {string[]} wanted the globs of the files to lint
- * @param {string[]} exclude the globs of the files not to lint
+ * @param {ResolvedCheck} check the check to collect the files of
  * @returns {string[]} the files on disk to lint
  */
-function collectFromFileSystem(compiler, wanted, exclude) {
+function collectFromFileSystem(compiler, { wanted, exclude, ...check }) {
   if (!compiler.modifiedFiles) {
-    return globby.sync(wanted, { dot: true, ignore: exclude });
+    return globSync(wanted, { absolute: true, dot: true, ignore: exclude });
   }
 
   return [...compiler.modifiedFiles].filter(
-    (file) =>
-      isMatch(file, wanted, { dot: true }) &&
-      !isMatch(file, exclude, { dot: true }),
+    (file) => check.isWanted(file) && !check.isExcluded(file),
   );
 }
 
@@ -149,15 +145,24 @@ class DiagnosticsWebpackPlugin {
       ),
     };
 
+    const wanted = parseFoldersToGlobs(
+      /** @type {string[]} */ (resolved.files),
+      resolved.extensions,
+    );
+    const exclude = parseFoldersToGlobs(
+      /** @type {string[]} */ (resolved.exclude),
+    );
+
     return {
       name,
       adapter,
       options: resolved,
-      wanted: parseFoldersToGlobs(
-        /** @type {string[]} */ (resolved.files),
-        resolved.extensions,
-      ),
-      exclude: parseFoldersToGlobs(/** @type {string[]} */ (resolved.exclude)),
+      wanted,
+      exclude,
+      // Compiled here rather than per call: the two run on every module of
+      // every build, and matching by pattern recompiles them each time.
+      isWanted: picomatch(wanted, { dot: true }),
+      isExcluded: picomatch(exclude, { dot: true }),
     };
   }
 
@@ -206,11 +211,11 @@ class DiagnosticsWebpackPlugin {
 
           if (!file) return;
 
-          for (const { files, wanted, exclude, options } of fromModules) {
+          for (const check of fromModules) {
+            const { files, options } = check;
             const isFileNotListed = !files.includes(file);
             const isFileWanted =
-              isMatch(file, wanted, { dot: true }) &&
-              !isMatch(file, exclude, { dot: true });
+              check.isWanted(file) && !check.isExcluded(file);
             const isQueryNotExclude = /** @type {RegExp[]} */ (
               options.resourceQueryExclude
             ).every((reg) => !reg.test(query));
@@ -231,11 +236,12 @@ class DiagnosticsWebpackPlugin {
 
       // Lint all files added
       compilation.hooks.finishModules.tap(this.key, () => {
-        for (const { adapter, files, wanted, exclude, runner } of runners) {
+        for (const check of runners) {
+          const { adapter, files, runner } = check;
           const filesToLint =
             adapter.filesSource === "modules"
               ? files
-              : collectFromFileSystem(compiler, wanted, exclude);
+              : collectFromFileSystem(compiler, check);
 
           if (filesToLint.length > 0) runner.lint(filesToLint);
         }

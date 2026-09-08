@@ -29,6 +29,14 @@ export type ResolvedCheck = {
    * the globs of the files not to lint
    */
   exclude: string[];
+  /**
+   * whether a path is one to lint
+   */
+  isWanted: (file: string) => boolean;
+  /**
+   * whether a path is left out
+   */
+  isExcluded: (file: string) => boolean;
 };
 declare class DiagnosticsWebpackPlugin {
   /**
