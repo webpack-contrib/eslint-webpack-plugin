@@ -308,7 +308,9 @@ new DiagnosticsPlugin({
 
 Run with `{ use: "eslint" }`. It lints the files webpack builds, so only the modules that end up in the bundle are checked.
 
-Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are.
+Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are. `concurrency` is worth knowing about: it spreads a lint across worker threads, and ESLint warns on the runs where doing so costs more than it saves, so measure your own project rather than turning it on by default.
+
+A rebuild lints only the files webpack rebuilt and reports the rest from the previous run, so `lintDirtyModulesOnly` is only worth setting to skip the first lint entirely.
 
 ### `configType`
 

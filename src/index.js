@@ -35,6 +35,10 @@ import {
 
 const LINT_PLUGIN = "DiagnosticsWebpackPlugin";
 
+// How many files webpack has to have built before a check is handed any of
+// them, rather than all of them once the graph is done.
+const EARLY_BATCH = 64;
+
 let compilerId = 0;
 
 /**
@@ -187,12 +191,44 @@ class DiagnosticsWebpackPlugin {
 
       if (enabled.length === 0) return;
 
-      const runners = enabled.map((check) => ({
-        ...check,
+      const runners = enabled.map((check) => {
+        const runner = this.createRunner(check, compilation);
         /** @type {string[]} */
-        files: [],
-        runner: this.createRunner(check, compilation),
-      }));
+        const pending = [];
+        /** @type {string[]} */
+        const kept = [];
+        let scheduled = false;
+
+        // Linting starts while webpack is still building rather than after
+        // it. A batch below the threshold waits for the end of the graph: a
+        // check that parallelises its own work, as ESLint does under
+        // `concurrency`, has nothing to spread across workers before then.
+        const flush = (atEnd = false) => {
+          if (!atEnd) {
+            if (scheduled || pending.length < EARLY_BATCH) return;
+
+            scheduled = true;
+            setImmediate(() => flush(true));
+
+            return;
+          }
+
+          scheduled = false;
+
+          if (pending.length > 0) runner.lint(pending.splice(0));
+          if (kept.length > 0) runner.keep(kept.splice(0));
+        };
+
+        return {
+          ...check,
+          /** @type {string[]} */
+          files: [],
+          pending,
+          kept,
+          flush,
+          runner,
+        };
+      });
 
       const fromModules = runners.filter(
         ({ adapter }) => adapter.filesSource === "modules",
@@ -201,8 +237,9 @@ class DiagnosticsWebpackPlugin {
       if (fromModules.length > 0) {
         /**
          * @param {Module} module module
+         * @param {boolean} rebuilt whether webpack built the module this time
          */
-        const addFile = (module) => {
+        const addFile = (module, rebuilt) => {
           const { resource } = /** @type {NormalModule} */ (module);
 
           if (!resource) return;
@@ -222,29 +259,41 @@ class DiagnosticsWebpackPlugin {
 
             if (isFileNotListed && isFileWanted && isQueryNotExclude) {
               files.push(file);
+              (rebuilt ? check.pending : check.kept).push(file);
+              check.flush();
             }
           }
         };
 
-        // Add the file to be linted
-        compilation.hooks.succeedModule.tap(this.key, addFile);
+        compilation.hooks.succeedModule.tap(this.key, (module) =>
+          addFile(module, true),
+        );
 
+        // A module webpack did not rebuild is reported from the last run.
         if (!this.options.lintDirtyModulesOnly) {
-          compilation.hooks.stillValidModule.tap(this.key, addFile);
+          compilation.hooks.stillValidModule.tap(this.key, (module) =>
+            addFile(module, false),
+          );
         }
       }
 
-      // Lint all files added
-      compilation.hooks.finishModules.tap(this.key, () => {
-        for (const check of runners) {
-          const { adapter, files, runner } = check;
-          const filesToLint =
-            adapter.filesSource === "modules"
-              ? files
-              : collectFromFileSystem(compiler, check);
+      // Nothing globbed from the file system waits on the module graph.
+      for (const check of runners) {
+        if (check.adapter.filesSource === "modules") continue;
 
-          if (filesToLint.length > 0) runner.lint(filesToLint);
+        const files = collectFromFileSystem(compiler, check);
+
+        if (files.length > 0) check.runner.lint(files);
+
+        // A rebuild is told what changed rather than what exists, so the rest
+        // of what the walk found last time is reported from there.
+        if (compiler.modifiedFiles) {
+          check.runner.keepKnown(compiler.removedFiles || new Set());
         }
+      }
+
+      compilation.hooks.finishModules.tap(this.key, () => {
+        for (const check of fromModules) check.flush(true);
       });
 
       // await and interpret results

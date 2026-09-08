@@ -267,6 +267,8 @@ export default {
     extensions: "js",
   },
   defaultExclude: () => "**/node_modules/**",
+  resultPath: (/** @type {EXPECTED_ANY} */ result) =>
+    /** @type {LintResult} */ (result).filePath,
   create,
   getESLintOptions,
 };
