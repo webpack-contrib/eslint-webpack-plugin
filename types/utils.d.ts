@@ -80,6 +80,12 @@ export function parseFoldersToGlobs(
   extensions?: string | string[],
 ): string[];
 /**
+ * Globs only know the forward slash, so a path is compared and matched as one.
+ * @param {string} file a path
+ * @returns {string} the path with its separators turned into forward slashes
+ */
+export function toPosixPath(file: string): string;
+/**
  * @param {Compiler} compiler compiler
  * @param {string} name absolute file name
  * @param {string | Buffer} content content

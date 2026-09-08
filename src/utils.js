@@ -7,8 +7,6 @@ import { dirname, isAbsolute, resolve } from "node:path";
 
 import { pathToFileURL } from "node:url";
 
-import normalizePath from "normalize-path";
-
 const nodeRequire = createRequire(import.meta.url);
 
 /** @typedef {import("webpack").Compiler} Compiler */
@@ -74,13 +72,22 @@ async function importFrom(specifier) {
 }
 
 /**
+ * Globs only know the forward slash, so a path is compared and matched as one.
+ * @param {string} file a path
+ * @returns {string} the path with its separators turned into forward slashes
+ */
+function toPosixPath(file) {
+  return file.replaceAll("\\", "/");
+}
+
+/**
  * @param {string | string[]} files files
  * @param {string} context context
  * @returns {string[]} normalized paths
  */
 function parseFiles(files, context) {
   return arrify(files).map((/** @type {string} */ file) =>
-    normalizePath(resolve(context, file)),
+    toPosixPath(resolve(context, file)),
   );
 }
 
@@ -193,5 +200,6 @@ export {
   omitPluginOptions,
   parseFiles,
   parseFoldersToGlobs,
+  toPosixPath,
   writeOutputFile,
 };
