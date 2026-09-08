@@ -73,6 +73,9 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
 
   /** @type {Promise<CheckResult[]>[]} */
   const rawResults = [];
+  // Every path the store is keyed by goes through `toPosixPath`: webpack hands
+  // over a module's resource with the separators the platform uses, and a
+  // check answers with whatever its own tool wrote.
   const store = getResultStore(compilation, `${key}:${name}`);
   // A check that cannot say which file a result came from is linted whole.
   const { resultPath } = adapter;
@@ -88,8 +91,10 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
    */
   function lint(files) {
     for (const file of files) {
-      covered.add(file);
-      linted.add(file);
+      const known = toPosixPath(file);
+
+      covered.add(known);
+      linted.add(known);
     }
 
     rawResults.push(
@@ -123,7 +128,9 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
     const unknown = [];
 
     for (const file of files) {
-      if (store.has(file)) covered.add(file);
+      const known = toPosixPath(file);
+
+      if (store.has(known)) covered.add(known);
       else unknown.push(file);
     }
 
@@ -139,8 +146,10 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
   function keepKnown(removed) {
     if (!resultPath) return;
 
+    const gone = new Set([...removed].map((file) => toPosixPath(file)));
+
     for (const file of store.keys()) {
-      if (!removed.has(file)) covered.add(file);
+      if (!gone.has(file)) covered.add(file);
     }
   }
 
