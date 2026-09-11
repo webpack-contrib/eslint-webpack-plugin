@@ -2,11 +2,9 @@
 /** @typedef {any} EXPECTED_ANY */
 
 import { createRequire } from "node:module";
-import { cpus } from "node:os";
 import { fileURLToPath } from "node:url";
 
-import { Worker as JestWorker } from "jest-worker";
-
+import { countThreads, createPool } from "../threads.js";
 import {
   jsonStringifyReplacerSortKeys,
   omitPluginOptions,
@@ -55,7 +53,6 @@ function getSchemas() {
 /** @typedef {{ lint: (options: StylelintOptions) => Promise<LinterResult>, formatters: { [key: string]: Formatter } }} Stylelint */
 /** @typedef {(files: string | string[]) => Promise<LintResult[]>} LintTask */
 /** @typedef {{ getStylelint: () => Promise<Stylelint>, lintFiles: LintTask, cleanup: () => Promise<void>, threads: number }} Loaded */
-/** @typedef {JestWorker & { lintFiles: LintTask }} Worker */
 /** @typedef {{ [file: string]: LintResult }} LintResultMap */
 
 // `files`, `formatter` and `fix` are meaningful to Stylelint itself, the rest
@@ -99,6 +96,14 @@ function loadStylelint(options) {
 }
 
 /**
+ * @param {string | string[]} files one file or several
+ * @returns {string[]} them as a list, which is what a pool is given
+ */
+function arrifyFiles(files) {
+  return Array.isArray(files) ? files : [files];
+}
+
+/**
  * @param {string} cacheKey the key the loaded stylelint is cached under
  * @param {number} poolSize number of workers
  * @param {Options} options options
@@ -108,13 +113,14 @@ function loadStylelintThreaded(cacheKey, poolSize, options) {
   const source = fileURLToPath(import.meta.resolve("./stylelint-worker.js"));
   const local = loadStylelint(options);
 
-  let worker = /** @type {Worker | null} */ (
-    new JestWorker(source, {
-      enableWorkerThreads: true,
-      numWorkers: poolSize,
-      setupArgs: [options, getStylelintOptions(options)],
-    })
-  );
+  // Stylelint threads nothing of its own, so the plugin's pool runs it — the
+  // same pool every check that cannot thread itself is spread over.
+  let pool = createPool(source, poolSize, [
+    options,
+    getStylelintOptions(options),
+  ]);
+
+  if (!pool) return local;
 
   /** @type {Loaded} */
   const context = {
@@ -122,14 +128,14 @@ function loadStylelintThreaded(cacheKey, poolSize, options) {
     threads: poolSize,
     lintFiles: async (files) =>
       /* istanbul ignore next */
-      worker ? worker.lintFiles(files) : local.lintFiles(files),
+      pool ? pool.lintFiles(arrifyFiles(files)) : local.lintFiles(files),
     cleanup: async () => {
       cache[cacheKey] = local;
       context.lintFiles = (files) => local.lintFiles(files);
       /* istanbul ignore next */
-      if (worker) {
-        worker.end();
-        worker = null;
+      if (pool) {
+        await pool.end();
+        pool = null;
       }
     },
   };
@@ -190,9 +196,7 @@ async function loadFormatter(stylelint, formatter) {
  */
 function getLoadedStylelint(key, options) {
   const cacheKey = getCacheKey(key, options);
-  const { threads } = options;
-  const poolSize =
-    typeof threads === "number" ? threads : threads ? cpus().length - 1 : 1;
+  const poolSize = countThreads(options.threads);
 
   if (!cache[cacheKey]) {
     cache[cacheKey] =
@@ -217,15 +221,6 @@ async function create({ key, options }) {
   return {
     async lintFiles(files) {
       const resolved = parseFiles(files, String(options.context));
-
-      // One task per file keeps every worker of the pool busy.
-      if (loaded.threads > 1) {
-        const results = await Promise.all(
-          resolved.map((file) => loaded.lintFiles(file)),
-        );
-
-        return results.flat();
-      }
 
       return loaded.lintFiles(resolved);
     },

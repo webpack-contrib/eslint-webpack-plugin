@@ -129,6 +129,20 @@
           "type": "array"
         }
       ]
+    },
+    "threads": {
+      "description": "How many threads a check spreads its work over. `\"auto\"` uses one fewer than the machine has, leaving webpack the thread it builds on; a number asks for that many; `false`, `0` or `1` keeps the work on webpack's own thread. A check that threads its own work is asked to, and one that cannot is run in a pool of workers.",
+      "anyOf": [
+        {
+          "enum": ["auto"]
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        }
+      ]
     }
   }
 }

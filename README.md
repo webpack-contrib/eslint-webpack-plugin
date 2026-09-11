@@ -231,6 +231,39 @@ type exclude = string | string[];
 
 Specify the files/directories to exclude. Must be relative to `options.context`.
 
+#### `threads`
+
+- Type:
+
+```ts
+type threads = boolean | number | "auto";
+```
+
+- Default: `"auto"`
+
+How many threads a check spreads its work over. `"auto"` takes one fewer than the
+machine has, leaving webpack the thread it builds on; a number asks for that
+many; `false`, `0` or `1` keeps the work on webpack's own thread.
+
+A check that threads its own work is asked to, and one that cannot is run in a
+pool of workers — so the option means the same thing whatever is being checked,
+and a check added later gets it for nothing. ESLint threads its own work from
+9.34.0 under flat config; Stylelint threads none of its own, so it is pooled.
+
+Prefer `"auto"` over a count. A check sizes `"auto"` against the machine, where a
+fixed number can end up competing with webpack for the same cores: over three
+hundred modules on four of them, `"auto"` took about a fifth off the build while
+asking for three was no better than asking for none. A count above what the
+machine has is held to it, since asking for sixteen threads on four cores took
+twice as long as asking for none — the ceiling cannot save a number written
+against the tool itself, such as ESLint's `concurrency`, which is passed through
+as written.
+
+Anything written against the tool itself wins — ESLint's own `concurrency`, say —
+and a check configured with a function, such as a formatter written in the
+configuration, is run on webpack's thread, because a function cannot be handed
+to a worker.
+
 #### `resourceQueryExclude`
 
 - Type:
@@ -346,7 +379,9 @@ new DiagnosticsPlugin({
 
 Run with `{ use: "eslint" }`. It lints the files webpack builds, so only the modules that end up in the bundle are checked.
 
-Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are. `concurrency` is worth knowing about: it spreads a lint across worker threads, and ESLint warns on the runs where doing so costs more than it saves, so measure your own project rather than turning it on by default.
+Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are.
+
+[`threads`](#threads) reaches ESLint as its own `concurrency` from 9.34.0 under flat config, and an older ESLint or an `eslintrc` one is pooled instead. Write `concurrency` yourself and that is what ESLint is given, whatever `threads` says. Note that webpack spells this idea `parallelism`, and uses the word concurrency for something else again — bounded work on one thread.
 
 A rebuild lints only the files webpack rebuilt and reports the rest from the previous run, so [`lintOnStart`](#lintonstart) is only worth setting to start a watch run quiet.
 
@@ -424,20 +459,6 @@ type stylelintPath = string;
 
 Path to the `stylelint` instance that will be used for linting.
 
-### `threads`
-
-- Type:
-
-```ts
-type threads = boolean | number;
-```
-
-- Default: `false`
-
-Set to `true` for an auto-selected pool size based on the number of CPUs. Set to a number greater than 1 to set an explicit pool size.
-
-Set to `false`, `1`, or less to disable and only run in the main process.
-
 ## Adding a check
 
 A `use` may also be an adapter of its own rather than a built-in name, so a check can ship as its own package without an entry in this one:
@@ -477,7 +498,7 @@ module.exports = {
 
 Both plugins become one, and every option they had is still here. What changed is where an option is written and how the four that decided severity are spelled.
 
-**Where an option goes.** `context`, `lintOnStart` and `checks` are the plugin's own and stay at the top level. Everything else is shared: write it at the top level to cover every check, or inside a `checks` entry to cover that one. `configType`, `eslintPath`, `stylelintPath` and `threads` belong to a single check and go in its entry.
+**Where an option goes.** `context`, `lintOnStart` and `checks` are the plugin's own and stay at the top level. Everything else is shared: write it at the top level to cover every check, or inside a `checks` entry to cover that one. `configType`, `eslintPath` and `stylelintPath` belong to a single check and go in its entry.
 
 **Severity is one option.** `emitError`, `emitWarning`, `failOnError`, `failOnWarning` and `quiet` are [`reportAs`](#reportas), because reporting a result as a webpack error is what fails the build:
 
@@ -570,7 +591,7 @@ Every option `stylelint-webpack-plugin` accepted, and where it is now:
 | `outputReport`         | Unchanged, shared. It is still written even when `reportAs` is `false`.                                   |
 | `quiet`                | `reportAs: { warnings: false }`.                                                                          |
 | `stylelintPath`        | Unchanged, in the `stylelint` entry.                                                                      |
-| `threads`              | Unchanged, in the `stylelint` entry.                                                                      |
+| `threads`              | Shared now, and `"auto"` by default rather than off. Every check honours it.                              |
 
 Any other option is passed to Stylelint itself, as before. Two more things changed for Stylelint alone:
 

@@ -40,9 +40,6 @@ export type Loaded = {
   cleanup: () => Promise<void>;
   threads: number;
 };
-export type Worker = JestWorker & {
-  lintFiles: LintTask;
-};
 export type LintResultMap = {
   [file: string]: LintResult;
 };
@@ -69,4 +66,3 @@ export function getStylelintOptions(
  * @returns {Promise<CheckInstance>} stylelint check
  */
 declare function create({ key, options }: CheckContext): Promise<CheckInstance>;
-import { Worker as JestWorker } from "jest-worker";
