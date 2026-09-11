@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { cpus } from "node:os";
 import { join } from "node:path";
 import { after, before, beforeEach, describe, it } from "node:test";
 
@@ -9,6 +10,7 @@ import { countThreads, isTransferable } from "../src/threads.js";
 import pack from "./utils/pack.js";
 
 const require = createRequire(import.meta.url);
+const ceiling = Math.max(cpus().length - 1, 1);
 const eslintPath = join(import.meta.dirname, "mock/eslint-options");
 const mock = () => require(eslintPath);
 const given = async (options) => {
@@ -26,8 +28,16 @@ describe("threads", () => {
     });
 
     it("should read a count as the count", () => {
-      assert.strictEqual(countThreads(4), 4);
-      assert.strictEqual(countThreads(2.7), 2);
+      assert.strictEqual(countThreads(2), Math.min(2, ceiling));
+      assert.strictEqual(countThreads(2.7), Math.min(2, ceiling));
+    });
+
+    it("should hold a count to what the machine has", () => {
+      // Asking for more threads than cores runs slower than asking for none,
+      // because they then compete with webpack for the same ones.
+      assert.strictEqual(countThreads(1000), ceiling);
+      assert.strictEqual(countThreads(ceiling + 5), ceiling);
+      assert.ok(countThreads(1000) <= cpus().length);
     });
 
     it("should read anything falsy as webpack's own thread", () => {

@@ -249,7 +249,8 @@ async function create({ options }) {
     if (!pool) {
       pool = createPool(
         fileURLToPath(import.meta.resolve("./eslint-worker.js")),
-        threads,
+        // No more workers than there are files for them.
+        Math.min(files.length, threads),
         [specifier, eslintOptions, options.configType === "flat"],
       );
     }

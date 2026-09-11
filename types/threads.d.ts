@@ -15,7 +15,9 @@ export type Pool = {
 /** @typedef {{ lintFiles: LintTask, end: () => Promise<void> }} Pool */
 /**
  * How many threads the user asked for, as a count. A check is spread over one
- * fewer thread than the machine has, leaving webpack the one it builds on.
+ * fewer thread than the machine has, leaving webpack the one it builds on, and
+ * a count is held to that ceiling: asking for more than the machine has runs
+ * slower than asking for none, because the threads then compete with webpack.
  * @param {CheckOptions["threads"]} threads what was asked for
  * @returns {number} the number of threads to spread a lint over
  */

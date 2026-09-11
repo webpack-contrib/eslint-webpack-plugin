@@ -10,16 +10,23 @@ import { Worker as JestWorker } from "jest-worker";
 
 /**
  * How many threads the user asked for, as a count. A check is spread over one
- * fewer thread than the machine has, leaving webpack the one it builds on.
+ * fewer thread than the machine has, leaving webpack the one it builds on, and
+ * a count is held to that ceiling: asking for more than the machine has runs
+ * slower than asking for none, because the threads then compete with webpack.
  * @param {CheckOptions["threads"]} threads what was asked for
  * @returns {number} the number of threads to spread a lint over
  */
 function countThreads(threads) {
+  // In some environments `cpus()` answers with nothing.
+  const ceiling = Math.max((cpus() || []).length - 1, 1);
+
   if (threads === undefined || threads === "auto" || threads === true) {
-    return Math.max(cpus().length - 1, 1);
+    return ceiling;
   }
 
-  if (typeof threads === "number") return Math.max(Math.trunc(threads), 1);
+  if (typeof threads === "number") {
+    return Math.min(Math.max(Math.trunc(threads), 1), ceiling);
+  }
 
   return 1;
 }

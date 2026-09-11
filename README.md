@@ -253,7 +253,11 @@ and a check added later gets it for nothing. ESLint threads its own work from
 Prefer `"auto"` over a count. A check sizes `"auto"` against the machine, where a
 fixed number can end up competing with webpack for the same cores: over three
 hundred modules on four of them, `"auto"` took about a fifth off the build while
-asking for three was no better than asking for none.
+asking for three was no better than asking for none. A count above what the
+machine has is held to it, since asking for sixteen threads on four cores took
+twice as long as asking for none — the ceiling cannot save a number written
+against the tool itself, such as ESLint's `concurrency`, which is passed through
+as written.
 
 Anything written against the tool itself wins — ESLint's own `concurrency`, say —
 and a check configured with a function, such as a formatter written in the
