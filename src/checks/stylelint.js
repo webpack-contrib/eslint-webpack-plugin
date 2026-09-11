@@ -55,9 +55,9 @@ function getSchemas() {
 /** @typedef {{ getStylelint: () => Promise<Stylelint>, lintFiles: LintTask, cleanup: () => Promise<void>, threads: number }} Loaded */
 /** @typedef {{ [file: string]: LintResult }} LintResultMap */
 
-// `files`, `formatter` and `fix` are meaningful to Stylelint itself, the rest
-// of the plugin schema is not.
-const KEPT_OPTIONS = ["cache", "cacheLocation", "files", "fix", "formatter"];
+// `formatter` and `fix` are meaningful to Stylelint itself, the rest of the
+// plugin schema is not. `files` is not among them: each lint names its own.
+const KEPT_OPTIONS = ["cache", "cacheLocation", "fix", "formatter"];
 
 /** @type {{ [key: string]: Loaded }} */
 const cache = {};

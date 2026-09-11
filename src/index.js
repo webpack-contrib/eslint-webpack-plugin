@@ -143,7 +143,7 @@ class DiagnosticsWebpackPlugin {
         ? parseFiles(options.exclude, context)
         : adapter.defaultExclude(compiler),
       extensions: arrify(options.extensions),
-      files: parseFiles(options.files || "", context),
+      include: parseFiles(options.include || "", context),
       resourceQueryExclude: resourceQueries.map(
         (/** @type {RegExp | string} */ item) =>
           item instanceof RegExp ? item : new RegExp(item),
@@ -151,7 +151,7 @@ class DiagnosticsWebpackPlugin {
     };
 
     const wanted = parseFoldersToGlobs(
-      /** @type {string[]} */ (resolved.files),
+      /** @type {string[]} */ (resolved.include),
       resolved.extensions,
     );
     const exclude = parseFoldersToGlobs(
@@ -164,7 +164,7 @@ class DiagnosticsWebpackPlugin {
       options: resolved,
       // A check told which files to check looks at all of them, whether or not
       // webpack built them, whatever the check reads by itself.
-      filesSource: options.files ? "glob" : adapter.filesSource,
+      filesSource: options.include ? "glob" : adapter.filesSource,
       wanted,
       exclude,
       // Compiled here rather than per call: the two run on every module of
@@ -225,8 +225,9 @@ class DiagnosticsWebpackPlugin {
 
         return {
           ...check,
-          /** @type {string[]} */
-          files: [],
+          // Asked of every module of every build, so a set rather than a scan.
+          /** @type {Set<string>} */
+          seen: new Set(),
           pending,
           kept,
           flush,
@@ -253,8 +254,8 @@ class DiagnosticsWebpackPlugin {
           if (!file) return;
 
           for (const check of fromModules) {
-            const { files, options } = check;
-            const isFileNotListed = !files.includes(file);
+            const { options, seen } = check;
+            const isFileNotListed = !seen.has(file);
             const isFileWanted =
               check.isWanted(file) && !check.isExcluded(file);
             const isQueryNotExclude = /** @type {RegExp[]} */ (
@@ -262,7 +263,7 @@ class DiagnosticsWebpackPlugin {
             ).every((reg) => !reg.test(query));
 
             if (isFileNotListed && isFileWanted && isQueryNotExclude) {
-              files.push(file);
+              seen.add(file);
               (rebuilt ? check.pending : check.kept).push(file);
               check.flush();
             }

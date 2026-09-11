@@ -16,7 +16,7 @@ describe("files outside the module graph", () => {
   });
 
   it("should check a file webpack never built when files are named", async () => {
-    const stats = await pack("outside", { files: "outside" }).runAsync();
+    const stats = await pack("outside", { include: "outside" }).runAsync();
 
     assert.strictEqual(stats.hasErrors(), true);
 
@@ -33,7 +33,7 @@ describe("files outside the module graph", () => {
 
     // The walk covers the imported file as well as the orphan, rather than
     // replacing the graph with whatever the graph left out.
-    await pack("outside", { eslintPath, files: "outside" }).runAsync();
+    await pack("outside", { eslintPath, include: "outside" }).runAsync();
 
     const linted = require(eslintPath)._calls.flat().join();
 

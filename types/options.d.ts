@@ -48,9 +48,9 @@ export type SharedOptions = {
    */
   extensions?: (string | string[]) | undefined;
   /**
-   * specify directories, files, or globs
+   * specify directories, files, or globs to check
    */
-  files?: (string | string[]) | undefined;
+  include?: (string | string[]) | undefined;
   /**
    * apply fixes
    */
