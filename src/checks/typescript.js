@@ -52,7 +52,7 @@ function getTypeScriptOptions(options) {
  * output, so a check that wrote any of its own would fight it.
  * @param {TypeScript} ts the loaded TypeScript
  * @param {Options} options options
- * @returns {{ diagnostics: Diagnostic[], host: EXPECTED_ANY }} what it found
+ * @returns {{ diagnostics: Diagnostic[], host: EXPECTED_ANY, files: string[] }} what it found, and what it read to find it
  */
 function check(ts, options) {
   const context = String(options.context);
@@ -92,13 +92,17 @@ function check(ts, options) {
     ) => unrecoverable.push(diagnostic),
   });
 
-  if (!parsed) return { diagnostics: unrecoverable, host };
+  if (!parsed) return { diagnostics: unrecoverable, host, files: [configFile] };
 
   const program = ts.createProgram({
     rootNames: parsed.fileNames,
     options: parsed.options,
     projectReferences: parsed.projectReferences,
   });
+
+  const extended = parsed.options.configFile
+    ? parsed.options.configFile.extendedSourceFiles || []
+    : [];
 
   return {
     diagnostics: [
@@ -107,6 +111,9 @@ function check(ts, options) {
       ...ts.getPreEmitDiagnostics(program),
     ],
     host,
+    // The config file decides which files the program holds, so reading it
+    // again is what a change to it takes.
+    files: [configFile, ...extended, ...parsed.fileNames],
   };
 }
 
@@ -121,6 +128,8 @@ async function create({ options }) {
 
   /** @type {EXPECTED_ANY} */
   let host;
+  /** @type {string[]} */
+  let read = [];
   // The program is the whole project, so it is built once however many batches
   // of files the plugin hands over.
   let checked = false;
@@ -134,8 +143,12 @@ async function create({ options }) {
       const found = check(typescript, options);
 
       host = found.host;
+      read = found.files;
 
       return found.diagnostics;
+    },
+    readFiles() {
+      return read;
     },
     async getResults(results) {
       return results;

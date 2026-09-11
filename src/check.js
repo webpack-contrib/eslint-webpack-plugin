@@ -9,8 +9,8 @@ import { toPosixPath } from "./utils.js";
 /** @typedef {import("./checks/index.js").CheckInstance} CheckInstance */
 /** @typedef {import("./options.js").EnabledCheck} EnabledCheck */
 /** @typedef {{ filePath: string, content: string }} OutputReportContent */
-/** @typedef {{ errors?: DiagnosticError, warnings?: DiagnosticError, outputReport?: OutputReportContent }} Report */
-/** @typedef {{ lint: (files: string[]) => void, keep: (files: string[]) => void, keepKnown: (removed: ReadonlySet<string>) => void, report: () => Promise<Report> }} Runner */
+/** @typedef {{ read: string[], errors?: DiagnosticError, warnings?: DiagnosticError, outputReport?: OutputReportContent }} Report */
+/** @typedef {{ lint: (files: string[]) => void, keep: (files: string[]) => void, report: () => Promise<Report> }} Runner */
 /** @typedef {Map<string, CheckResult | undefined>} ResultStore */
 
 /** @type {WeakMap<Compilation["compiler"], Map<string, ResultStore>>} */
@@ -81,6 +81,10 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
   const { resultPath } = adapter;
   /** @type {Set<string>} */
   const covered = new Set();
+  // Kept as the check was given them rather than as the store keys them: these
+  // are handed back to webpack, which compares paths the way the platform does.
+  /** @type {Set<string>} */
+  const read = new Set();
   /** @type {Set<string>} */
   const linted = new Set();
   // A check that cannot lint fails the same way for every batch it is given.
@@ -93,6 +97,7 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
     for (const file of files) {
       const known = toPosixPath(file);
 
+      read.add(file);
       covered.add(known);
       linted.add(known);
     }
@@ -130,27 +135,13 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
     for (const file of files) {
       const known = toPosixPath(file);
 
+      read.add(file);
+
       if (store.has(known)) covered.add(known);
       else unknown.push(file);
     }
 
     if (unknown.length > 0) lint(unknown);
-  }
-
-  /**
-   * Keeps every file the last compilation covered bar the ones webpack says
-   * are gone — what a check that walks the file system knows about the files
-   * it is not being told changed, without walking it again.
-   * @param {ReadonlySet<string>} removed the files webpack no longer sees
-   */
-  function keepKnown(removed) {
-    if (!resultPath) return;
-
-    const gone = new Set([...removed].map((file) => toPosixPath(file)));
-
-    for (const file of store.keys()) {
-      if (!gone.has(file)) covered.add(file);
-    }
   }
 
   /**
@@ -198,10 +189,16 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
   async function report() {
     const instance = await pending;
 
-    if (!instance) return {};
+    if (!instance) return { read: [...read] };
 
     // Get the current results, resetting the raw results to empty.
     const raw = await flatten(rawResults.splice(0));
+
+    // A check reading more than it was handed — a config file, a project the
+    // graph does not describe — says so before anything is released.
+    if (instance.readFiles) {
+      for (const file of instance.readFiles()) read.add(file);
+    }
 
     await instance.cleanup();
 
@@ -209,14 +206,14 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
 
     // Do not analyze when the check reported nothing.
     if (!results || results.length === 0) {
-      return {};
+      return { read: [...read] };
     }
 
     const format = await instance.getFormatter(options.formatter);
     const { errors, warnings } = instance.splitResults(results);
 
     /** @type {Report} */
-    const report = {};
+    const report = { read: [...read] };
 
     // What `reportAs` drops is not formatted at all, but an `outputReport` is
     // still written from all of the results below.
@@ -246,7 +243,7 @@ function createCheckRunner(key, { name, adapter, options }, compilation) {
     return report;
   }
 
-  return { keep, keepKnown, lint, report };
+  return { keep, lint, report };
 }
 
 export default createCheckRunner;

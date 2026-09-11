@@ -35,6 +35,7 @@ import typescript from "./typescript.js";
  * @property {(results: CheckResult[]) => Promise<CheckResult[]>} getResults turns the raw results of every `lintFiles` call into the results to report
  * @property {(results: CheckResult[]) => { errors: CheckResult[], warnings: CheckResult[] }} splitResults splits the results by their own severity, leaving `reportAs` to the plugin
  * @property {((result: CheckResult) => string | undefined)=} resultPath the file a result came from, without which a rebuild re-lints everything
+ * @property {(() => string[])=} readFiles the files the check read beyond the ones it was handed, so that a watcher picks up a change to them
  * @property {(formatter?: FormatterOption) => Promise<Format>} getFormatter loads a formatter, falling back to the tool's default one
  * @property {() => Promise<void>} cleanup releases whatever the tool holds after a run
  */
