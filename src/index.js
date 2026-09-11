@@ -110,6 +110,8 @@ class DiagnosticsWebpackPlugin {
       this.run(compiler, getChecks()),
     );
 
+    // A lint integration whose bundler reaches a file only once something
+    // requests it defaults this off; webpack's first build walks all of them.
     let skipping = !this.options.lintOnStart;
 
     compiler.hooks.watchRun.tapPromise(this.key, (compiler) => {
