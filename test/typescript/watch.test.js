@@ -34,6 +34,9 @@ function writeConfig(strict) {
   );
 }
 
+// Webpack starts a rebuild of its own for a file these tests wrote just before
+// the watch began, so each one waits for the state it is after rather than
+// counting the passes up to it. A state that never arrives ends as a timeout.
 describe("watch", () => {
   let watch;
 
@@ -51,29 +54,28 @@ describe("watch", () => {
     writeFileSync(trigger, "export const trigger = 1;\n");
     writeFileSync(orphan, "export const wrong: string = 42;\n");
 
-    // eslint-disable-next-line no-use-before-define
-    let next = firstPass;
     const compiler = pack("watch");
+    let fixing = true;
 
-    watch = compiler.watch({}, (err, stats) => next(err, stats));
-
-    function secondPass(err, stats) {
+    watch = compiler.watch({}, (err, stats) => {
       assert.strictEqual(err, null);
-      assert.strictEqual(stats.hasErrors(), false);
+
+      if (fixing) {
+        const [{ message }] = stats.compilation.errors;
+
+        assert.match(message, /orphan\.ts/u);
+        assert.match(message, /TS2322/u);
+
+        fixing = false;
+        writeFileSync(orphan, "export const wrong: number = 42;\n");
+
+        return;
+      }
+
+      if (stats.hasErrors()) return;
+
       done();
-    }
-
-    function firstPass(err, stats) {
-      assert.strictEqual(err, null);
-
-      const [{ message }] = stats.compilation.errors;
-
-      assert.match(message, /orphan\.ts/u);
-      assert.match(message, /TS2322/u);
-
-      next = secondPass;
-      writeFileSync(orphan, "export const wrong: number = 42;\n");
-    }
+    });
   });
 
   it("should rebuild when the config file changes", (t, done) => {
@@ -81,14 +83,22 @@ describe("watch", () => {
     writeFileSync(trigger, "export const trigger = 1;\n");
     writeFileSync(orphan, "export const same = (value) => value;\n");
 
-    // eslint-disable-next-line no-use-before-define
-    let next = firstPass;
     const compiler = pack("watch");
+    let tightening = true;
 
-    watch = compiler.watch({}, (err, stats) => next(err, stats));
-
-    function secondPass(err, stats) {
+    watch = compiler.watch({}, (err, stats) => {
       assert.strictEqual(err, null);
+
+      if (tightening) {
+        assert.strictEqual(stats.hasErrors(), false);
+
+        tightening = false;
+        writeConfig(true);
+
+        return;
+      }
+
+      if (!stats.hasErrors()) return;
 
       const [{ message }] = stats.compilation.errors;
 
@@ -96,14 +106,6 @@ describe("watch", () => {
       assert.match(message, /orphan\.ts/u);
       assert.match(message, /TS7006/u);
       done();
-    }
-
-    function firstPass(err, stats) {
-      assert.strictEqual(err, null);
-      assert.strictEqual(stats.hasErrors(), false);
-
-      next = secondPass;
-      writeConfig(true);
-    }
+    });
   });
 });

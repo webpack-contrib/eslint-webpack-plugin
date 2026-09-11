@@ -11,6 +11,9 @@ const orphan = join(fixture, "orphan.scss");
 // touching the file under test.
 const trigger = join(fixture, "trigger.js");
 
+// Webpack starts a rebuild of its own for a file these tests wrote just before
+// the watch began, so each one waits for the state it is after rather than
+// counting the passes up to it. A state that never arrives ends as a timeout.
 describe("unbuilt", () => {
   let watch;
 
@@ -26,81 +29,82 @@ describe("unbuilt", () => {
     writeFileSync(trigger, "const trigger = 1;\n");
     writeFileSync(orphan, "#orphan { color: black; }\n");
 
-    // eslint-disable-next-line no-use-before-define
-    let next = firstPass;
     const compiler = pack("unbuilt");
+    let fixing = true;
 
-    watch = compiler.watch({}, (err, stats) => next(err, stats));
-
-    function secondPass(err, stats) {
+    watch = compiler.watch({}, (err, stats) => {
       assert.strictEqual(err, null);
-      assert.strictEqual(stats.hasErrors(), false);
+
+      if (fixing) {
+        const [{ message }] = stats.compilation.errors;
+
+        assert.match(message, /orphan\.scss/u);
+
+        fixing = false;
+        writeFileSync(orphan, "#orphan { color: #000000; }\n");
+
+        return;
+      }
+
+      if (stats.hasErrors()) return;
+
       done();
-    }
-
-    function firstPass(err, stats) {
-      assert.strictEqual(err, null);
-
-      const [{ message }] = stats.compilation.errors;
-
-      assert.match(message, /orphan\.scss/u);
-
-      next = secondPass;
-      writeFileSync(orphan, "#orphan { color: #000000; }\n");
-    }
+    });
   });
 
   it("should find a file that appears after the watch started", (t, done) => {
     writeFileSync(trigger, "const trigger = 1;\n");
 
-    // eslint-disable-next-line no-use-before-define
-    let next = firstPass;
     const compiler = pack("unbuilt");
+    let creating = true;
 
-    watch = compiler.watch({}, (err, stats) => next(err, stats));
-
-    function secondPass(err, stats) {
+    watch = compiler.watch({}, (err, stats) => {
       assert.strictEqual(err, null);
+
+      if (creating) {
+        assert.strictEqual(stats.hasErrors(), false);
+
+        creating = false;
+        writeFileSync(orphan, "#orphan { color: black; }\n");
+        writeFileSync(trigger, "const trigger = 2;\n");
+
+        return;
+      }
+
+      if (!stats.hasErrors()) return;
 
       const [{ message }] = stats.compilation.errors;
 
       assert.match(message, /orphan\.scss/u);
       done();
-    }
-
-    function firstPass(err, stats) {
-      assert.strictEqual(err, null);
-      assert.strictEqual(stats.hasErrors(), false);
-
-      next = secondPass;
-      writeFileSync(orphan, "#orphan { color: black; }\n");
-      writeFileSync(trigger, "const trigger = 2;\n");
-    }
+    });
   });
 
   it("should stop reporting a file that is gone", (t, done) => {
     writeFileSync(trigger, "const trigger = 1;\n");
     writeFileSync(orphan, "#orphan { color: black; }\n");
 
-    // eslint-disable-next-line no-use-before-define
-    let next = firstPass;
     const compiler = pack("unbuilt");
+    let removing = true;
 
-    watch = compiler.watch({}, (err, stats) => next(err, stats));
-
-    function secondPass(err, stats) {
+    watch = compiler.watch({}, (err, stats) => {
       assert.strictEqual(err, null);
-      assert.strictEqual(stats.hasErrors(), false);
+
+      if (removing) {
+        const [{ message }] = stats.compilation.errors;
+
+        assert.match(message, /orphan\.scss/u);
+
+        removing = false;
+        rmSync(orphan, { force: true });
+        writeFileSync(trigger, "const trigger = 2;\n");
+
+        return;
+      }
+
+      if (stats.hasErrors()) return;
+
       done();
-    }
-
-    function firstPass(err, stats) {
-      assert.strictEqual(err, null);
-      assert.strictEqual(stats.hasErrors(), true);
-
-      next = secondPass;
-      rmSync(orphan, { force: true });
-      writeFileSync(trigger, "const trigger = 2;\n");
-    }
+    });
   });
 });
