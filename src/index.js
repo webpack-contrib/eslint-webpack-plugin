@@ -47,11 +47,15 @@ let compilerId = 0;
  * @returns {string[]} the files on disk to lint
  */
 function collectFromFileSystem(compiler, { wanted, exclude, ...check }) {
-  if (!compiler.modifiedFiles) {
+  const { modifiedFiles } = compiler;
+
+  // A check that cannot say which file a result came from has nothing to report
+  // a file it was not given from, so it is given all of them every time.
+  if (!modifiedFiles || !check.adapter.resultPath) {
     return globSync(wanted, { absolute: true, dot: true, ignore: exclude });
   }
 
-  return [...compiler.modifiedFiles].filter(
+  return [...modifiedFiles].filter(
     (file) => check.isWanted(file) && !check.isExcluded(file),
   );
 }

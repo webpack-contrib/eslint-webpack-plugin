@@ -3,6 +3,7 @@
 
 import eslint from "./eslint.js";
 import stylelint from "./stylelint.js";
+import typescript from "./typescript.js";
 
 /** @typedef {import("webpack").Compilation} Compilation */
 /** @typedef {import("webpack").Compiler} Compiler */
@@ -65,6 +66,7 @@ import stylelint from "./stylelint.js";
 const adapters = new Map([
   [eslint.name, /** @type {CheckAdapter} */ (eslint)],
   [stylelint.name, /** @type {CheckAdapter} */ (stylelint)],
+  [typescript.name, /** @type {CheckAdapter} */ (typescript)],
 ]);
 
 export default adapters;

@@ -6,6 +6,8 @@ export default defineConfig([
     ignores: [
       "test/stylelint/fixtures/**/*",
       "test/stylelint/outputs/**/*",
+      "test/typescript/fixtures/**/*",
+      "test/typescript/outputs/**/*",
       "test/unified/fixtures/**/*",
       "test/unified/outputs/**/*",
     ],

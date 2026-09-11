@@ -68,10 +68,12 @@ export type SharedOptions = {
    */
   resourceQueryExclude?: (RegExp | RegExp[] | string | string[]) | undefined;
 };
-export type CheckEntry = SharedOptions & {
-  use: string | CheckAdapterInput;
-  [option: string]: EXPECTED_ANY;
-};
+export type CheckEntry =
+  | string
+  | (SharedOptions & {
+      use: string | CheckAdapterInput;
+      [option: string]: EXPECTED_ANY;
+    });
 /**
  * The options of one check, as given and then as the plugin resolves them
  * against a compiler.

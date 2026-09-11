@@ -5,6 +5,8 @@ import { describe, it, mock } from "node:test";
 
 import DiagnosticsPlugin from "../../src/index.js";
 
+import { getOptions } from "../../src/options.js";
+
 import pack from "./utils/pack.js";
 
 const eslint = {
@@ -65,6 +67,21 @@ describe("unified plugin", () => {
       () => new DiagnosticsPlugin({ checks: [] }).apply(compiler),
       /options\.checks should be a non-empty array/u,
     );
+  });
+
+  it("should accept a check named rather than written out", () => {
+    // A check with nothing to configure needs no entry of its own, and still
+    // reads the options written once for every check.
+    const { checks: resolved } = getOptions({
+      cache: false,
+      checks: ["eslint", { use: "stylelint" }],
+    });
+
+    assert.deepStrictEqual(
+      resolved.map(({ name }) => name),
+      ["eslint", "stylelint"],
+    );
+    assert.strictEqual(resolved[0].options.cache, false);
   });
 
   it("should reject a check it does not know", () => {
