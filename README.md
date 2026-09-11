@@ -133,6 +133,38 @@ Set it to `false` to start a watch run quiet: nothing is linted until you touch
 a file, and only the modules webpack rebuilds are reported. A build is nothing
 but a first compilation, so it lints either way — the option cannot silence one.
 
+#### Running the checks in one mode only
+
+There is no option for this and none is needed: `plugins` ignores a falsy entry,
+so `&&` decides whether the plugin is there at all. A configuration function is
+handed the `--env` values, and `webpack-cli` states the mode in them:
+
+| Value                             | Set by                                |
+| --------------------------------- | ------------------------------------- |
+| `WEBPACK_SERVE`                   | `webpack serve`                       |
+| `WEBPACK_WATCH`                   | `webpack watch` and `webpack --watch` |
+| `WEBPACK_BUILD`, `WEBPACK_BUNDLE` | `webpack`, a build that runs once     |
+
+```js
+import DiagnosticsPlugin from "diagnostics-webpack-plugin";
+import { defineConfig } from "webpack";
+
+export default defineConfig((env) => ({
+  plugins: [
+    // Both values are read because each command sets only its own: `serve` sets
+    // `WEBPACK_SERVE` and `--watch` sets `WEBPACK_WATCH`, so asking for one of
+    // them misses the other way of watching. Read `WEBPACK_BUILD` instead to
+    // check a build that runs once and leave a watch run alone.
+    (env.WEBPACK_SERVE || env.WEBPACK_WATCH) &&
+      new DiagnosticsPlugin({ checks: ["eslint", "stylelint"] }),
+  ],
+}));
+```
+
+This is worth doing when something else already lints the same files — a CI job
+running `eslint .`, or an editor — and the release build need not pay for it
+twice.
+
 ### Shared options
 
 These can be set at the top level, where they apply to every check, or inside one check, where they apply to that check alone.
