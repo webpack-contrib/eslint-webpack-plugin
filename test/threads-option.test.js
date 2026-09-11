@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import { beforeEach, describe, it } from "node:test";
+import { after, before, beforeEach, describe, it } from "node:test";
 
 import { countThreads, isTransferable } from "../src/threads.js";
 
@@ -94,10 +95,32 @@ describe("threads", () => {
 });
 
 describe("a check that cannot thread itself", () => {
+  // More than a pool is started for, so that this drives the pool rather than
+  // the batch too small to be worth one.
+  const pooled = 70;
+  const fixtures = join(import.meta.dirname, "fixtures");
+  const modules = Array.from({ length: pooled }, (_, i) => `pooled-${i}.js`);
+
+  before(() => {
+    for (const name of modules) {
+      writeFileSync(join(fixtures, name), "module.exports = 1;\n");
+    }
+
+    writeFileSync(
+      join(fixtures, "pooled-entry.js"),
+      `${modules.map((name) => `require("./${name}");`).join("\n")}\n`,
+    );
+  });
+
+  after(() => {
+    for (const name of [...modules, "pooled-entry.js"]) {
+      rmSync(join(fixtures, name), { force: true });
+    }
+  });
+
   it("should be spread over a pool, and its results come back", async () => {
-    const stats = await pack("multiple", {
+    const stats = await pack("pooled", {
       eslintPath: join(import.meta.dirname, "mock/eslint-pooled"),
-      // Fewer than the files webpack builds, so the pool is worth its workers.
       threads: 2,
     }).runAsync();
 

@@ -33,7 +33,8 @@ describe("eslint lint", () => {
   });
 
   it("should lint more files", async () => {
-    const compiler = pack("lint-more", { eslintPath });
+    // The files are recorded where they are linted, so this lints them here.
+    const compiler = pack("lint-more", { eslintPath, threads: false });
 
     await compiler.runAsync();
 

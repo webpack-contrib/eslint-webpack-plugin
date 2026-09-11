@@ -47,6 +47,10 @@ const DEFAULT_SUPPRESSIONS_FILE = "eslint-suppressions.json";
 // plugin schema is not.
 const KEPT_OPTIONS = ["cache", "cacheLocation", "extensions", "fix"];
 
+// Measured: starting a pool costs a few hundred milliseconds, which a batch
+// smaller than this lints in less.
+const POOL_WORTH_STARTING = 64;
+
 /**
  * @param {ESLint} eslint eslint
  * @param {LintResult[]} results results
@@ -232,13 +236,15 @@ async function create({ options }) {
   let pool = null;
 
   /**
-   * A pool is worth its workers only once there are more files than workers,
-   * so a rebuild of a file or two is linted here rather than spread.
+   * A pool is worth its workers only once a batch is big enough to outweigh
+   * starting them, which a rebuild of a handful of files is not. The threshold
+   * is a count rather than a share of the machine so that a build lints the
+   * same way whatever it runs on.
    * @param {string[]} files the files of this batch
    * @returns {boolean} whether to spread them
    */
   const spread = (files) => {
-    if (own || threads <= 1 || files.length <= threads) return false;
+    if (own || threads <= 1 || files.length < POOL_WORTH_STARTING) return false;
 
     if (!pool) {
       pool = createPool(
