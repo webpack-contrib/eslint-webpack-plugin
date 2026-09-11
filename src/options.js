@@ -15,6 +15,7 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
 /** @typedef {import("webpack").Compiler} Compiler */
 /** @typedef {"error" | "warning" | false} Severity */
 /** @typedef {"errors" | "warnings"} Results */
+/** @typedef {number | boolean | "auto"} Threads */
 /** @typedef {Severity | { errors?: Severity, warnings?: Severity }} ReportAs */
 /** @typedef {import("./checks/index.js").FormatterOption} FormatterOption */
 /** @typedef {import("./checks/index.js").CheckAdapter} CheckAdapter */
@@ -31,6 +32,7 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @property {boolean=} cache enable the tool's cache to decrease execution time
  * @property {string=} cacheLocation specify the path to the cache location
  * @property {ReportAs=} reportAs what a check reports its results as
+ * @property {Threads=} threads how many threads a check spreads its work over
  * @property {string | string[]=} exclude specify the files and/or directories to exclude
  * @property {string | string[]=} extensions specify the extensions that should be checked
  * @property {string | string[]=} files specify directories, files, or globs

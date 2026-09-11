@@ -24,6 +24,8 @@ describe("stylelint lint", () => {
     const compiler = pack("lint-one", {
       configFile: null,
       stylelintPath: mockStylelintPath,
+      // The options are recorded where they are read, so this reads them here.
+      threads: false,
     });
     const stats = await compiler.runAsync();
     assert.strictEqual(stats.hasErrors(), false);
@@ -47,6 +49,7 @@ describe("stylelint lint", () => {
     const compiler = pack("lint-two", {
       configFile: null,
       stylelintPath: mockStylelintPath,
+      threads: false,
     });
     const stats = await compiler.runAsync();
     assert.strictEqual(stats.hasErrors(), false);

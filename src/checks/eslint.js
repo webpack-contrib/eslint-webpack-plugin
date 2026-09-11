@@ -3,8 +3,9 @@
 
 import { createRequire } from "node:module";
 import { isAbsolute, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { countThreads, createPool } from "../threads.js";
 import { importFrom, omitPluginOptions } from "../utils.js";
 
 const nodeRequire = createRequire(import.meta.url);
@@ -137,6 +138,18 @@ async function loadFormatter(eslint, formatter) {
 }
 
 /**
+ * Whether the loaded ESLint spreads a lint over threads of its own, which it
+ * has done under `concurrency` since 9.34.0.
+ * @param {string} version the loaded ESLint's version
+ * @returns {boolean} whether it threads a lint itself
+ */
+function threadsItself(version) {
+  const [major, minor] = version.split(".").map(Number);
+
+  return major > 9 || (major === 9 && minor >= 34);
+}
+
+/**
  * @param {Options} options plugin options
  * @returns {ESLintOptions} the options ESLint itself understands
  */
@@ -194,11 +207,59 @@ async function create({ options }) {
     delete eslintOptions.suppressionsLocation;
   }
 
+  const threads = countThreads(options.threads);
+  // ESLint threads a lint itself from 9.34.0, and only under flat config, so
+  // anything older or in eslintrc mode is spread over a pool of our own.
+  const own =
+    threads > 1 &&
+    options.configType === "flat" &&
+    threadsItself(ESLint.version);
+
+  // Whatever was written against ESLint itself is what ESLint is given.
+  if (own && eslintOptions.concurrency === undefined) {
+    eslintOptions.concurrency =
+      options.threads === undefined ||
+      options.threads === true ||
+      options.threads === "auto"
+        ? // ESLint sizes this against the machine better than a count does.
+          "auto"
+        : threads;
+  }
+
   const eslint = new ESLint(eslintOptions);
+
+  /** @type {import("../threads.js").Pool | null} */
+  let pool = null;
+
+  /**
+   * A pool is worth its workers only once there are more files than workers,
+   * so a rebuild of a file or two is linted here rather than spread.
+   * @param {string[]} files the files of this batch
+   * @returns {boolean} whether to spread them
+   */
+  const spread = (files) => {
+    if (own || threads <= 1 || files.length <= threads) return false;
+
+    if (!pool) {
+      pool = createPool(
+        fileURLToPath(import.meta.resolve("./eslint-worker.js")),
+        threads,
+        [specifier, eslintOptions, options.configType === "flat"],
+      );
+    }
+
+    return pool !== null;
+  };
 
   return {
     async lintFiles(files) {
-      const results = await eslint.lintFiles(files);
+      const results = /** @type {LintResult[]} */ (
+        spread(files)
+          ? await /** @type {import("../threads.js").Pool} */ (pool).lintFiles(
+              files,
+            )
+          : await eslint.lintFiles(files)
+      );
 
       // If enabled, use the ESLint autofixing where possible.
       if (fix) {
@@ -246,7 +307,12 @@ async function create({ options }) {
       return async (results) =>
         loaded.format(/** @type {LintResult[]} */ (results));
     },
-    async cleanup() {},
+    async cleanup() {
+      if (pool) {
+        await pool.end();
+        pool = null;
+      }
+    },
   };
 }
 
