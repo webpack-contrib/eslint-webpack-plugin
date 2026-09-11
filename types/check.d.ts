@@ -8,6 +8,7 @@ export type OutputReportContent = {
   content: string;
 };
 export type Report = {
+  read: string[];
   errors?: DiagnosticError;
   warnings?: DiagnosticError;
   outputReport?: OutputReportContent;
@@ -15,7 +16,6 @@ export type Report = {
 export type Runner = {
   lint: (files: string[]) => void;
   keep: (files: string[]) => void;
-  keepKnown: (removed: ReadonlySet<string>) => void;
   report: () => Promise<Report>;
 };
 export type ResultStore = Map<string, CheckResult | undefined>;

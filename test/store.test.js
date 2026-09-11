@@ -68,21 +68,20 @@ describe("store", () => {
     assert.deepStrictEqual(await reported(second), [win32("a.css")]);
   });
 
-  it("should drop a removed file whatever webpack spells it with", async () => {
-    // A glob check walks the file system for forward slashes and is told what
-    // changed in the separators the platform uses.
+  it("should drop a file it is no longer handed", async () => {
     const compiler = { outputPath: "/out" };
-    const walked = "C:/project/a.css";
-    const first = runnerFor(adapterFinding([walked]), compiler);
+    const dirty = [win32("a.css"), win32("b.css")];
+    const first = runnerFor(adapterFinding(dirty), compiler);
 
-    first.lint([walked]);
+    first.lint(dirty);
 
-    assert.deepStrictEqual(await reported(first), [walked]);
+    assert.deepStrictEqual(await reported(first), dirty);
 
     const second = runnerFor(adapterFinding([]), compiler);
 
-    second.keepKnown(new Set([win32("a.css")]));
+    // Nothing says a file was removed: what the walk no longer finds is gone.
+    second.keep([win32("a.css")]);
 
-    assert.deepStrictEqual(await reported(second), []);
+    assert.deepStrictEqual(await reported(second), [win32("a.css")]);
   });
 });

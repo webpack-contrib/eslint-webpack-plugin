@@ -9,6 +9,7 @@ import {
   arrify,
   parseFiles,
   parseFoldersToGlobs,
+  toPosixPath,
   writeOutputFile,
 } from "./utils.js";
 
@@ -42,22 +43,35 @@ const EARLY_BATCH = 64;
 let compilerId = 0;
 
 /**
+ * Walks the file system for the files a check wants, and says which of them
+ * webpack has just seen change.
  * @param {Compiler} compiler compiler
  * @param {ResolvedCheck} check the check to collect the files of
- * @returns {string[]} the files on disk to lint
+ * @returns {{ lint: string[], keep: string[] }} the files to lint, and the ones to report from the last compilation
  */
-function collectFromFileSystem(compiler, { wanted, exclude, ...check }) {
+function collectFromFileSystem(compiler, { adapter, wanted, exclude }) {
+  // The walk is what says which files there are: one webpack never built is
+  // one it cannot report as added, changed or gone either.
+  const found = globSync(wanted, {
+    absolute: true,
+    dot: true,
+    ignore: exclude,
+  });
   const { modifiedFiles } = compiler;
 
   // A check that cannot say which file a result came from has nothing to report
   // a file it was not given from, so it is given all of them every time.
-  if (!modifiedFiles || !check.adapter.resultPath) {
-    return globSync(wanted, { absolute: true, dot: true, ignore: exclude });
+  if (!modifiedFiles || !adapter.resultPath) return { lint: found, keep: [] };
+
+  const changed = new Set([...modifiedFiles].map((file) => toPosixPath(file)));
+  /** @type {{ lint: string[], keep: string[] }} */
+  const collected = { lint: [], keep: [] };
+
+  for (const file of found) {
+    collected[changed.has(toPosixPath(file)) ? "lint" : "keep"].push(file);
   }
 
-  return [...modifiedFiles].filter(
-    (file) => check.isWanted(file) && !check.isExcluded(file),
-  );
+  return collected;
 }
 
 class DiagnosticsWebpackPlugin {
@@ -285,15 +299,10 @@ class DiagnosticsWebpackPlugin {
       for (const check of runners) {
         if (check.adapter.filesSource === "modules") continue;
 
-        const files = collectFromFileSystem(compiler, check);
+        const collected = collectFromFileSystem(compiler, check);
 
-        if (files.length > 0) check.runner.lint(files);
-
-        // A rebuild is told what changed rather than what exists, so the rest
-        // of what the walk found last time is reported from there.
-        if (compiler.modifiedFiles) {
-          check.runner.keepKnown(compiler.removedFiles || new Set());
-        }
+        if (collected.lint.length > 0) check.runner.lint(collected.lint);
+        if (collected.keep.length > 0) check.runner.keep(collected.keep);
       }
 
       compilation.hooks.finishModules.tap(this.key, () => {
@@ -308,7 +317,12 @@ class DiagnosticsWebpackPlugin {
           const outputReports = new Map();
 
           for (const { options, runner } of runners) {
-            const { errors, warnings, outputReport } = await runner.report();
+            const { errors, warnings, outputReport, read } =
+              await runner.report();
+
+            // Webpack watches what it built; a check reads what it was
+            // configured to, which is not always the same set of files.
+            for (const file of read) compilation.fileDependencies.add(file);
 
             // `reportAs` has already dropped whatever it reports as `false`,
             // so what is left only needs putting where it belongs.
