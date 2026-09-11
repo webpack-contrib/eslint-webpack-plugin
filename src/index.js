@@ -1,4 +1,4 @@
-import { isAbsolute, join } from "node:path";
+import { isAbsolute, join, normalize } from "node:path";
 
 import picomatch from "picomatch";
 import { globSync } from "tinyglobby";
@@ -321,8 +321,12 @@ class DiagnosticsWebpackPlugin {
               await runner.report();
 
             // Webpack watches what it built; a check reads what it was
-            // configured to, which is not always the same set of files.
-            for (const file of read) compilation.fileDependencies.add(file);
+            // configured to, which is not always the same set of files. Each
+            // one is spelled the way the platform does: a watcher looks a
+            // change up under the path it joined, not the one it was given.
+            for (const file of read) {
+              compilation.fileDependencies.add(normalize(file));
+            }
 
             // `reportAs` has already dropped whatever it reports as `false`,
             // so what is left only needs putting where it belongs.
