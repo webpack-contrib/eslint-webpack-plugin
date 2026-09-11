@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.0.0
+
+### Major Changes
+
+- `quiet` is gone: `reportAs` says what a check reports its results as, one value covering its errors and its warnings alike and an object setting them apart, so `quiet: true` is `reportAs: { warnings: false }`. (by [@alexander-akait](https://github.com/alexander-akait) in [#317](https://github.com/webpack/diagnostics-webpack-plugin/pull/317))
+
+- `lintDirtyModulesOnly` is `lintOnStart`, inverted and defaulting to `true`. It says whether the first compilation lints every file it covers, and a build — which is nothing but a first compilation — now lints whatever it is set to, where `lintDirtyModulesOnly: true` used to leave a build silently unlinted. (by [@alexander-akait](https://github.com/alexander-akait) in [#320](https://github.com/webpack/diagnostics-webpack-plugin/pull/320))
+
+- Renamed from `eslint-webpack-plugin` and merged with `stylelint-webpack-plugin`: one plugin runs every linter through the `checks` option, `new DiagnosticsPlugin({ checks: [{ use: "eslint" }, { use: "stylelint" }] })`. Errors are reported as webpack errors and warnings as webpack warnings, with `reportAs` deciding what each is reported as; `stylelint` must be 17 or later. See the migration guides in the README. (by [@alexander-akait](https://github.com/alexander-akait) in [#306](https://github.com/webpack/diagnostics-webpack-plugin/pull/306))
+
+- Dropped Node.js 20, which is end-of-life. The minimum is now Node.js `>= 22.12.0`. (by [@alexander-akait](https://github.com/alexander-akait) in [#309](https://github.com/webpack/diagnostics-webpack-plugin/pull/309))
+
+- Rewritten as ECMAScript modules. The package is now `"type": "module"` and declares an `exports` field, shipping an ESM build next to a CommonJS one, so `import DiagnosticsPlugin from "diagnostics-webpack-plugin"` and `require("diagnostics-webpack-plugin")` both keep working. (by [@alexander-akait](https://github.com/alexander-akait) in [#308](https://github.com/webpack/diagnostics-webpack-plugin/pull/308))
+
+- `emitError`, `emitWarning`, `failOnError` and `failOnWarning` are one `reportAs` option taking `"error"`, `"warning"` or `false`: it says what a check reports its results as, and reporting one as a webpack error is what fails the build. Left unset each result keeps its own severity, `quiet` still drops the warnings, and the build is no longer aborted from inside the plugin. See the migration table in the README. (by [@alexander-akait](https://github.com/alexander-akait) in [#315](https://github.com/webpack/diagnostics-webpack-plugin/pull/315))
+
+### Minor Changes
+
+- Add a `biome` check, which checks the files webpack builds with [Biome](https://biomejs.dev/) and reports what it finds at Biome's own severities. Run it with `{ use: "biome" }`, and `command: "check"` to add Biome's formatting diagnostics to the linter's; `@biomejs/biome >= 2` is an optional peer. (by [@alexander-akait](https://github.com/alexander-akait) in [#329](https://github.com/webpack/diagnostics-webpack-plugin/pull/329))
+
+- Added ESLint bulk suppressions. `applySuppressions` and `suppressionsLocation` reach the `ESLint` class as they are on ESLint 10, and on ESLint 9.24 and later the plugin applies the suppressions itself, since ESLint only wires them into its CLI there. (by [@alexander-akait](https://github.com/alexander-akait) in [#311](https://github.com/webpack/diagnostics-webpack-plugin/pull/311))
+
+- Add an `oxlint` check, which lints the files webpack builds with [oxlint](https://oxc.rs/docs/guide/usage/linter.html) and reports what it finds at oxlint's own severities. Run it with `{ use: "oxlint" }`; `oxlint >= 1` is an optional peer. (by [@alexander-akait](https://github.com/alexander-akait) in [#328](https://github.com/webpack/diagnostics-webpack-plugin/pull/328))
+
+- `threads` is a shared option defaulting to `"auto"`, so every check spreads its work rather than holding the thread webpack builds on: a check that threads its own work is asked to, and one that cannot is run in a pool the plugin owns. Over three hundred modules that takes about a fifth off the build. It was Stylelint's alone and off by default; a check added later now gets it for nothing. (by [@alexander-akait](https://github.com/alexander-akait) in [#324](https://github.com/webpack/diagnostics-webpack-plugin/pull/324))
+
+- Add a `typescript` check, which type checks the program a `tsconfig.json` describes and reports its diagnostics as webpack errors and warnings. Run it with `{ use: "typescript" }`; `typescript >= 5` is an optional peer. (by [@alexander-akait](https://github.com/alexander-akait) in [#327](https://github.com/webpack/diagnostics-webpack-plugin/pull/327))
+
+- Option validation now runs from webpack's `compiler.hooks.validate`, so a mistake is reported where webpack validates the rest of the configuration and `validate: false` turns it off. Where webpack predates the hook, in 5.106, the plugin validates as it did before. (by [@alexander-akait](https://github.com/alexander-akait) in [#313](https://github.com/webpack/diagnostics-webpack-plugin/pull/313))
+
+### Patch Changes
+
+- Lint only the files webpack rebuilt, reporting the rest from the previous compilation, and start linting while the module graph is still being built. (by [@alexander-akait](https://github.com/alexander-akait) in [#319](https://github.com/webpack/diagnostics-webpack-plugin/pull/319))
+
+- Replace `globby`, `micromatch` and `normalize-path` with `tinyglobby` and `picomatch`, and compile the file matchers once per check rather than on every module. (by [@alexander-akait](https://github.com/alexander-akait) in [#316](https://github.com/webpack/diagnostics-webpack-plugin/pull/316))
+
+- Watch the files a check reads rather than only the ones webpack builds, so that a change to a file outside the module graph — one `stylelint` globs, or one a `tsconfig.json` lists — rebuilds, and a file added or removed there is picked up. (by [@alexander-akait](https://github.com/alexander-akait) in [#330](https://github.com/webpack/diagnostics-webpack-plugin/pull/330))
+
 > The entries below belong to `eslint-webpack-plugin`, which this package
 > was renamed from. It is published as `diagnostics-webpack-plugin` from
 > 1.0.0 on, so its versions start over.
