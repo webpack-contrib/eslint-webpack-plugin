@@ -133,6 +133,31 @@ Set it to `false` to start a watch run quiet: nothing is linted until you touch
 a file, and only the modules webpack rebuilds are reported. A build is nothing
 but a first compilation, so it lints either way — the option cannot silence one.
 
+#### `runOn`
+
+- Type:
+
+```ts
+type runOn = "build" | "watch";
+```
+
+- Default: unset, which runs the checks for both
+
+When the checks run. `"build"` runs them for a one-shot build only, so a watch
+run reports nothing; `"watch"` does the reverse, so a production build skips the
+checks a development server already reported.
+
+```js
+new DiagnosticsWebpackPlugin({
+  checks: ["eslint", "stylelint"],
+  // The checks answer while you work, and the release build does not wait.
+  runOn: "watch",
+});
+```
+
+It covers every check at once. Per-check control is not available yet — write
+two plugin instances if two checks need different answers.
+
 ### Shared options
 
 These can be set at the top level, where they apply to every check, or inside one check, where they apply to that check alone.
@@ -445,7 +470,7 @@ module.exports = {
 
 Both plugins become one, and every option they had is still here. What changed is where an option is written and how the four that decided severity are spelled.
 
-**Where an option goes.** `context`, `lintOnStart` and `checks` are the plugin's own and stay at the top level. Everything else is shared: write it at the top level to cover every check, or inside a `checks` entry to cover that one. `configType`, `eslintPath`, `stylelintPath` and `threads` belong to a single check and go in its entry.
+**Where an option goes.** `context`, `lintOnStart`, `runOn` and `checks` are the plugin's own and stay at the top level. Everything else is shared: write it at the top level to cover every check, or inside a `checks` entry to cover that one. `configType`, `eslintPath`, `stylelintPath` and `threads` belong to a single check and go in its entry.
 
 **Severity is one option.** `emitError`, `emitWarning`, `failOnError`, `failOnWarning` and `quiet` are [`reportAs`](#reportas), because reporting a result as a webpack error is what fails the build:
 

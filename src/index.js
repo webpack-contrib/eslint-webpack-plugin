@@ -104,11 +104,19 @@ class DiagnosticsWebpackPlugin {
       return checks;
     };
 
-    // A build is nothing but a first compilation, so `lintOnStart` cannot
-    // silence one without silencing the plugin.
-    compiler.hooks.run.tapPromise(this.key, (compiler) =>
-      this.run(compiler, getChecks()),
-    );
+    const { runOn } = this.options;
+
+    // `runOn` gates every check at once because it taps nothing at all. A
+    // per-check form of it has to gate the runners inside the compilation.
+    if (runOn !== "watch") {
+      // A build is nothing but a first compilation, so `lintOnStart` cannot
+      // silence one without silencing the plugin.
+      compiler.hooks.run.tapPromise(this.key, (compiler) =>
+        this.run(compiler, getChecks()),
+      );
+    }
+
+    if (runOn === "build") return;
 
     // A lint integration whose bundler reaches a file only once something
     // requests it defaults this off; webpack's first build walks all of them.

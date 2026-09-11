@@ -3,7 +3,7 @@ import { join } from "node:path";
 import DiagnosticsPlugin from "../../src/index.js";
 
 // Options the plugin only accepts next to the check entries, not inside one.
-const PLUGIN_OPTIONS = ["context", "lintOnStart"];
+const PLUGIN_OPTIONS = ["context", "lintOnStart", "runOn"];
 
 export default (entry, pluginConf = {}, webpackConf = {}) => {
   const testDir = join(import.meta.dirname, "..");

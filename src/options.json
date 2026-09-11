@@ -10,6 +10,10 @@
       "description": "Whether the first compilation lints every file it covers. `false` leaves a watch run reporting only the modules webpack rebuilds; a build has nothing but a first compilation, so it always lints.",
       "type": "boolean"
     },
+    "runOn": {
+      "description": "When the checks run: `\"build\"` runs them for a one-shot build only, `\"watch\"` for a watch run only. Left unset they run for both.",
+      "enum": ["build", "watch"]
+    },
     "checks": {
       "description": "The checks to run, each with the options only it understands.",
       "type": "array",

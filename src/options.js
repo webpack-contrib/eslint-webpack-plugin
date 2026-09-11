@@ -50,10 +50,13 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @typedef {SharedOptions & { [option: string]: EXPECTED_ANY }} CheckOptions
  */
 
+/** @typedef {"build" | "watch"} RunOn */
+
 /**
  * @typedef {object} PluginOptions
  * @property {string=} context a string indicating the root of your files
  * @property {boolean=} lintOnStart whether the first compilation lints everything
+ * @property {RunOn=} runOn when the checks run
  * @property {CheckEntry[]} checks the checks to run
  */
 
@@ -70,6 +73,7 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  * @typedef {object} NormalizedOptions
  * @property {string=} context a string indicating the root of your files
  * @property {boolean} lintOnStart whether the first compilation lints everything
+ * @property {RunOn=} runOn when the checks run
  * @property {EnabledCheck[]} checks the checks to run
  */
 
@@ -181,6 +185,7 @@ function getOptions(pluginOptions) {
   const {
     context,
     lintOnStart = true,
+    runOn,
     checks: entries = [],
     ...shared
   } = pluginOptions;
@@ -195,7 +200,7 @@ function getOptions(pluginOptions) {
     return { name: adapter.name, adapter, options };
   });
 
-  return { context, lintOnStart, checks: enabled };
+  return { context, lintOnStart, runOn, checks: enabled };
 }
 
 /**

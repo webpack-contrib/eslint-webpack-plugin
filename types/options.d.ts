@@ -74,6 +74,7 @@ export type CheckEntry = SharedOptions & {
 export type CheckOptions = SharedOptions & {
   [option: string]: EXPECTED_ANY;
 };
+export type RunOn = "build" | "watch";
 export type PluginOptions = {
   /**
    * a string indicating the root of your files
@@ -83,6 +84,10 @@ export type PluginOptions = {
    * whether the first compilation lints everything
    */
   lintOnStart?: boolean | undefined;
+  /**
+   * when the checks run
+   */
+  runOn?: RunOn | undefined;
   /**
    * the checks to run
    */
@@ -112,6 +117,10 @@ export type NormalizedOptions = {
    * whether the first compilation lints everything
    */
   lintOnStart: boolean;
+  /**
+   * when the checks run
+   */
+  runOn?: RunOn | undefined;
   /**
    * the checks to run
    */
