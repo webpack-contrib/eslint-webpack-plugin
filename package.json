@@ -9,6 +9,7 @@
     "eslint",
     "stylelint",
     "oxlint",
+    "biome",
     "typescript",
     "plugin",
     "webpack"
@@ -76,6 +77,7 @@
     "@babel/cli": "^7.29.7",
     "@babel/core": "^7.29.7",
     "@babel/preset-env": "^7.29.7",
+    "@biomejs/biome": "^2.5.13",
     "@changesets/cli": "^3.0.2",
     "@changesets/get-github-info": "^0.8.0",
     "@commitlint/cli": "^21.2.2",
@@ -104,6 +106,7 @@
     "webpack": "^5.110.3"
   },
   "peerDependencies": {
+    "@biomejs/biome": "^2.0.0",
     "eslint": "^9.0.0 || ^10.0.0",
     "oxlint": "^1.0.0",
     "stylelint": "^17.0.0",
@@ -111,6 +114,9 @@
     "webpack": "^5.0.0"
   },
   "peerDependenciesMeta": {
+    "@biomejs/biome": {
+      "optional": true
+    },
     "eslint": {
       "optional": true
     },

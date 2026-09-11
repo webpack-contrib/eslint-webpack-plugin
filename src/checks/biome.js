@@ -12,17 +12,16 @@ import { findBinary, groupByFile, runJson, splitBySeverity } from "../cli.js";
 /**
  * @typedef {object} FileResult
  * @property {string} filename the file every diagnostic of it was found in
- * @property {Diagnostic[]} diagnostics what oxlint found there
+ * @property {Diagnostic[]} diagnostics what Biome found there
  */
 
 /**
  * @typedef {object} Diagnostic
- * @property {string} message what oxlint found
- * @property {string=} code the rule it came from
- * @property {string} severity how oxlint rates it
- * @property {string} filename the file it was found in
- * @property {string=} help what oxlint suggests
- * @property {{ label?: string, span: { line: number, column: number } }[]=} labels where it is
+ * @property {string} severity how Biome rates it
+ * @property {string} message what Biome found
+ * @property {string=} category the rule it came from
+ * @property {{ path?: string, start?: { line: number, column: number } }=} location where it is
+ * @property {string} path the file it was found in, as this check reads it
  */
 
 const nodeRequire = createRequire(import.meta.url);
@@ -42,7 +41,7 @@ function getSchemas() {
     schemas = {
       plugin: nodeRequire("../options.json"),
       shared: nodeRequire("../shared-options.json"),
-      own: nodeRequire("./oxlint.json"),
+      own: nodeRequire("./biome.json"),
     };
   }
 
@@ -51,28 +50,36 @@ function getSchemas() {
 
 /**
  * @param {string} filename the file it was found in
- * @param {Diagnostic} diagnostic what oxlint found
- * @returns {string} it as one line, where oxlint's own formatters are a second run
+ * @param {Diagnostic} diagnostic what Biome found
+ * @returns {string} it as one line, Biome's own reporters being a second run
  */
 function formatDiagnostic(filename, diagnostic) {
-  const [label] = diagnostic.labels || [];
-  const at = label ? `:${label.span.line}:${label.span.column}` : "";
-  const rule = diagnostic.code ? `  ${diagnostic.code}` : "";
+  const start = diagnostic.location && diagnostic.location.start;
+  const at = start ? `:${start.line}:${start.column}` : "";
+  const rule = diagnostic.category ? `  ${diagnostic.category}` : "";
 
   return `${filename}${at}  ${diagnostic.severity}  ${diagnostic.message}${rule}`;
 }
 
 /**
  * @param {CheckContext} context check context
- * @returns {Promise<CheckInstance>} oxlint check
+ * @returns {Promise<CheckInstance>} biome check
  */
 async function create({ options }) {
-  const script = findBinary(String(options.oxlintPath || "oxlint"), "oxlint");
+  const script = findBinary(
+    String(options.biomePath || "@biomejs/biome"),
+    "biome",
+  );
   const cwd = String(options.context);
   const flags = [
-    "--format=json",
-    ...(options.configFile ? ["--config", String(options.configFile)] : []),
-    ...(options.fix ? ["--fix"] : []),
+    String(options.command || "lint"),
+    // Biome calls this reporter experimental, so a release of its own may move
+    // the shape this check reads. It is the only one that carries severities.
+    "--reporter=json",
+    ...(options.configFile
+      ? ["--config-path", String(options.configFile)]
+      : []),
+    ...(options.fix ? ["--write"] : []),
     .../** @type {string[]} */ (options.args || []),
   ];
 
@@ -82,23 +89,27 @@ async function create({ options }) {
       const found = [];
 
       for (let i = 0; i < files.length; i += FILES_PER_RUN) {
-        found.push(
-          ...((
-            await runJson(
-              script,
-              [...flags, ...files.slice(i, i + FILES_PER_RUN)],
-              cwd,
-            )
-          ).diagnostics || []),
+        const answer = await runJson(
+          script,
+          [...flags, ...files.slice(i, i + FILES_PER_RUN)],
+          cwd,
         );
+
+        found.push(...(answer.diagnostics || []));
       }
 
-      return found;
+      // A diagnostic Biome cannot put a file to is about the run rather than
+      // about the sources, and there is nothing to report it against.
+      return found.flatMap((diagnostic) => {
+        const path = diagnostic.location && diagnostic.location.path;
+
+        return path ? [{ ...diagnostic, path }] : [];
+      });
     },
     async getResults(results) {
       return groupByFile(
         /** @type {Diagnostic[]} */ (results),
-        (diagnostic) => diagnostic.filename,
+        (diagnostic) => diagnostic.path,
         cwd,
       );
     },
@@ -124,14 +135,14 @@ async function create({ options }) {
 }
 
 export default {
-  name: "oxlint",
-  label: "oxlint",
+  name: "biome",
+  label: "Biome",
   filesSource: "modules",
   get schema() {
     return getSchemas().own;
   },
   defaults: {
-    extensions: ["js", "mjs", "cjs", "jsx", "ts", "mts", "cts", "tsx"],
+    extensions: ["js", "mjs", "cjs", "jsx", "ts", "mts", "cts", "tsx", "json"],
   },
   defaultExclude: () => "**/node_modules/**",
   create,

@@ -4,6 +4,8 @@ import configs from "eslint-config-webpack/configs.js";
 export default defineConfig([
   {
     ignores: [
+      "test/biome/fixtures/**/*",
+      "test/biome/outputs/**/*",
       "test/oxlint/fixtures/**/*",
       "test/oxlint/outputs/**/*",
       "test/stylelint/fixtures/**/*",

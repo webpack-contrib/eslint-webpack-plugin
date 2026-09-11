@@ -1,0 +1,10 @@
+{
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "correctness": { "noUnusedVariables": "warn" },
+      "suspicious": { "noDebugger": "error" }
+    }
+  }
+}

@@ -17,7 +17,7 @@
 
 This plugin runs linters, type checkers and other diagnostic tools over your sources during the webpack build and reports what they find as webpack errors and warnings.
 
-It replaces `eslint-webpack-plugin` and `stylelint-webpack-plugin`: one plugin, one place to configure how problems are reported, and one pass over your project. Today it runs [`ESLint`](https://eslint.org/), [`Stylelint`](https://stylelint.io/), [`oxlint`](https://oxc.rs/docs/guide/usage/linter.html) and [`TypeScript`](https://www.typescriptlang.org/); more linters and diagnostic tools are meant to be added the same way.
+It replaces `eslint-webpack-plugin` and `stylelint-webpack-plugin`: one plugin, one place to configure how problems are reported, and one pass over your project. Today it runs [`ESLint`](https://eslint.org/), [`Stylelint`](https://stylelint.io/), [`oxlint`](https://oxc.rs/docs/guide/usage/linter.html), [`Biome`](https://biomejs.dev/) and [`TypeScript`](https://www.typescriptlang.org/); more linters and diagnostic tools are meant to be added the same way.
 
 ## Getting Started
 
@@ -41,10 +41,10 @@ pnpm add -D diagnostics-webpack-plugin
 
 > [!NOTE]
 >
-> Install the tools you want to run as well — the plugin only requires the ones you enable. It supports `eslint >= 9`, `stylelint >= 17`, `oxlint >= 1` and `typescript >= 5`:
+> Install the tools you want to run as well — the plugin only requires the ones you enable. It supports `eslint >= 9`, `stylelint >= 17`, `oxlint >= 1`, `@biomejs/biome >= 2` and `typescript >= 5`:
 
 ```console
-npm install eslint stylelint oxlint typescript --save-dev
+npm install eslint stylelint oxlint @biomejs/biome typescript --save-dev
 ```
 
 Then add the plugin to your webpack configuration and enable a check for each language you want inspected:
@@ -514,6 +514,71 @@ type args = string[];
 Arguments passed to oxlint as they are, for the flags this check does not name —
 `["--deny", "correctness"]`, say. Not `--format`: the check asks for JSON and
 formats the results itself, and oxlint declines being asked twice.
+
+## Biome
+
+Run with `{ use: "biome" }`, and requires `@biomejs/biome >= 2`. It checks the
+files webpack builds and reads whatever `biome.json` Biome finds for itself,
+reporting at Biome's own severities.
+
+```js
+new DiagnosticsPlugin({ checks: ["biome"] });
+```
+
+Like the oxlint check this runs a binary and reads the JSON it answers with,
+which Biome calls an experimental reporter — a release of its own may move the
+shape, and it is the only reporter carrying the severities this check needs.
+
+### `biomePath`
+
+- Type:
+
+```ts
+type biomePath = string;
+```
+
+- Default: `@biomejs/biome`
+
+Path to the `@biomejs/biome` instance that will be used for checking.
+
+### `command`
+
+- Type:
+
+```ts
+type command = "lint" | "check";
+```
+
+- Default: `"lint"`
+
+Which of Biome's commands to run. `"lint"` runs the linter; `"check"` adds its
+formatting and assist diagnostics, so a badly formatted file is reported as well
+as one breaking a rule.
+
+### `configFile`
+
+- Type:
+
+```ts
+type configFile = string;
+```
+
+- Default: unset, leaving Biome to find its own
+
+Path to the `biome.json` to check with.
+
+### `args`
+
+- Type:
+
+```ts
+type args = string[];
+```
+
+- Default: `[]`
+
+Arguments passed to Biome as they are, for the flags this check does not name.
+Not `--reporter`: the check asks for JSON and formats the results itself.
 
 ## TypeScript
 

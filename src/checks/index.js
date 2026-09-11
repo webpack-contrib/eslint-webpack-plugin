@@ -1,6 +1,7 @@
 // eslint-disable-next-line jsdoc/reject-any-type
 /** @typedef {any} EXPECTED_ANY */
 
+import biome from "./biome.js";
 import eslint from "./eslint.js";
 import oxlint from "./oxlint.js";
 import stylelint from "./stylelint.js";
@@ -65,6 +66,7 @@ import typescript from "./typescript.js";
 
 /** @type {Map<string, CheckAdapter>} */
 const adapters = new Map([
+  [biome.name, /** @type {CheckAdapter} */ (biome)],
   [eslint.name, /** @type {CheckAdapter} */ (eslint)],
   [oxlint.name, /** @type {CheckAdapter} */ (oxlint)],
   [stylelint.name, /** @type {CheckAdapter} */ (stylelint)],
