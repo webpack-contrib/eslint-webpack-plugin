@@ -129,8 +129,8 @@ describe("unified plugin", () => {
   it("should run the same check more than once", async () => {
     const compiler = pack("both", {
       checks: [
-        { ...eslint, files: "bad.js" },
-        { ...eslint, files: "index.js" },
+        { ...eslint, include: "bad.js" },
+        { ...eslint, include: "index.js" },
       ],
     });
     const stats = await compiler.runAsync();

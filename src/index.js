@@ -29,6 +29,7 @@ import {
  * @property {CheckOptions} options options resolved for this check
  * @property {string[]} wanted the globs of the files to lint
  * @property {string[]} exclude the globs of the files not to lint
+ * @property {"modules" | "glob"} filesSource where the check's files come from
  * @property {(file: string) => boolean} isWanted whether a path is one to lint
  * @property {(file: string) => boolean} isExcluded whether a path is left out
  */
@@ -142,7 +143,7 @@ class DiagnosticsWebpackPlugin {
         ? parseFiles(options.exclude, context)
         : adapter.defaultExclude(compiler),
       extensions: arrify(options.extensions),
-      files: parseFiles(options.files || "", context),
+      include: parseFiles(options.include || "", context),
       resourceQueryExclude: resourceQueries.map(
         (/** @type {RegExp | string} */ item) =>
           item instanceof RegExp ? item : new RegExp(item),
@@ -150,7 +151,7 @@ class DiagnosticsWebpackPlugin {
     };
 
     const wanted = parseFoldersToGlobs(
-      /** @type {string[]} */ (resolved.files),
+      /** @type {string[]} */ (resolved.include),
       resolved.extensions,
     );
     const exclude = parseFoldersToGlobs(
@@ -161,6 +162,9 @@ class DiagnosticsWebpackPlugin {
       name,
       adapter,
       options: resolved,
+      // A check told which files to check looks at all of them, whether or not
+      // webpack built them, whatever the check reads by itself.
+      filesSource: options.include ? "glob" : adapter.filesSource,
       wanted,
       exclude,
       // Compiled here rather than per call: the two run on every module of
@@ -186,7 +190,7 @@ class DiagnosticsWebpackPlugin {
       // Globbing the file system does not depend on the module graph, so a
       // child compilation would only lint what its parent already did.
       const enabled = compilation.compiler.isChild()
-        ? checks.filter(({ adapter }) => adapter.filesSource === "modules")
+        ? checks.filter((check) => check.filesSource === "modules")
         : checks;
 
       if (enabled.length === 0) return;
@@ -221,8 +225,9 @@ class DiagnosticsWebpackPlugin {
 
         return {
           ...check,
-          /** @type {string[]} */
-          files: [],
+          // Asked of every module of every build, so a set rather than a scan.
+          /** @type {Set<string>} */
+          seen: new Set(),
           pending,
           kept,
           flush,
@@ -231,7 +236,7 @@ class DiagnosticsWebpackPlugin {
       });
 
       const fromModules = runners.filter(
-        ({ adapter }) => adapter.filesSource === "modules",
+        (check) => check.filesSource === "modules",
       );
 
       if (fromModules.length > 0) {
@@ -249,8 +254,8 @@ class DiagnosticsWebpackPlugin {
           if (!file) return;
 
           for (const check of fromModules) {
-            const { files, options } = check;
-            const isFileNotListed = !files.includes(file);
+            const { options, seen } = check;
+            const isFileNotListed = !seen.has(file);
             const isFileWanted =
               check.isWanted(file) && !check.isExcluded(file);
             const isQueryNotExclude = /** @type {RegExp[]} */ (
@@ -258,7 +263,7 @@ class DiagnosticsWebpackPlugin {
             ).every((reg) => !reg.test(query));
 
             if (isFileNotListed && isFileWanted && isQueryNotExclude) {
-              files.push(file);
+              seen.add(file);
               (rebuilt ? check.pending : check.kept).push(file);
               check.flush();
             }
@@ -279,7 +284,7 @@ class DiagnosticsWebpackPlugin {
 
       // Nothing globbed from the file system waits on the module graph.
       for (const check of runners) {
-        if (check.adapter.filesSource === "modules") continue;
+        if (check.filesSource === "modules") continue;
 
         const files = collectFromFileSystem(compiler, check);
 

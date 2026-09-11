@@ -32,17 +32,6 @@
         }
       ]
     },
-    "files": {
-      "description": "Specify the files and/or directories to traverse. Must be relative to `options.context`.",
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "array"
-        }
-      ]
-    },
     "fix": {
       "description": "Will enable the autofix feature of the tool.",
       "type": "boolean"
@@ -58,6 +47,17 @@
         },
         {
           "instanceof": "Promise"
+        }
+      ]
+    },
+    "include": {
+      "description": "Specify directories, files, or globs to check. Must be relative to `context`. Naming them checks every file they match, whether or not webpack built it; left unset, a check reads whatever it reads by itself.",
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array"
         }
       ]
     },

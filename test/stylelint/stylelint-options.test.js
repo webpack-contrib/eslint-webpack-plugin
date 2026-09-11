@@ -18,7 +18,10 @@ describe("eslint options", () => {
     const options = {
       stylelintPath: "some/place/where/stylelint/lives",
       formatter: "json",
+      // Stylelint's own option, which each lint names for itself anyway.
       files: ["file.scss"],
+      // The plugin's, which Stylelint is never told about.
+      include: ["other.scss"],
       reportAs: false,
       outputReport: true,
     };

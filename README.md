@@ -113,7 +113,7 @@ type context = string;
 
 - Default: `compiler.context`
 
-Base directory for linting. Every relative `files` and `exclude` pattern is resolved against it.
+Base directory for linting. Every relative `include` and `exclude` pattern is resolved against it.
 
 #### `lintOnStart`
 
@@ -193,19 +193,29 @@ type cacheLocation = string;
 
 Specify the path to the cache location. Can be a file or a directory.
 
-#### `files`
+#### `include`
 
 - Type:
 
 ```ts
-type files = string | string[];
+type include = string | string[];
 ```
 
-- Default: `options.context`
+- Default: unset
 
-Specify directories, files, or globs. Must be relative to `options.context`.
-Directories are traversed recursively looking for files matching `options.extensions`.
-File and glob patterns ignore `options.extensions`.
+Specify directories, files, or globs to check. Must be relative to
+[`context`](#context). Directories are traversed recursively looking for files
+matching [`extensions`](#extensions); file and glob patterns ignore them.
+
+Naming them says what to check, so every file they match is checked whether or
+not webpack built it — a module nothing imports yet, or one reached through a
+loader webpack resolves differently, is checked all the same. Leave it unset and
+a check reads whatever it reads by itself: ESLint the modules webpack built,
+Stylelint a walk of the context.
+
+The name is the one the rest of the ecosystem uses, and a check's own `files`
+option is left to the check: write `files` for Stylelint and Stylelint is given
+it, untouched by the plugin.
 
 #### `extensions`
 
@@ -443,7 +453,7 @@ Suppressions need ESLint 9.24 or later. ESLint 10 takes both options itself; bel
 
 ## Stylelint
 
-Run with `{ use: "stylelint" }`, and requires `stylelint >= 17`. It lints every file matching `files` and `extensions` on disk, whether or not webpack imported it, so a stylesheet nothing imports yet is still checked.
+Run with `{ use: "stylelint" }`, and requires `stylelint >= 17`. It lints every file matching `include` and `extensions` on disk, whether or not webpack imported it, so a stylesheet nothing imports yet is still checked.
 
 Alongside the shared options you can pass any [Stylelint option](https://stylelint.io/user-guide/usage/node-api#options) — they are handed to `stylelint.lint()` as they are.
 
@@ -476,7 +486,7 @@ Such an adapter is an object with a `name`, and a `create` returning the five fu
 ```js
 module.exports = {
   name: "made-up",
-  // "modules" lints the files webpack built, "glob" every file matching `files`
+  // "modules" lints the files webpack built, "glob" every file matching `include`
   filesSource: "glob",
   // Merged under the options the user passes, and under the shared options
   defaults: { extensions: ["ts"] },
@@ -546,7 +556,7 @@ Every option `eslint-webpack-plugin` accepted, and where it is now:
 | `extensions`           | Unchanged, shared. Still defaults to `js`.                                                                       |
 | `failOnError`          | [`reportAs`](#reportas). It defaulted to on outside `development` mode; the default no longer depends on `mode`. |
 | `failOnWarning`        | [`reportAs`](#reportas), see the table above.                                                                    |
-| `files`                | Unchanged, shared.                                                                                               |
+| `files`                | [`include`](#include), shared. A check's own `files` now reaches the check itself.                               |
 | `fix`                  | Unchanged, shared.                                                                                               |
 | `formatter`            | Unchanged, shared.                                                                                               |
 | `lintDirtyModulesOnly` | [`lintOnStart`](#lintonstart), inverted: `lintDirtyModulesOnly: true` is `lintOnStart: false`. Top level.        |
@@ -585,7 +595,7 @@ Every option `stylelint-webpack-plugin` accepted, and where it is now:
 | `extensions`           | Unchanged, shared. Still defaults to `css`, `scss` and `sass`.                                            |
 | `failOnError`          | [`reportAs`](#reportas). It defaulted to on in every mode, and the default is still to fail on an error.  |
 | `failOnWarning`        | [`reportAs`](#reportas), see the table above.                                                             |
-| `files`                | Unchanged, shared.                                                                                        |
+| `files`                | [`include`](#include), shared. A check's own `files` now reaches the check itself.                        |
 | `formatter`            | Unchanged, shared.                                                                                        |
 | `lintDirtyModulesOnly` | [`lintOnStart`](#lintonstart), inverted: `lintDirtyModulesOnly: true` is `lintOnStart: false`. Top level. |
 | `outputReport`         | Unchanged, shared. It is still written even when `reportAs` is `false`.                                   |
@@ -598,7 +608,7 @@ Any other option is passed to Stylelint itself, as before. Two more things chang
 - **Stylelint 17 or later is required.** `stylelint-webpack-plugin` accepted `13` through `17`; the merged plugin drops the older majors rather than carrying their compatibility branches forward. Stylelint 17 itself needs Node `>= 20.19`.
 - **Errors and warnings are no longer swapped.** `failOnError: false` used to report errors as webpack warnings, and `failOnWarning: true` to report warnings as webpack errors. Each result now keeps its own severity unless [`reportAs`](#reportas) says otherwise — which is what those two spellings in the table above do, explicitly.
 
-[`fix`](#fix) is a documented option now rather than one passed through to Stylelint unnamed. [`resourceQueryExclude`](#resourcequeryexclude) is shared but has no effect here: it reads the query of a module webpack built, and Stylelint is given the files matching `files` instead.
+[`fix`](#fix) is a documented option now rather than one passed through to Stylelint unnamed. [`resourceQueryExclude`](#resourcequeryexclude) is shared but has no effect here: it reads the query of a module webpack built, and Stylelint is given the files matching `include` instead.
 
 ### Running both
 
