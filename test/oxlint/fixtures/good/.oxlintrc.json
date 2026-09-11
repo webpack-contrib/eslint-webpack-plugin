@@ -1,0 +1,1 @@
+{ "rules": { "no-debugger": "error", "no-unused-vars": "warn" } }
