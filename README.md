@@ -346,7 +346,11 @@ new DiagnosticsPlugin({
 
 Run with `{ use: "eslint" }`. It lints the files webpack builds, so only the modules that end up in the bundle are checked.
 
-Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are. `concurrency` is worth knowing about: it spreads a lint across worker threads, and ESLint warns on the runs where doing so costs more than it saves, so measure your own project rather than turning it on by default.
+Alongside the shared options you can pass any [ESLint Node.js API option](https://eslint.org/docs/latest/integrate/nodejs-api#-new-eslintoptions) — they are handed to the `ESLint` class as they are.
+
+One of them is asked for on your behalf. ESLint's own `concurrency` spreads a lint across threads of its own, and ESLint leaves it `"off"`, which lints on the thread webpack builds on: over three hundred modules that blocks the build for about a second and costs it around fifteen per cent. So `"auto"` is asked for where the loaded ESLint knows the option — 9.34.0 and above, flat config — and whatever you write yourself is passed through untouched, `"off"` included. Pin a number rather than `"auto"` and ESLint may answer with `ESLintPoorConcurrencyWarning`: it sizes `"auto"` against the machine, while a fixed count can end up fighting webpack for the same cores and running slower than no threads at all.
+
+Note that webpack spells this idea `parallelism`, and means something else again by the word concurrency — bounded work on one thread. This option is ESLint's, with ESLint's meaning.
 
 A rebuild lints only the files webpack rebuilt and reports the rest from the previous run, so [`lintOnStart`](#lintonstart) is only worth setting to start a watch run quiet.
 

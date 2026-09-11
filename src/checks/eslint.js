@@ -137,6 +137,18 @@ async function loadFormatter(eslint, formatter) {
 }
 
 /**
+ * Whether the loaded ESLint spreads a lint across threads of its own, which it
+ * has done under `concurrency` since 9.34.0.
+ * @param {string} version the loaded ESLint's version
+ * @returns {boolean} whether `concurrency` is an option it knows
+ */
+function spreadsItsOwnLint(version) {
+  const [major, minor] = version.split(".").map(Number);
+
+  return major > 9 || (major === 9 && minor >= 34);
+}
+
+/**
  * @param {Options} options plugin options
  * @returns {ESLintOptions} the options ESLint itself understands
  */
@@ -192,6 +204,16 @@ async function create({ options }) {
     );
     delete eslintOptions.applySuppressions;
     delete eslintOptions.suppressionsLocation;
+  }
+
+  // ESLint leaves a lint on the thread it was called from, which is the one
+  // webpack builds on, so it is asked for threads unless the user said otherwise.
+  if (
+    eslintOptions.concurrency === undefined &&
+    options.configType === "flat" &&
+    spreadsItsOwnLint(ESLint.version)
+  ) {
+    eslintOptions.concurrency = "auto";
   }
 
   const eslint = new ESLint(eslintOptions);
