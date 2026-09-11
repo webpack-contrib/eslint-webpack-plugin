@@ -4,8 +4,14 @@
 /node_modules
 /test/fixtures
 /test/outputs
+/test/biome/fixtures
+/test/biome/outputs
+/test/oxlint/fixtures
+/test/oxlint/outputs
 /test/stylelint/fixtures
 /test/stylelint/outputs
+/test/typescript/fixtures
+/test/typescript/outputs
 /test/unified/fixtures
 /test/unified/outputs
 CHANGELOG.md

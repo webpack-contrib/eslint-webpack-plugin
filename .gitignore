@@ -11,8 +11,11 @@ yarn-debug.log*
 /reports
 /node_modules
 /test/fixtures/*-suppressions.json
+/test/biome/outputs
 /test/outputs
+/test/oxlint/outputs
 /test/stylelint/outputs
+/test/typescript/outputs
 /test/unified/outputs
 
 .DS_Store

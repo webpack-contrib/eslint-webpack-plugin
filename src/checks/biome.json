@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "biomePath": {
+      "description": "Path to the `@biomejs/biome` instance that will be used for checking.",
+      "type": "string"
+    },
+    "command": {
+      "description": "Which of Biome's commands to run: `\"lint\"` runs the linter, `\"check\"` adds its formatting and assist diagnostics.",
+      "enum": ["lint", "check"]
+    },
+    "configFile": {
+      "description": "Path to the `biome.json` to check with. Biome finds its own when unset.",
+      "type": "string"
+    },
+    "args": {
+      "description": "Arguments passed to Biome as they are, for the flags this check does not name.",
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}
