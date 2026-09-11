@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "typescriptPath": {
+      "description": "Path to the `typescript` instance that will be used for checking.",
+      "type": "string"
+    },
+    "configFile": {
+      "description": "Path to the `tsconfig.json` that describes the program. Searched for upwards from `context` when unset.",
+      "type": "string"
+    },
+    "compilerOptions": {
+      "description": "Compiler options to override the ones the config file sets.",
+      "type": "object"
+    }
+  }
+}

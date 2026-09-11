@@ -8,6 +8,7 @@
     "linter",
     "eslint",
     "stylelint",
+    "typescript",
     "plugin",
     "webpack"
   ],
@@ -103,6 +104,7 @@
   "peerDependencies": {
     "eslint": "^9.0.0 || ^10.0.0",
     "stylelint": "^17.0.0",
+    "typescript": "^5.0.0 || ^6.0.0",
     "webpack": "^5.0.0"
   },
   "peerDependenciesMeta": {
@@ -110,6 +112,9 @@
       "optional": true
     },
     "stylelint": {
+      "optional": true
+    },
+    "typescript": {
       "optional": true
     }
   },

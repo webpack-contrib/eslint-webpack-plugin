@@ -17,7 +17,7 @@
 
 This plugin runs linters, type checkers and other diagnostic tools over your sources during the webpack build and reports what they find as webpack errors and warnings.
 
-It replaces `eslint-webpack-plugin` and `stylelint-webpack-plugin`: one plugin, one place to configure how problems are reported, and one pass over your project. Today it runs [`ESLint`](https://eslint.org/) and [`Stylelint`](https://stylelint.io/); more linters and diagnostic tools are meant to be added the same way.
+It replaces `eslint-webpack-plugin` and `stylelint-webpack-plugin`: one plugin, one place to configure how problems are reported, and one pass over your project. Today it runs [`ESLint`](https://eslint.org/), [`Stylelint`](https://stylelint.io/) and [`TypeScript`](https://www.typescriptlang.org/); more linters and diagnostic tools are meant to be added the same way.
 
 ## Getting Started
 
@@ -41,10 +41,10 @@ pnpm add -D diagnostics-webpack-plugin
 
 > [!NOTE]
 >
-> Install the linters you want to run as well — the plugin only requires the ones you enable. It supports `eslint >= 9` and `stylelint >= 17`:
+> Install the tools you want to run as well — the plugin only requires the ones you enable. It supports `eslint >= 9`, `stylelint >= 17` and `typescript >= 5`:
 
 ```console
-npm install eslint stylelint --save-dev
+npm install eslint stylelint typescript --save-dev
 ```
 
 Then add the plugin to your webpack configuration and enable a check for each language you want inspected:
@@ -458,6 +458,68 @@ type stylelintPath = string;
 - Default: `stylelint`
 
 Path to the `stylelint` instance that will be used for linting.
+
+## TypeScript
+
+Run with `{ use: "typescript" }`, and requires `typescript >= 5`. It type checks
+the program a `tsconfig.json` describes, so every file that config includes is
+checked whether or not webpack built it, and a type error in a module nothing
+imports yet is still reported. Emit is forced off: webpack writes the output.
+
+```js
+new DiagnosticsPlugin({
+  checks: [{ use: "typescript", configFile: "tsconfig.build.json" }],
+});
+```
+
+Two things differ from the linters. A diagnostic belongs to the program rather
+than to one file, so there is nothing to report a single file from and the
+program is rebuilt whenever a checked file changes — [`threads`](#threads) is
+not honoured either, since TypeScript spreads its own work. And `extensions`
+only decides which files make the check run at all; what is checked is whatever
+the config file includes.
+
+Alongside the shared options you can pass any
+[compiler option](https://www.typescriptlang.org/tsconfig/) — they override what
+the config file sets, as `--strict` would on the command line.
+
+### `typescriptPath`
+
+- Type:
+
+```ts
+type typescriptPath = string;
+```
+
+- Default: `typescript`
+
+Path to the `typescript` instance that will be used for checking.
+
+### `configFile`
+
+- Type:
+
+```ts
+type configFile = string;
+```
+
+- Default: the nearest `tsconfig.json` at or above [`context`](#context)
+
+Path to the `tsconfig.json` that describes the program.
+
+### `compilerOptions`
+
+- Type:
+
+```ts
+type compilerOptions = object;
+```
+
+- Default: unset
+
+Compiler options overriding the ones the config file sets. The same as writing
+them at the top level of the check, and useful when a name collides with one of
+the plugin's own.
 
 ## Adding a check
 

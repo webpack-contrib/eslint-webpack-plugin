@@ -43,7 +43,7 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
  */
 
 /**
- * @typedef {SharedOptions & { use: string | CheckAdapterInput, [option: string]: EXPECTED_ANY }} CheckEntry
+ * @typedef {string | (SharedOptions & { use: string | CheckAdapterInput, [option: string]: EXPECTED_ANY })} CheckEntry
  */
 
 /**
@@ -106,7 +106,11 @@ function getSchemas() {
         properties: {
           ...pluginProperties,
           ...sharedSchema.properties,
-          checks: { ...pluginProperties.checks, items: entrySchema },
+          checks: {
+            ...pluginProperties.checks,
+            // A check is named, or written out with the options it takes.
+            items: { anyOf: [{ type: "string" }, entrySchema] },
+          },
         },
         required: ["checks"],
       },
@@ -188,7 +192,8 @@ function getOptions(pluginOptions) {
   } = pluginOptions;
 
   const enabled = entries.map((entry) => {
-    const { use, ...own } = entry;
+    // A check with nothing to configure is named rather than written out.
+    const { use, ...own } = typeof entry === "string" ? { use: entry } : entry;
     const adapter = toAdapter(use);
 
     /** @type {CheckOptions} */
@@ -229,6 +234,9 @@ function validateOptions(compiler, pluginOptions, checks) {
   });
 
   for (const [index, entry] of (pluginOptions.checks || []).entries()) {
+    // A check named rather than written out carries no options to check.
+    if (typeof entry === "string") continue;
+
     const { adapter } = checks[index];
 
     check(
