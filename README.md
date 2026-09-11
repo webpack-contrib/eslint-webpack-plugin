@@ -207,6 +207,12 @@ Specify directories, files, or globs. Must be relative to `options.context`.
 Directories are traversed recursively looking for files matching `options.extensions`.
 File and glob patterns ignore `options.extensions`.
 
+Naming them says what to check, so every file they match is checked whether or
+not webpack built it — a module nothing imports yet, or one reached through a
+loader webpack resolves differently, is checked all the same. Leave it unset and
+a check reads whatever it reads by itself: ESLint the modules webpack built,
+Stylelint a walk of the context.
+
 #### `extensions`
 
 - Type:

@@ -29,6 +29,7 @@ import {
  * @property {CheckOptions} options options resolved for this check
  * @property {string[]} wanted the globs of the files to lint
  * @property {string[]} exclude the globs of the files not to lint
+ * @property {"modules" | "glob"} filesSource where the check's files come from
  * @property {(file: string) => boolean} isWanted whether a path is one to lint
  * @property {(file: string) => boolean} isExcluded whether a path is left out
  */
@@ -161,6 +162,9 @@ class DiagnosticsWebpackPlugin {
       name,
       adapter,
       options: resolved,
+      // A check told which files to check looks at all of them, whether or not
+      // webpack built them, whatever the check reads by itself.
+      filesSource: options.files ? "glob" : adapter.filesSource,
       wanted,
       exclude,
       // Compiled here rather than per call: the two run on every module of
@@ -186,7 +190,7 @@ class DiagnosticsWebpackPlugin {
       // Globbing the file system does not depend on the module graph, so a
       // child compilation would only lint what its parent already did.
       const enabled = compilation.compiler.isChild()
-        ? checks.filter(({ adapter }) => adapter.filesSource === "modules")
+        ? checks.filter((check) => check.filesSource === "modules")
         : checks;
 
       if (enabled.length === 0) return;
@@ -231,7 +235,7 @@ class DiagnosticsWebpackPlugin {
       });
 
       const fromModules = runners.filter(
-        ({ adapter }) => adapter.filesSource === "modules",
+        (check) => check.filesSource === "modules",
       );
 
       if (fromModules.length > 0) {
@@ -279,7 +283,7 @@ class DiagnosticsWebpackPlugin {
 
       // Nothing globbed from the file system waits on the module graph.
       for (const check of runners) {
-        if (check.adapter.filesSource === "modules") continue;
+        if (check.filesSource === "modules") continue;
 
         const files = collectFromFileSystem(compiler, check);
 
