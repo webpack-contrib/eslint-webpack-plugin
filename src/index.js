@@ -104,24 +104,24 @@ class DiagnosticsWebpackPlugin {
       return checks;
     };
 
-    // If `lintDirtyModulesOnly` is disabled,
-    // execute the checks on the build
-    if (!this.options.lintDirtyModulesOnly) {
-      compiler.hooks.run.tapPromise(this.key, (compiler) =>
-        this.run(compiler, getChecks()),
-      );
-    }
+    // A build is nothing but a first compilation, so `lintOnStart` cannot
+    // silence one without silencing the plugin.
+    compiler.hooks.run.tapPromise(this.key, (compiler) =>
+      this.run(compiler, getChecks()),
+    );
 
-    let hasCompilerRunByDirtyModule = this.options.lintDirtyModulesOnly;
+    // A lint integration whose bundler reaches a file only once something
+    // requests it defaults this off; webpack's first build walks all of them.
+    let skipping = !this.options.lintOnStart;
 
     compiler.hooks.watchRun.tapPromise(this.key, (compiler) => {
-      if (!hasCompilerRunByDirtyModule) {
-        return this.run(compiler, getChecks());
+      if (skipping) {
+        skipping = false;
+
+        return Promise.resolve();
       }
 
-      hasCompilerRunByDirtyModule = false;
-
-      return Promise.resolve();
+      return this.run(compiler, getChecks());
     });
   }
 
@@ -270,7 +270,7 @@ class DiagnosticsWebpackPlugin {
         );
 
         // A module webpack did not rebuild is reported from the last run.
-        if (!this.options.lintDirtyModulesOnly) {
+        if (this.options.lintOnStart) {
           compilation.hooks.stillValidModule.tap(this.key, (module) =>
             addFile(module, false),
           );

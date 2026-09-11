@@ -53,7 +53,7 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
 /**
  * @typedef {object} PluginOptions
  * @property {string=} context a string indicating the root of your files
- * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
+ * @property {boolean=} lintOnStart whether the first compilation lints everything
  * @property {CheckEntry[]} checks the checks to run
  */
 
@@ -69,7 +69,7 @@ const PLUGIN_NAME = "Diagnostics Webpack Plugin";
 /**
  * @typedef {object} NormalizedOptions
  * @property {string=} context a string indicating the root of your files
- * @property {boolean=} lintDirtyModulesOnly lint only changed files, skip linting on start
+ * @property {boolean} lintOnStart whether the first compilation lints everything
  * @property {EnabledCheck[]} checks the checks to run
  */
 
@@ -180,7 +180,7 @@ function toAdapter(use) {
 function getOptions(pluginOptions) {
   const {
     context,
-    lintDirtyModulesOnly,
+    lintOnStart = true,
     checks: entries = [],
     ...shared
   } = pluginOptions;
@@ -195,7 +195,7 @@ function getOptions(pluginOptions) {
     return { name: adapter.name, adapter, options };
   });
 
-  return { context, lintDirtyModulesOnly, checks: enabled };
+  return { context, lintOnStart, checks: enabled };
 }
 
 /**
