@@ -17,7 +17,7 @@
 
 This plugin runs linters, type checkers and other diagnostic tools over your sources during the webpack build and reports what they find as webpack errors and warnings.
 
-It replaces `eslint-webpack-plugin` and `stylelint-webpack-plugin`: one plugin, one place to configure how problems are reported, and one pass over your project. Today it runs [`ESLint`](https://eslint.org/), [`Stylelint`](https://stylelint.io/) and [`TypeScript`](https://www.typescriptlang.org/); more linters and diagnostic tools are meant to be added the same way.
+It replaces `eslint-webpack-plugin` and `stylelint-webpack-plugin`: one plugin, one place to configure how problems are reported, and one pass over your project. Today it runs [`ESLint`](https://eslint.org/), [`Stylelint`](https://stylelint.io/), [`oxlint`](https://oxc.rs/docs/guide/usage/linter.html) and [`TypeScript`](https://www.typescriptlang.org/); more linters and diagnostic tools are meant to be added the same way.
 
 ## Getting Started
 
@@ -41,10 +41,10 @@ pnpm add -D diagnostics-webpack-plugin
 
 > [!NOTE]
 >
-> Install the tools you want to run as well — the plugin only requires the ones you enable. It supports `eslint >= 9`, `stylelint >= 17` and `typescript >= 5`:
+> Install the tools you want to run as well — the plugin only requires the ones you enable. It supports `eslint >= 9`, `stylelint >= 17`, `oxlint >= 1` and `typescript >= 5`:
 
 ```console
-npm install eslint stylelint typescript --save-dev
+npm install eslint stylelint oxlint typescript --save-dev
 ```
 
 Then add the plugin to your webpack configuration and enable a check for each language you want inspected:
@@ -458,6 +458,62 @@ type stylelintPath = string;
 - Default: `stylelint`
 
 Path to the `stylelint` instance that will be used for linting.
+
+## oxlint
+
+Run with `{ use: "oxlint" }`, and requires `oxlint >= 1`. It lints the files
+webpack builds, as the ESLint check does, and reads whatever `.oxlintrc.json`
+oxlint finds for itself.
+
+```js
+new DiagnosticsPlugin({ checks: ["eslint", "oxlint"] });
+```
+
+oxlint is a binary behind a Node entry rather than a library, so this check runs
+it and reads the JSON it answers with. Two things follow. Its severities are
+oxlint's own — a rule set to `"error"` in `.oxlintrc.json` is reported as a
+webpack error and one set to `"warn"` as a warning, and [`reportAs`](#reportas)
+moves them from there as it does for every check. And the options this check does
+not name are not guessed at: write them as [`args`](#args), the flags oxlint
+itself documents.
+
+### `oxlintPath`
+
+- Type:
+
+```ts
+type oxlintPath = string;
+```
+
+- Default: `oxlint`
+
+Path to the `oxlint` instance that will be used for linting.
+
+### `configFile`
+
+- Type:
+
+```ts
+type configFile = string;
+```
+
+- Default: unset, leaving oxlint to find its own
+
+Path to the `.oxlintrc.json` to lint with.
+
+### `args`
+
+- Type:
+
+```ts
+type args = string[];
+```
+
+- Default: `[]`
+
+Arguments passed to oxlint as they are, for the flags this check does not name —
+`["--deny", "correctness"]`, say. Not `--format`: the check asks for JSON and
+formats the results itself, and oxlint declines being asked twice.
 
 ## TypeScript
 
